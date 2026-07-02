@@ -5,19 +5,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..api_client import call_vlm, extract_json_from_response
-from ..config import DEFAULT_MODEL
-from ..schemas import StageResult, StepRaw
-
-
-def normalize_steps_raw(steps_raw: list[dict[str, Any] | StepRaw]) -> list[StepRaw]:
-    steps: list[StepRaw] = []
-    for i, item in enumerate(steps_raw):
-        if isinstance(item, StepRaw):
-            steps.append(item)
-        else:
-            steps.append(StepRaw.from_dict(item, i))
-    return steps
+from ..utils.api_client import call_vlm, extract_json_from_response
+from ..utils.config import DEFAULT_MODEL
+from ..utils.schemas import StageResult
 
 
 def as_list(value: Any) -> list[Any]:
@@ -82,13 +72,3 @@ def call_json_stage(
         temperature=temperature,
     )
     return make_stage(name, raw, usage, fallback=fallback)
-
-
-def previous_steps_context(steps: list[StepRaw], current_index: int) -> str:
-    if not steps:
-        return ""
-    lines = []
-    for step in steps:
-        marker = "current" if step.index == current_index else "other"
-        lines.append(f"- Step {step.index} ({marker}): {step.description}")
-    return "Other task steps for context:\n" + "\n".join(lines) + "\n\n"

@@ -1,0 +1,77 @@
+﻿[
+    {
+        "episode_id":  "episode_000000",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000001",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000002",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000003",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000004",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000005",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000006",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000007",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000008",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000009",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000010",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000011",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000012",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000013",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    },
+    {
+        "episode_id":  "episode_000014",
+        "video_path":  "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
+        "task":  "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+    }
+]

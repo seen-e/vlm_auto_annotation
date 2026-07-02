@@ -1,7 +1,6 @@
-"""Flow 01: FineVLA standard two-stage annotation.
+"""Single-view no-steps-raw annotation flow adapted from FineVLA.
 
-Use this when a task has one usable global-view video and no pre-segmented
-``steps_raw``. It mirrors FineVLA's analysis -> refinement path.
+Flow: single_view_no_steps_raw = analysis -> refinement.
 """
 
 from __future__ import annotations
@@ -9,7 +8,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..config import DEFAULT_ANALYSIS_FPS, DEFAULT_MAX_FRAMES, DEFAULT_MODEL, DEFAULT_REFINEMENT_FPS
 from ..prompts_cn import (
     ACTION_FINE_GRAINED_GUIDANCE,
     ACTION_VOCABULARY,
@@ -19,12 +17,13 @@ from ..prompts_cn import (
     REFINEMENT_PROMPT_TEMPLATE,
     REFINEMENT_SYSTEM_PROMPT,
 )
-from ..schemas import AnnotationResult
-from ..video_utils import load_video_as_image_parts
+from ..utils.config import DEFAULT_ANALYSIS_FPS, DEFAULT_MAX_FRAMES, DEFAULT_MODEL, DEFAULT_REFINEMENT_FPS
+from ..utils.schemas import AnnotationResult
+from ..utils.video_utils import load_video_as_image_parts
 from .utils import as_str_list, call_json_stage, instruction_from_steps
 
 
-def run_standard_two_stage(
+def run_single_view_no_steps_raw(
     client,
     video_path: str | Path,
     initial_instruction: str,
@@ -34,7 +33,7 @@ def run_standard_two_stage(
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
     max_frames: int = DEFAULT_MAX_FRAMES,
 ) -> AnnotationResult:
-    """Run global analysis followed by fine-grained refinement."""
+    """Run analysis -> refinement on one main/global view."""
     analysis_parts, analysis_meta = load_video_as_image_parts(
         video_path,
         target_fps=analysis_fps,
@@ -85,7 +84,7 @@ def run_standard_two_stage(
         refined_instruction = instruction_from_steps(steps)
 
     output: dict[str, Any] = {
-        "flow": "standard_two_stage",
+        "flow": "single_view_no_steps_raw",
         "initialInstruction": initial_instruction,
         "analysisResult": {
             "action_sequence": action_sequence,
@@ -99,7 +98,11 @@ def run_standard_two_stage(
         },
     }
     return AnnotationResult(
-        flow_name="flow_01_standard_two_stage",
+        flow_name="single_view_no_steps_raw",
         stages={"analysis": analysis, "refinement": refinement},
         output=output,
     )
+
+
+# Backward-compatible alias for older callers.
+run_standard_two_stage = run_single_view_no_steps_raw

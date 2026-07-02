@@ -1,32 +1,8 @@
-"""Shared dataclasses for the four annotation flows."""
+"""Shared dataclasses for no-steps-raw annotation flows."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
-
-
-@dataclass
-class StepRaw:
-    """One pre-segmented action step."""
-
-    index: int
-    description: str
-    start: int = 0
-    end: int | None = None
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any], default_index: int = 0) -> "StepRaw":
-        desc = data.get("desc", data.get("description", ""))
-        if "@" in desc:
-            desc = desc.split("@")[-1].strip()
-        end = data.get("end", data.get("frame_end"))
-        return cls(
-            index=int(data.get("i", data.get("step_index", default_index))),
-            description=str(desc).strip(),
-            start=int(data.get("start", data.get("frame_start", 0))),
-            end=int(end) if end is not None else None,
-        )
 
 
 @dataclass

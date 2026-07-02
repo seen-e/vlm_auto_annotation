@@ -1,62 +1,69 @@
 # VLM Auto Annotation
 
-This package reorganizes FineVLA-style automatic VLA annotation into four named
-flows. Prompts live in `prompts_cn/`; flow implementations live in `flows/`.
+This package currently implements the no-`steps_raw` part of the FineVLA-style
+automatic annotation pipeline.
 
-## Flow Selection
+Prompts live in `prompts_cn/`; flow implementations live in `flows/`; shared
+runtime helpers live in `utils/`.
 
-| Flow | File | Use case | Core stages |
+## Implemented Flows
+
+| Flow | Function | Use case | Stages |
 |---|---|---|---|
-| 01 | `flows/flow_01_standard_two_stage.py` | single/main view, no `steps_raw` | analysis -> refinement |
-| 02 | `flows/flow_02_multiview_three_stage.py` | main view + wrist/detail view, no `steps_raw` | analysis -> main refinement -> detail correction |
-| 03 | `flows/flow_03_stepwise_single_view.py` | single/main view with `steps_raw` | per-step refinement -> dedup |
-| 04 | `flows/flow_04_stepwise_multiview.py` | multiple synchronized views with `steps_raw` | main per-step refinement -> auxiliary-view verification -> dedup -> QC |
+| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | one main/global view, no `steps_raw` | `analysis -> refinement` |
+| `multiview_no_steps_raw` | `flows/flow_analysis_refinement_detail_refinement.py` | main/global view plus wrist/detail/auxiliary view, no `steps_raw` | `analysis -> refinement -> detail_refinement` |
+
+## Stage Meaning
+
+`analysis` watches the full main-view trajectory and extracts a coarse
+`action_sequence` plus `main_object`.
+
+`refinement` watches the main view again and turns the coarse result into
+`fineGrainedSteps` and `refinedInstruction`.
+
+`detail_refinement` watches an auxiliary close-up view and only makes targeted
+corrections to the refinement result, such as contact point, gripper state,
+object identity, or spatial direction. It also records `changes_made` and keeps
+the pre-detail result under `detailRefinement`.
 
 ## Basic Usage
 
 ```python
 from vlm_auto_annotation import create_openai_client
 from vlm_auto_annotation.flows import (
-    run_standard_two_stage,
-    run_multiview_three_stage,
-    run_stepwise_single_view,
-    run_stepwise_multiview,
+    run_single_view_no_steps_raw,
+    run_multiview_no_steps_raw,
 )
 
 client = create_openai_client()
 
-result = run_stepwise_multiview(
+single = run_single_view_no_steps_raw(
     client,
-    main_video_path="main.mp4",
-    auxiliary_video_paths={"wrist": "wrist.mp4", "side": "side.mp4"},
-    initial_instruction="stack the cups",
-    steps_raw=[
-        {"i": 0, "start": 0, "end": 42, "desc": "reach the cup"},
-        {"i": 1, "start": 43, "end": 96, "desc": "grasp the cup"},
-    ],
+    video_path="main.mp4",
+    initial_instruction="pick up the cup and place it on the plate",
 )
 
-print(result.to_dict())
+multi = run_multiview_no_steps_raw(
+    client,
+    main_video_path="main.mp4",
+    detail_video_path="wrist.mp4",
+    detail_view_name="wrist",
+    initial_instruction="pick up the cup and place it on the plate",
+)
+
+print(single.to_dict())
+print(multi.to_dict())
 ```
 
 ## Output Shape
 
 Every flow returns `AnnotationResult`:
 
-- `flow_name`: stable implementation name.
-- `success`: whether every stage produced parseable JSON or a safe fallback.
-- `output`: user-facing annotation payload, including `fineGrainedSteps` and `refinedInstruction`.
+- `flow_name`: stable flow name.
+- `success`: whether every stage produced parseable JSON or a fallback.
+- `output`: user-facing annotation payload, including `fineGrainedSteps` and
+  `refinedInstruction`.
 - `stages`: intermediate VLM stage outputs and token usage.
 
-## Fourth Flow Design
-
-The newly added fourth flow covers the missing combination: multi-view data with
-pre-segmented `steps_raw`.
-
-1. Use the main/global view to refine each raw step independently.
-2. Use auxiliary views to verify contact points, gripper state, object identity,
-   spatial direction, arm role, and action outcome for the same step range.
-3. Preserve step count and order. Auxiliary views may only make small corrections.
-4. Run deduplication and a final consistency QC prompt for large-scale batch safety.
-
-The dedicated prompt file is `prompts_cn/multiview_step.py`.
+The old `run_standard_two_stage` name is kept as an alias of
+`run_single_view_no_steps_raw` for compatibility.

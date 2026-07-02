@@ -62,6 +62,11 @@ def call_vlm(
                 messages=messages,
                 temperature=temperature,
                 top_p=top_p,
+                    extra_body={
+                "chat_template_kwargs": {
+                        "enable_thinking": False
+                    }
+                },
             )
             msg = response.choices[0].message
             content = msg.content.strip() if isinstance(msg.content, str) else ""

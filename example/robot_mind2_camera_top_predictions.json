@@ -1,0 +1,1422 @@
+[
+  {
+    "episode_id": "episode_000000",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动至笔记本支架正上方，对准支架开口。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部完全贴合支架底座。",
+          "右臂轻微调整笔记本电脑的角度，使其屏幕朝上且与支架垂直。"
+        ],
+        "refinedInstruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架正上方，然后放置在支架上，并轻微调整其角度使其屏幕朝上且与支架垂直。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1008,
+            "sampled_frames": 168,
+            "frame_range": [
+              0,
+              1008
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1008,
+            "sampled_frames": 168,
+            "frame_range": [
+              0,
+              1008
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 32935,
+            "completion_tokens": 30,
+            "total_tokens": 32965
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动至笔记本支架正上方，对准支架开口。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部完全贴合支架底座。",
+              "右臂轻微调整笔记本电脑的角度，使其屏幕朝上且与支架垂直。"
+            ],
+            "refined_instruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架正上方，然后放置在支架上，并轻微调整其角度使其屏幕朝上且与支架垂直。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 33564,
+            "completion_tokens": 166,
+            "total_tokens": 33730
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 6.06
+  },
+  {
+    "episode_id": "episode_000001",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动到笔记本电脑支架正上方，然后将其放置在支架上。",
+          "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+            "video_fps": 30.0,
+            "total_frames": 802,
+            "sampled_frames": 134,
+            "frame_range": [
+              0,
+              802
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+            "video_fps": 30.0,
+            "total_frames": 802,
+            "sampled_frames": 134,
+            "frame_range": [
+              0,
+              802
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 26339,
+            "completion_tokens": 34,
+            "total_tokens": 26373
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动到笔记本电脑支架正上方，然后将其放置在支架上。",
+              "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定在支架上。"
+            ],
+            "refined_instruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 26972,
+            "completion_tokens": 144,
+            "total_tokens": 27116
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 8.9
+  },
+  {
+    "episode_id": "episode_000002",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪从正上方抓取笔记本电脑的边缘。",
+          "右臂将笔记本电脑从桌面提起，移动至上方的笔记本电脑支架正上方。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的姿态，使其屏幕朝上并保持稳定。"
+        ],
+        "refinedInstruction": "右臂从上方抓取银色笔记本电脑，将其提起并放置在上方的笔记本电脑支架上，然后调整其姿态使其屏幕朝上并稳定放置。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1029,
+            "sampled_frames": 172,
+            "frame_range": [
+              0,
+              1029
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1029,
+            "sampled_frames": 172,
+            "frame_range": [
+              0,
+              1029
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 33711,
+            "completion_tokens": 30,
+            "total_tokens": 33741
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪从正上方抓取笔记本电脑的边缘。",
+              "右臂将笔记本电脑从桌面提起，移动至上方的笔记本电脑支架正上方。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的姿态，使其屏幕朝上并保持稳定。"
+            ],
+            "refined_instruction": "右臂从上方抓取银色笔记本电脑，将其提起并放置在上方的笔记本电脑支架上，然后调整其姿态使其屏幕朝上并稳定放置。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 34340,
+            "completion_tokens": 145,
+            "total_tokens": 34485
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 11.64
+  },
+  {
+    "episode_id": "episode_000003",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪抓住其右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，保持其正面朝上。",
+          "右臂将笔记本电脑移动至桌面中央上方的黑色支架正上方。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方抓取银色笔记本电脑，将其提起并移动至黑色支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
+            "video_fps": 30.0,
+            "total_frames": 927,
+            "sampled_frames": 155,
+            "frame_range": [
+              0,
+              927
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
+            "video_fps": 30.0,
+            "total_frames": 927,
+            "sampled_frames": 155,
+            "frame_range": [
+              0,
+              927
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 30413,
+            "completion_tokens": 30,
+            "total_tokens": 30443
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪抓住其右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，保持其正面朝上。",
+              "右臂将笔记本电脑移动至桌面中央上方的黑色支架正上方。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。"
+            ],
+            "refined_instruction": "右臂从上方抓取银色笔记本电脑，将其提起并移动至黑色支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 31042,
+            "completion_tokens": 159,
+            "total_tokens": 31201
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 10.33
+  },
+  {
+    "episode_id": "episode_000004",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动到笔记本电脑支架正上方，然后将其放置在支架上。",
+          "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定地放置在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
+            "video_fps": 30.0,
+            "total_frames": 829,
+            "sampled_frames": 139,
+            "frame_range": [
+              0,
+              829
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
+            "video_fps": 30.0,
+            "total_frames": 829,
+            "sampled_frames": 139,
+            "frame_range": [
+              0,
+              829
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 27309,
+            "completion_tokens": 34,
+            "total_tokens": 27343
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动到笔记本电脑支架正上方，然后将其放置在支架上。",
+              "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定地放置在支架上。"
+            ],
+            "refined_instruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 27942,
+            "completion_tokens": 146,
+            "total_tokens": 28088
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 9.36
+  },
+  {
+    "episode_id": "episode_000005",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动至桌面中央上方的黑色支架正上方。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的角度，使其屏幕朝上并保持稳定。"
+        ],
+        "refinedInstruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至黑色支架正上方，然后放置在支架上，并调整其角度使其屏幕朝上并保持稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
+            "video_fps": 30.0,
+            "total_frames": 954,
+            "sampled_frames": 159,
+            "frame_range": [
+              0,
+              954
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
+            "video_fps": 30.0,
+            "total_frames": 954,
+            "sampled_frames": 159,
+            "frame_range": [
+              0,
+              954
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 31189,
+            "completion_tokens": 34,
+            "total_tokens": 31223
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动至桌面中央上方的黑色支架正上方。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的角度，使其屏幕朝上并保持稳定。"
+            ],
+            "refined_instruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至黑色支架正上方，然后放置在支架上，并调整其角度使其屏幕朝上并保持稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 31822,
+            "completion_tokens": 164,
+            "total_tokens": 31986
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 10.61
+  },
+  {
+    "episode_id": "episode_000006",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，使其底部朝上。",
+          "右臂将笔记本电脑移动到笔记本电脑支架正上方，对准支架开口。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部完全进入支架内。",
+          "右臂轻微调整笔记本电脑的角度，使其屏幕朝上并稳定放置。"
+        ],
+        "refinedInstruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架正上方，然后缓慢放置在支架上，最后轻微调整其角度以确保屏幕朝上并稳定放置。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1100,
+            "sampled_frames": 184,
+            "frame_range": [
+              0,
+              1100
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1100,
+            "sampled_frames": 184,
+            "frame_range": [
+              0,
+              1100
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 36039,
+            "completion_tokens": 30,
+            "total_tokens": 36069
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，使其底部朝上。",
+              "右臂将笔记本电脑移动到笔记本电脑支架正上方，对准支架开口。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部完全进入支架内。",
+              "右臂轻微调整笔记本电脑的角度，使其屏幕朝上并稳定放置。"
+            ],
+            "refined_instruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架正上方，然后缓慢放置在支架上，最后轻微调整其角度以确保屏幕朝上并稳定放置。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 36668,
+            "completion_tokens": 161,
+            "total_tokens": 36829
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 12.22
+  },
+  {
+    "episode_id": "episode_000007",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动至桌面中央的黑色支架上方。",
+          "右臂将笔记本电脑放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的姿态，使其屏幕朝上并保持稳定。"
+        ],
+        "refinedInstruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至桌面中央的黑色支架上方，然后放置在支架上并调整其姿态，使其屏幕朝上并保持稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
+            "video_fps": 30.0,
+            "total_frames": 870,
+            "sampled_frames": 145,
+            "frame_range": [
+              0,
+              870
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
+            "video_fps": 30.0,
+            "total_frames": 870,
+            "sampled_frames": 145,
+            "frame_range": [
+              0,
+              870
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 28473,
+            "completion_tokens": 34,
+            "total_tokens": 28507
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动至桌面中央的黑色支架上方。",
+              "右臂将笔记本电脑放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的姿态，使其屏幕朝上并保持稳定。"
+            ],
+            "refined_instruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至桌面中央的黑色支架上方，然后放置在支架上并调整其姿态，使其屏幕朝上并保持稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 29106,
+            "completion_tokens": 164,
+            "total_tokens": 29270
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 9.64
+  },
+  {
+    "episode_id": "episode_000008",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪抓住其右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，保持其正面朝上。",
+          "右臂将笔记本电脑移动至桌面中央上方的支架正上方。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方抓取银色笔记本电脑，将其提起并移动至支架正上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
+            "video_fps": 30.0,
+            "total_frames": 856,
+            "sampled_frames": 143,
+            "frame_range": [
+              0,
+              856
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
+            "video_fps": 30.0,
+            "total_frames": 856,
+            "sampled_frames": 143,
+            "frame_range": [
+              0,
+              856
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 28085,
+            "completion_tokens": 34,
+            "total_tokens": 28119
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪抓住其右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，保持其正面朝上。",
+              "右臂将笔记本电脑移动至桌面中央上方的支架正上方。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。"
+            ],
+            "refined_instruction": "右臂从上方抓取银色笔记本电脑，将其提起并移动至支架正上方，然后放置在支架上，并调整其姿态使其屏幕朝上并稳定。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 28718,
+            "completion_tokens": 158,
+            "total_tokens": 28876
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 9.6
+  },
+  {
+    "episode_id": "episode_000009",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪从右侧夹住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其底部离桌面约5厘米。",
+          "右臂将笔记本电脑移动到桌面中央偏右的笔记本电脑支架上方，对准支架开口。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架内壁对齐。",
+          "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。",
+          "右臂将笔记本电脑的后部轻轻推入支架内，确保其完全卡入。"
+        ],
+        "refinedInstruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后将其放置在支架上，调整其角度并推入支架内，使其稳定直立。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1005,
+            "sampled_frames": 168,
+            "frame_range": [
+              0,
+              1005
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1005,
+            "sampled_frames": 168,
+            "frame_range": [
+              0,
+              1005
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 32935,
+            "completion_tokens": 34,
+            "total_tokens": 32969
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪从右侧夹住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其底部离桌面约5厘米。",
+              "右臂将笔记本电脑移动到桌面中央偏右的笔记本电脑支架上方，对准支架开口。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架内壁对齐。",
+              "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定在支架上。",
+              "右臂将笔记本电脑的后部轻轻推入支架内，确保其完全卡入。"
+            ],
+            "refined_instruction": "右臂从上方夹住笔记本电脑的右侧边缘，将其提起并移动至支架上方，然后将其放置在支架上，调整其角度并推入支架内，使其稳定直立。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 33568,
+            "completion_tokens": 203,
+            "total_tokens": 33771
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 11.79
+  },
+  {
+    "episode_id": "episode_000010",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪从右侧抓取笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，移动至上方的笔记本电脑支架正上方。",
+          "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定放置在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方抓取笔记本电脑，将其提起并放置在上方的支架上，然后调整其姿态使其屏幕朝上并稳定放置。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
+            "video_fps": 30.0,
+            "total_frames": 960,
+            "sampled_frames": 160,
+            "frame_range": [
+              0,
+              960
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
+            "video_fps": 30.0,
+            "total_frames": 960,
+            "sampled_frames": 160,
+            "frame_range": [
+              0,
+              960
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 31383,
+            "completion_tokens": 30,
+            "total_tokens": 31413
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪从右侧抓取笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，移动至上方的笔记本电脑支架正上方。",
+              "右臂将笔记本电脑缓慢放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的倾斜角度，使其屏幕朝上并稳定放置在支架上。"
+            ],
+            "refined_instruction": "右臂从上方抓取笔记本电脑，将其提起并放置在上方的支架上，然后调整其姿态使其屏幕朝上并稳定放置。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 32012,
+            "completion_tokens": 146,
+            "total_tokens": 32158
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 10.4
+  },
+  {
+    "episode_id": "episode_000011",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并抓取银色笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，移动至上方的黑色支架正上方。",
+          "右臂将笔记本电脑放置在黑色支架上，使其底部与支架对齐。",
+          "右臂轻微调整笔记本电脑的角度，使其完全平稳地坐落在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方抓取银色笔记本电脑，将其提起并放置在上方的黑色支架上，然后微调其角度以确保笔记本电脑平稳地坐落在支架上。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
+            "video_fps": 30.0,
+            "total_frames": 996,
+            "sampled_frames": 166,
+            "frame_range": [
+              0,
+              996
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
+            "video_fps": 30.0,
+            "total_frames": 996,
+            "sampled_frames": 166,
+            "frame_range": [
+              0,
+              996
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 32547,
+            "completion_tokens": 30,
+            "total_tokens": 32577
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并抓取银色笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，移动至上方的黑色支架正上方。",
+              "右臂将笔记本电脑放置在黑色支架上，使其底部与支架对齐。",
+              "右臂轻微调整笔记本电脑的角度，使其完全平稳地坐落在支架上。"
+            ],
+            "refined_instruction": "右臂从上方抓取银色笔记本电脑，将其提起并放置在上方的黑色支架上，然后微调其角度以确保笔记本电脑平稳地坐落在支架上。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 33176,
+            "completion_tokens": 142,
+            "total_tokens": 33318
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 10.97
+  },
+  {
+    "episode_id": "episode_000012",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动至桌面中央的黑色支架上方。",
+          "右臂将笔记本电脑放置在支架上，使其屏幕朝上并保持稳定。",
+          "右臂调整笔记本电脑的姿态，使其屏幕与桌面平行并居中。"
+        ],
+        "refinedInstruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至桌面中央的黑色支架上方，然后放置并调整其姿态，使其屏幕朝上且与桌面平行并居中。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
+            "video_fps": 30.0,
+            "total_frames": 915,
+            "sampled_frames": 153,
+            "frame_range": [
+              0,
+              915
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
+            "video_fps": 30.0,
+            "total_frames": 915,
+            "sampled_frames": 153,
+            "frame_range": [
+              0,
+              915
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 30025,
+            "completion_tokens": 34,
+            "total_tokens": 30059
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动至桌面中央的黑色支架上方。",
+              "右臂将笔记本电脑放置在支架上，使其屏幕朝上并保持稳定。",
+              "右臂调整笔记本电脑的姿态，使其屏幕与桌面平行并居中。"
+            ],
+            "refined_instruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动至桌面中央的黑色支架上方，然后放置并调整其姿态，使其屏幕朝上且与桌面平行并居中。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 30658,
+            "completion_tokens": 168,
+            "total_tokens": 30826
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 10.37
+  },
+  {
+    "episode_id": "episode_000013",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面提起，使其底部朝上。",
+          "右臂将笔记本电脑移动到桌面中央的黑色支架上方。",
+          "右臂将笔记本电脑放置在支架上，使其底部与支架对齐。",
+          "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定放置在支架上。"
+        ],
+        "refinedInstruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动到桌面中央的黑色支架上方，然后放置并调整其姿态，使其屏幕朝上并稳定地立在支架上。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
+            "video_fps": 30.0,
+            "total_frames": 772,
+            "sampled_frames": 129,
+            "frame_range": [
+              0,
+              772
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
+            "video_fps": 30.0,
+            "total_frames": 772,
+            "sampled_frames": 129,
+            "frame_range": [
+              0,
+              772
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 25369,
+            "completion_tokens": 34,
+            "total_tokens": 25403
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近并夹住银色笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面提起，使其底部朝上。",
+              "右臂将笔记本电脑移动到桌面中央的黑色支架上方。",
+              "右臂将笔记本电脑放置在支架上，使其底部与支架对齐。",
+              "右臂调整笔记本电脑的姿态，使其屏幕朝上并稳定放置在支架上。"
+            ],
+            "refined_instruction": "右臂从上方夹住银色笔记本电脑的右侧边缘，将其提起并移动到桌面中央的黑色支架上方，然后放置并调整其姿态，使其屏幕朝上并稳定地立在支架上。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 26002,
+            "completion_tokens": 163,
+            "total_tokens": 26165
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 8.86
+  },
+  {
+    "episode_id": "episode_000014",
+    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
+    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+    "prediction": {
+      "flow_name": "single_view_no_steps_raw",
+      "success": true,
+      "output": {
+        "flow": "single_view_no_steps_raw",
+        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
+        "analysisResult": {
+          "action_sequence": [
+            "Grasp",
+            "Pick up",
+            "Place",
+            "Rotate",
+            "Release"
+          ],
+          "main_object": "laptop"
+        },
+        "fineGrainedSteps": [
+          "右臂从上方接近银色笔记本电脑，夹爪抓住笔记本电脑的右侧边缘。",
+          "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+          "右臂将笔记本电脑移动到桌面中央偏右的笔记本电脑支架上方。",
+          "右臂将笔记本电脑放置在支架上，使其底部与支架接触。",
+          "右臂调整笔记本电脑的角度，使其屏幕朝上并保持稳定。"
+        ],
+        "refinedInstruction": "右臂从上方抓取笔记本电脑，将其提起并移动至支架上方，然后放置并调整其姿态，使其屏幕朝上并稳定在支架上。",
+        "metadata": {
+          "analysis": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1038,
+            "sampled_frames": 173,
+            "frame_range": [
+              0,
+              1038
+            ]
+          },
+          "refinement": {
+            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
+            "video_fps": 30.0,
+            "total_frames": 1038,
+            "sampled_frames": 173,
+            "frame_range": [
+              0,
+              1038
+            ]
+          }
+        }
+      },
+      "stages": {
+        "analysis": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              "Grasp",
+              "Pick up",
+              "Place",
+              "Rotate",
+              "Release"
+            ],
+            "main_object": "laptop"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 33905,
+            "completion_tokens": 34,
+            "total_tokens": 33939
+          }
+        },
+        "refinement": {
+          "success": true,
+          "output": {
+            "action_corrections": [],
+            "fine_grained_steps": [
+              "右臂从上方接近银色笔记本电脑，夹爪抓住笔记本电脑的右侧边缘。",
+              "右臂将笔记本电脑从桌面上提起，使其与桌面呈约45度角。",
+              "右臂将笔记本电脑移动到桌面中央偏右的笔记本电脑支架上方。",
+              "右臂将笔记本电脑放置在支架上，使其底部与支架接触。",
+              "右臂调整笔记本电脑的角度，使其屏幕朝上并保持稳定。"
+            ],
+            "refined_instruction": "右臂从上方抓取笔记本电脑，将其提起并移动至支架上方，然后放置并调整其姿态，使其屏幕朝上并稳定在支架上。"
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 34538,
+            "completion_tokens": 160,
+            "total_tokens": 34698
+          }
+        }
+      }
+    },
+    "error": null,
+    "processing_time_seconds": 11.89
+  }
+]
