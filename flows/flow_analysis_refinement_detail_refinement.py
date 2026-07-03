@@ -8,15 +8,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..prompts_cn import (
-    DETAIL_REFINEMENT_PROMPT_TEMPLATE,
-    DETAIL_REFINEMENT_SYSTEM_PROMPT,
+from ..utils.config import (
+    DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_MAX_TOKENS,
+    DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
+    DEFAULT_MAX_FRAMES,
+    DEFAULT_MODEL,
+    DEFAULT_PROMPT_LANGUAGE,
+    DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_MAX_TOKENS,
+    DEFAULT_ROBOT_TYPE,
 )
-from ..utils.config import DEFAULT_ANALYSIS_FPS, DEFAULT_MAX_FRAMES, DEFAULT_MODEL, DEFAULT_REFINEMENT_FPS
 from ..utils.schemas import AnnotationResult
 from ..utils.video_utils import labelled_view_parts, load_video_as_image_parts
 from .flow_analysis_refinement import run_single_view_no_steps_raw
-from .utils import as_str_list, call_json_stage, instruction_from_steps, json_dumps
+from .utils import as_str_list, call_json_stage, instruction_from_steps, json_dumps, load_prompt_package, normalize_prompt_language
 
 
 def run_multiview_no_steps_raw(
@@ -29,9 +35,16 @@ def run_multiview_no_steps_raw(
     detail_view_name: str = "wrist",
     analysis_fps: float = DEFAULT_ANALYSIS_FPS,
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
+    robot_type: str = DEFAULT_ROBOT_TYPE,
+    prompt_language: str = DEFAULT_PROMPT_LANGUAGE,
+    analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
+    refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
+    detail_refinement_max_tokens: int = DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
     max_frames: int = DEFAULT_MAX_FRAMES,
 ) -> AnnotationResult:
     """Run main-view analysis/refinement, then auxiliary-view detail refinement."""
+    prompt_language = normalize_prompt_language(prompt_language)
+    prompts = load_prompt_package(prompt_language)
     base = run_single_view_no_steps_raw(
         client,
         main_video_path,
@@ -39,6 +52,10 @@ def run_multiview_no_steps_raw(
         model=model,
         analysis_fps=analysis_fps,
         refinement_fps=refinement_fps,
+        robot_type=robot_type,
+        prompt_language=prompt_language,
+        analysis_max_tokens=analysis_max_tokens,
+        refinement_max_tokens=refinement_max_tokens,
         max_frames=max_frames,
     )
 
@@ -55,7 +72,7 @@ def run_multiview_no_steps_raw(
         target_fps=refinement_fps,
         max_frames=max_frames,
     )
-    detail_prompt = DETAIL_REFINEMENT_PROMPT_TEMPLATE.format(
+    detail_prompt = prompts.DETAIL_REFINEMENT_PROMPT_TEMPLATE.format(
         initial_instruction=initial_instruction,
         main_object=main_object,
         previous_steps=json_dumps(previous_steps),
@@ -65,9 +82,10 @@ def run_multiview_no_steps_raw(
         client,
         name="detail_refinement",
         parts=labelled_view_parts(detail_view_name, detail_parts),
-        system_prompt=DETAIL_REFINEMENT_SYSTEM_PROMPT,
+        system_prompt=prompts.DETAIL_REFINEMENT_SYSTEM_PROMPT,
         user_prompt=detail_prompt,
         model=model,
+        max_tokens=detail_refinement_max_tokens,
         fallback={
             "fine_grained_steps": previous_steps,
             "refined_instruction": previous_refined_instruction,

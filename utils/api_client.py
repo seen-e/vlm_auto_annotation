@@ -8,7 +8,7 @@ import re
 import time
 from typing import Any
 
-from .config import DEFAULT_BASE_URL, DEFAULT_MODEL
+from .config import DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_VLM_TEMPERATURE, DEFAULT_VLM_TOP_K, DEFAULT_VLM_TOP_P
 
 
 def create_openai_client(api_key: str | None = None, base_url: str | None = None):
@@ -42,8 +42,10 @@ def call_vlm(
     *,
     model: str = DEFAULT_MODEL,
     max_retries: int = 3,
-    temperature: float = 0.0,
-    top_p: float = 0.95,
+    max_tokens: int = 0,
+    temperature: float = DEFAULT_VLM_TEMPERATURE,
+    top_p: float = DEFAULT_VLM_TOP_P,
+    top_k: int = DEFAULT_VLM_TOP_K,
 ) -> tuple[str, dict[str, int]]:
     """Call a VLM and return (text, token_usage)."""
     if _is_qwen_model(model):
@@ -57,16 +59,23 @@ def call_vlm(
     last_error: Exception | None = None
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=temperature,
-                top_p=top_p,
-                    extra_body={
-                "chat_template_kwargs": {
+            request_kwargs: dict[str, Any] = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "top_p": top_p,
+                "extra_body": {
+                    "chat_template_kwargs": {
                         "enable_thinking": False
                     }
                 },
+            }
+            if max_tokens > 0:
+                request_kwargs["max_tokens"] = max_tokens
+            if top_k > 0:
+                request_kwargs["extra_body"]["top_k"] = top_k
+            response = client.chat.completions.create(
+                **request_kwargs,
             )
             msg = response.choices[0].message
             content = msg.content.strip() if isinstance(msg.content, str) else ""

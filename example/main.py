@@ -35,7 +35,7 @@ if str(REPO_ROOT) not in sys.path:
 
 EXAMPLE_DIR = Path(__file__).resolve().parent
 DEFAULT_INPUT_JSON = EXAMPLE_DIR / "robot_mind2_camera_top_tasks.json"
-DEFAULT_OUTPUT_JSON = EXAMPLE_DIR / "robot_mind2_camera_top_predictions.json"
+DEFAULT_OUTPUT_JSON = EXAMPLE_DIR / "Qwen3-VL-30B-A3B-Instruct-bf16.json"
 
 from vlm_auto_annotation import create_openai_client
 from vlm_auto_annotation.flows import (
@@ -44,10 +44,15 @@ from vlm_auto_annotation.flows import (
 )
 from vlm_auto_annotation.utils.config import (
     DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_MAX_TOKENS,
     DEFAULT_BASE_URL,
+    DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
     DEFAULT_MAX_FRAMES,
     DEFAULT_MODEL,
+    DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_MAX_TOKENS,
+    DEFAULT_ROBOT_TYPE,
 )
 
 
@@ -73,8 +78,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--api-key", default=os.environ.get("OPENAI_API_KEY", "EMPTY"))
     parser.add_argument("--base-url", default=os.environ.get("ANNOTATE_BASE_URL", DEFAULT_BASE_URL))
     parser.add_argument("--model", default=os.environ.get("ANNOTATE_MODEL", DEFAULT_MODEL))
+    parser.add_argument(
+        "--robot-type",
+        default=DEFAULT_ROBOT_TYPE,
+        choices=["single_arm", "bimanual", "mobile_manipulator", "unknown"],
+        help="Configured robot type used by all VLM stages.",
+    )
+    parser.add_argument(
+        "--prompt-language",
+        default=DEFAULT_PROMPT_LANGUAGE,
+        choices=["cn", "en"],
+        help="Prompt language: cn uses prompts_cn, en uses prompts.",
+    )
     parser.add_argument("--analysis-fps", type=float, default=DEFAULT_ANALYSIS_FPS)
     parser.add_argument("--refinement-fps", type=float, default=DEFAULT_REFINEMENT_FPS)
+    parser.add_argument("--analysis-max-tokens", type=int, default=DEFAULT_ANALYSIS_MAX_TOKENS)
+    parser.add_argument("--refinement-max-tokens", type=int, default=DEFAULT_REFINEMENT_MAX_TOKENS)
+    parser.add_argument("--detail-refinement-max-tokens", type=int, default=DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES)
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
     parser.add_argument("--resume", action="store_true", help="Reuse successful items already in output JSON.")
@@ -94,8 +114,13 @@ def run_one(
     detail_video: str | None = None,
     detail_view_name: str = "wrist",
     model: str = DEFAULT_MODEL,
+    robot_type: str = DEFAULT_ROBOT_TYPE,
+    prompt_language: str = DEFAULT_PROMPT_LANGUAGE,
     analysis_fps: float = DEFAULT_ANALYSIS_FPS,
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
+    analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
+    refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
+    detail_refinement_max_tokens: int = DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
     max_frames: int = DEFAULT_MAX_FRAMES,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
@@ -108,8 +133,13 @@ def run_one(
             detail_view_name=detail_view_name,
             initial_instruction=instruction,
             model=model,
+            robot_type=robot_type,
+            prompt_language=prompt_language,
             analysis_fps=analysis_fps,
             refinement_fps=refinement_fps,
+            analysis_max_tokens=analysis_max_tokens,
+            refinement_max_tokens=refinement_max_tokens,
+            detail_refinement_max_tokens=detail_refinement_max_tokens,
             max_frames=max_frames,
         )
     else:
@@ -118,8 +148,12 @@ def run_one(
             video_path=main_video,
             initial_instruction=instruction,
             model=model,
+            robot_type=robot_type,
+            prompt_language=prompt_language,
             analysis_fps=analysis_fps,
             refinement_fps=refinement_fps,
+            analysis_max_tokens=analysis_max_tokens,
+            refinement_max_tokens=refinement_max_tokens,
             max_frames=max_frames,
         )
     return result.to_dict()
@@ -184,6 +218,8 @@ def run_batch(args: argparse.Namespace) -> None:
         main_video = record.get("video_path") or record.get("main_video_path") or record.get("main_video")
         detail_video = record.get("detail_video_path") or record.get("detail_video")
         instruction = record.get("task") or record.get("instruction") or record.get("initialInstruction")
+        robot_type = record.get("robot_type") or args.robot_type
+        prompt_language = record.get("prompt_language") or args.prompt_language
 
         merged = dict(record)
         start = time.time()
@@ -199,8 +235,13 @@ def run_batch(args: argparse.Namespace) -> None:
                 detail_view_name=args.detail_view_name,
                 instruction=str(instruction),
                 model=args.model,
+                robot_type=str(robot_type),
+                prompt_language=str(prompt_language),
                 analysis_fps=args.analysis_fps,
                 refinement_fps=args.refinement_fps,
+                analysis_max_tokens=args.analysis_max_tokens,
+                refinement_max_tokens=args.refinement_max_tokens,
+                detail_refinement_max_tokens=args.detail_refinement_max_tokens,
                 max_frames=args.max_frames,
             )
             merged["prediction"] = prediction
@@ -233,8 +274,13 @@ def run_single(args: argparse.Namespace) -> None:
         detail_view_name=args.detail_view_name,
         instruction=args.instruction,
         model=args.model,
+        robot_type=args.robot_type,
+        prompt_language=args.prompt_language,
         analysis_fps=args.analysis_fps,
         refinement_fps=args.refinement_fps,
+        analysis_max_tokens=args.analysis_max_tokens,
+        refinement_max_tokens=args.refinement_max_tokens,
+        detail_refinement_max_tokens=args.detail_refinement_max_tokens,
         max_frames=args.max_frames,
     )
     print(json.dumps(prediction, ensure_ascii=False, indent=2))
