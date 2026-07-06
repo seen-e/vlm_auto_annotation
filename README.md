@@ -26,8 +26,11 @@ Environment variables with the `ANNOTATE_*` prefix still override YAML values.
 For example:
 
 ```powershell
+$env:ANNOTATE_SCENE_RESIZE_WIDTH="224"
 $env:ANNOTATE_ANALYSIS_RESIZE_WIDTH="224"
 $env:ANNOTATE_REFINEMENT_RESIZE_WIDTH="448"
+$env:ANNOTATE_ANALYSIS_MERGE_VIEWS="true"
+$env:ANNOTATE_ANALYSIS_MERGE_MODE="timeline_grid"
 $env:ANNOTATE_MERGE_VIEW_NAMES="observation.rgb_images.camera_front,observation.rgb_images.camera_top"
 ```
 
@@ -46,16 +49,27 @@ prompt:
   robot_type: bimanual
 
 stages:
+  scene:
+    fps: 1.0
+    max_tokens: 1024
+    resize_width: 224
+    draw_timestamps: false
+    merge_views: true
+    merge_mode: per_frame
   analysis:
     fps: 1.0
     max_tokens: 512
     resize_width: 224
     draw_timestamps: false
+    merge_views: true
+    merge_mode: per_frame
   refinement:
     fps: 5.0
     max_tokens: 2048
     resize_width: 448
     draw_timestamps: true
+    merge_views: true
+    merge_mode: per_frame
 
 vlm_sampling:
   temperature: 0.0
@@ -64,6 +78,7 @@ vlm_sampling:
 
 video:
   max_frames: 128
+  merge_views: true
   merge_view_names:
     - observation.rgb_images.camera_front
     - observation.rgb_images.camera_top
@@ -86,13 +101,18 @@ each action.
 
 | Flow | Function | Stages |
 |---|---|---|
-| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | `analysis -> refinement` |
+| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | `scene -> analysis -> refinement` |
 
 ## Stage Meaning
 
-`analysis` watches sampled frames, uses the configured `robot_type`, and
-extracts a coarse `action_sequence` plus `main_object`. The action sequence is
-a chronological list of objects:
+`scene` watches sampled frames before action analysis and extracts stable
+background context. It identifies the primary view, visible robot arms, stable
+arm IDs, likely task objects, background objects, and best observation views for
+each arm. It does not output actions or timestamps.
+
+`analysis` watches sampled frames, uses the configured `robot_type` and the
+previous `sceneContext`, then extracts a coarse `action_sequence` plus
+`main_object`. The action sequence is a chronological list of objects:
 
 ```json
 {
@@ -128,10 +148,23 @@ It also outputs `fineGrainedSteps` and `refinedInstruction`.
 names and values are video paths. The configured `video.merge_view_names`
 selects which views are merged.
 
-For multi-view input, frames at the same timestamp are vertically concatenated.
-The first selected view is the primary view. Spatial descriptions such as
-left/right/front/back/far/close use the first view as reference; other views
-only help confirm occlusion, contact, and depth.
+Each stage has its own `merge_views` switch. When it is `false`, multi-view
+input is not concatenated and that stage uses only the primary view, i.e. the
+first path/view in `video_path`.
+
+When a stage's `merge_views` is `true`, `merge_mode` controls the stitching
+layout:
+
+- `per_frame`: frames at the same timestamp are vertically concatenated. Each
+  sampled timestamp is sent as a separate image.
+- `timeline_grid`: views are arranged vertically and sampled times horizontally
+  in one large image. The left side labels view names, the top labels time
+  columns, and each cell may still include an in-frame timestamp according to
+  that stage's `draw_timestamps`.
+
+The first selected view is always the primary view. Spatial descriptions such as
+left/right/front/back/far/close use the first view as reference; other views only
+help confirm occlusion, contact, and depth.
 
 ## Basic Usage
 
@@ -166,9 +199,12 @@ Useful CLI overrides:
 ```powershell
 & 'C:\Users\34927\.conda\envs\py3115\python.exe' .\example\main.py `
   --analysis-fps 1 `
+  --scene-resize-width 224 `
+  --analysis-merge-mode timeline_grid `
   --refinement-fps 5 `
   --analysis-resize-width 224 `
   --refinement-resize-width 448 `
+  --no-merge-views `
   --no-analysis-draw-timestamps `
   --refinement-draw-timestamps `
   --log-level INFO
@@ -205,6 +241,7 @@ Every flow returns `AnnotationResult`:
 - `success`: whether every stage produced parseable JSON or a fallback.
 - `output`: user-facing annotation payload.
 - `output.analysisResult.action_sequence`: coarse chronological actions.
+- `output.sceneContext`: stable scene context extracted before action analysis.
 - `output.timestampedActionSequence`: refinement actions with `start_time` and
   `end_time`.
 - `output.fineGrainedSteps`: detailed natural-language steps.

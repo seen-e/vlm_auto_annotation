@@ -6,6 +6,7 @@ REFINEMENT_SYSTEM_PROMPT = """
 You are a Video-Language Action temporal annotation expert for robot manipulation videos.
 You will receive the action sequence produced by the previous analysis stage. Your main task is not to regenerate actions, but to add start_time and end_time for each existing action.
 The video frames include a black-background white timestamp at the top-left corner. Use this timestamp as the primary evidence for action boundaries.
+You will also receive sceneContext from the scene stage. Use it to keep arm IDs, object IDs/names, primary-view spatial references, and best observation views consistent.
 
 Guidelines:
 - Check every action from the analysis stage and estimate its start_time and end_time.
@@ -29,6 +30,8 @@ Initial instruction: "{initial_instruction}"
 Robot type: "{robot_type}"
 Analysis action sequence (JSON object array, each item has executor/action/object, already in chronological order): {action_sequence}
 Main object: "{main_object}"
+Scene context from the previous scene stage:
+{scene_context}
 
 Robot type background:
 {robot_type_prompt}

@@ -1,4 +1,4 @@
-"""Small helpers shared by named annotation flows."""
+﻿"""Small helpers shared by named annotation flows."""
 
 from __future__ import annotations
 
@@ -179,6 +179,94 @@ def normalize_timestamped_action_sequence(
     return normalized
 
 
+def normalize_scene_context(value: Any, meta: dict[str, Any]) -> dict[str, Any]:
+    """Normalize scene-stage output and fill a minimal stable context if missing."""
+    raw = value if isinstance(value, dict) else {}
+    views = [str(view) for view in meta.get("selected_views", [])]
+    primary_view = str(raw.get("primary_view") or (views[0] if views else "unknown")).strip()
+    try:
+        num_arms = int(raw.get("num_arms") or 0)
+    except (TypeError, ValueError):
+        num_arms = 0
+    context: dict[str, Any] = {
+        "primary_view": primary_view,
+        "spatial_reference_rule": str(
+            raw.get("spatial_reference_rule")
+            or "All spatial names such as left/right/front/back are defined from the primary view."
+        ).strip(),
+        "num_arms": num_arms,
+        "arms": [],
+        "task_objects": [],
+        "background_objects": [],
+        "view_context": {},
+    }
+
+    for item in as_list(raw.get("arms")):
+        if not isinstance(item, dict):
+            continue
+        arm_id = str(item.get("arm_id") or "").strip()
+        if not arm_id:
+            continue
+        context["arms"].append(
+            {
+                "arm_id": arm_id,
+                "description": str(item.get("description") or "").strip(),
+                "spatial_reference": str(item.get("spatial_reference") or "primary_view").strip(),
+                "main_workspace": str(item.get("main_workspace") or "").strip(),
+                "handled_objects": as_str_list(item.get("handled_objects")),
+                "best_observation_views": [
+                    {
+                        "view_name": str(view.get("view_name") or "").strip(),
+                        "reason": str(view.get("reason") or "").strip(),
+                    }
+                    for view in as_list(item.get("best_observation_views"))
+                    if isinstance(view, dict) and str(view.get("view_name") or "").strip()
+                ],
+            }
+        )
+
+    if not context["num_arms"]:
+        context["num_arms"] = len(context["arms"])
+
+    for key in ("task_objects", "background_objects"):
+        for item in as_list(raw.get(key)):
+            if not isinstance(item, dict):
+                continue
+            object_id = str(item.get("object_id") or "").strip()
+            if not object_id:
+                continue
+            context[key].append(
+                {
+                    "object_id": object_id,
+                    "description": str(item.get("description") or object_id).strip(),
+                    "role": str(item.get("role") or ("background" if key == "background_objects" else "")).strip(),
+                }
+            )
+
+    raw_view_context = raw.get("view_context")
+    if isinstance(raw_view_context, dict):
+        for view_name, item in raw_view_context.items():
+            if isinstance(item, dict):
+                description = str(item.get("description") or "").strip()
+            else:
+                description = str(item or "").strip()
+            context["view_context"][str(view_name)] = {"description": description}
+
+    for index, view in enumerate(views):
+        context["view_context"].setdefault(
+            view,
+            {
+                "description": (
+                    "primary view; spatial names are based on this view"
+                    if index == 0
+                    else "auxiliary view; use it to verify occlusion, contact, and depth without renaming arms"
+                )
+            },
+        )
+
+    return context
+
+
 CN_OBJECT_TRANSLATIONS = {
     "laptop": "笔记本电脑",
     "laptop stand": "笔记本电脑支架",
@@ -220,18 +308,38 @@ def describe_view_layout(meta: dict[str, Any], prompt_language: str) -> str:
     language = normalize_prompt_language(prompt_language)
     views = [str(view) for view in meta.get("selected_views", [])]
     input_mode = meta.get("input_mode", "single_view")
+    merge_mode = meta.get("merge_mode", "per_frame")
     if input_mode == "merged_views" and len(views) > 1:
+        if merge_mode == "timeline_grid":
+            if language == "cn":
+                rows = "\n".join(f"- Y 方向第 {i + 1} 行：{view}" for i, view in enumerate(views))
+                return (
+                    "每张输入图片是一个时间轴多视角拼图。Y 方向表示不同视角，X 方向表示采样时间从左到右推进。"
+                    "左侧标注视角名称，顶部标注每一列对应的时间戳；每个单元格也可能根据当前阶段配置带有帧内时间戳。"
+                    "视角行顺序如下：\n"
+                    f"{rows}\n"
+                    "第 1 行/第一个被选中的视角是 primary view。left/right/front/back/far/close 等空间命名必须以 primary view 为准；"
+                    "其他视角只用于辅助确认遮挡、接触和深度关系。不要把 Y 方向的不同行理解为时间先后；动作前后顺序只沿 X 方向时间变化判断。"
+                )
+            rows = "\n".join(f"- Y row {i + 1}: {view}" for i, view in enumerate(views))
+            return (
+                "Each input image is a timeline multi-view grid. The Y axis contains different views and the X axis "
+                "contains sampled time moving from left to right. The left side labels view names and the top labels "
+                "the timestamp of each time column; each cell may also contain an in-frame timestamp depending on "
+                "the current stage setting. View rows are:\n"
+                f"{rows}\n"
+                "Y row 1 / the first selected view is the primary view. Spatial names such as left/right/front/back/"
+                "far/close must use the primary view as reference. Use other views only to verify occlusion, contact, "
+                "and depth. Do not interpret different Y rows as temporal order; temporal order follows the X axis."
+            )
         if language == "cn":
             rows = "\n".join(f"- 第 {i + 1} 行：{view}" for i, view in enumerate(views))
             return (
-                "每一张输入图片都是同一时间点的多视角帧纵向拼接图。"
-                "拼接前，每个视角图像会先按当前阶段配置的 resize_width 单独缩放；"
+                "每张输入图片都是同一时间戳的多视角帧竖向拼接图。拼接前，每个视角图像会先按当前阶段配置的 resize_width 单独缩放。"
                 "拼接后从上到下的行顺序如下：\n"
                 f"{rows}\n"
-                "第 1 行/第一个视角是主视角；描述 left/right/front/back/far/close 等空间方向时，"
-                "必须以主视角为准，其他视角只用于补充确认遮挡、接触和深度关系。"
-                "分析动作时请综合所有行的视角信息，不要把不同行误认为时间先后。"
-                "动作的前后顺序以动作开始时间为准：哪个动作先开始，哪个动作就排在前面。"
+                "第 1 行/第一个被选中的视角是 primary view。描述 left/right/front/back/far/close 等空间方向时，"
+                "必须以 primary view 为准；其他视角只用于辅助确认遮挡、接触和深度关系。不要把不同行误认为时间先后。"
             )
         rows = "\n".join(f"- Row {i + 1}: {view}" for i, view in enumerate(views))
         return (
@@ -249,7 +357,6 @@ def describe_view_layout(meta: dict[str, Any], prompt_language: str) -> str:
     if language == "cn":
         return f"每张输入图片来自单一视角：{view}。不同图片之间才表示按时间采样的帧序列。"
     return f"Each input image comes from a single view: {view}. Different images represent the temporal frame sequence."
-
 
 def numbered_text(items: list[str]) -> str:
     return "\n".join(f"{i}. {item}" for i, item in enumerate(items))
@@ -331,3 +438,4 @@ def call_json_stage(
         usage.get("total_tokens", 0),
     )
     return stage
+

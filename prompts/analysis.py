@@ -8,6 +8,7 @@ Your goal is to summarize the operation at a high level.
 
 Requirements:
 - Use the provided robot_type as the robot type and output the same value in the "robot_type" field. Do not infer or modify the robot type from the video.
+- Use the provided sceneContext as stable context. Keep arm_id/executor naming, object naming, and primary-view spatial references consistent with sceneContext.
 - Use verbs from the provided English action vocabulary to extract the ordered sequence of actions actually performed by the robot.
 - "action_sequence" must be strictly ordered by the real temporal order in the video, from the earliest action to the latest action. Do not reorder actions by importance, executor, object category, or task phase.
 - When two actions overlap or occur close together, order them by their start time: the action that starts earlier must appear earlier, even if it ends later.
@@ -31,6 +32,8 @@ ANALYSIS_PROMPT_TEMPLATE = """
 Initial instruction: "{initial_instruction}"
 Configured robot_type: "{robot_type}"
 English action vocabulary: {action_vocabulary}
+Scene context from the previous scene stage:
+{scene_context}
 
 Robot type background:
 {robot_type_prompt}

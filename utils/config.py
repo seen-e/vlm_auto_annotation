@@ -69,17 +69,38 @@ def _env_list(name: str, value: Any) -> list[str]:
     raise TypeError(f"Expected list or comma-separated string for {name}, got {type(value).__name__}")
 
 
+def _env_merge_mode(name: str, value: Any) -> str:
+    mode = _env_str(name, value).strip().lower().replace("-", "_")
+    aliases = {
+        "frame": "per_frame",
+        "frames": "per_frame",
+        "vertical": "per_frame",
+        "grid": "timeline_grid",
+        "timeline": "timeline_grid",
+        "time_grid": "timeline_grid",
+    }
+    mode = aliases.get(mode, mode)
+    if mode not in {"per_frame", "timeline_grid"}:
+        raise ValueError(f"{name} must be 'per_frame' or 'timeline_grid', got: {mode}")
+    return mode
+
+
 _CONFIG = _load_yaml(CONFIG_PATH)
 
 DEFAULT_MODEL = _env_str("ANNOTATE_MODEL", _required(_CONFIG, "model.name"))
 DEFAULT_BASE_URL = _env_str("ANNOTATE_BASE_URL", _required(_CONFIG, "model.base_url"))
 
+DEFAULT_SCENE_FPS = _env_float("ANNOTATE_SCENE_FPS", _required(_CONFIG, "stages.scene.fps"))
 DEFAULT_ANALYSIS_FPS = _env_float("ANNOTATE_ANALYSIS_FPS", _required(_CONFIG, "stages.analysis.fps"))
 DEFAULT_REFINEMENT_FPS = _env_float("ANNOTATE_REFINEMENT_FPS", _required(_CONFIG, "stages.refinement.fps"))
 
 DEFAULT_ROBOT_TYPE = _env_str("ANNOTATE_ROBOT_TYPE", _required(_CONFIG, "prompt.robot_type"))
 DEFAULT_PROMPT_LANGUAGE = _env_str("ANNOTATE_PROMPT_LANGUAGE", _required(_CONFIG, "prompt.language"))
 
+DEFAULT_SCENE_MAX_TOKENS = _env_int(
+    "ANNOTATE_SCENE_MAX_TOKENS",
+    _required(_CONFIG, "stages.scene.max_tokens"),
+)
 DEFAULT_ANALYSIS_MAX_TOKENS = _env_int(
     "ANNOTATE_ANALYSIS_MAX_TOKENS",
     _required(_CONFIG, "stages.analysis.max_tokens"),
@@ -88,13 +109,45 @@ DEFAULT_REFINEMENT_MAX_TOKENS = _env_int(
     "ANNOTATE_REFINEMENT_MAX_TOKENS",
     _required(_CONFIG, "stages.refinement.max_tokens"),
 )
+_fallback_merge_views = os.environ.get("ANNOTATE_MERGE_VIEWS")
+_fallback_merge_mode = os.environ.get("ANNOTATE_MERGE_MODE")
+DEFAULT_SCENE_MERGE_VIEWS = _env_bool(
+    "ANNOTATE_SCENE_MERGE_VIEWS",
+    _fallback_merge_views or _required(_CONFIG, "stages.scene.merge_views"),
+)
+DEFAULT_ANALYSIS_MERGE_VIEWS = _env_bool(
+    "ANNOTATE_ANALYSIS_MERGE_VIEWS",
+    _fallback_merge_views or _required(_CONFIG, "stages.analysis.merge_views"),
+)
+DEFAULT_REFINEMENT_MERGE_VIEWS = _env_bool(
+    "ANNOTATE_REFINEMENT_MERGE_VIEWS",
+    _fallback_merge_views or _required(_CONFIG, "stages.refinement.merge_views"),
+)
+DEFAULT_SCENE_MERGE_MODE = _env_merge_mode(
+    "ANNOTATE_SCENE_MERGE_MODE",
+    _fallback_merge_mode or _required(_CONFIG, "stages.scene.merge_mode"),
+)
+DEFAULT_ANALYSIS_MERGE_MODE = _env_merge_mode(
+    "ANNOTATE_ANALYSIS_MERGE_MODE",
+    _fallback_merge_mode or _required(_CONFIG, "stages.analysis.merge_mode"),
+)
+DEFAULT_REFINEMENT_MERGE_MODE = _env_merge_mode(
+    "ANNOTATE_REFINEMENT_MERGE_MODE",
+    _fallback_merge_mode or _required(_CONFIG, "stages.refinement.merge_mode"),
+)
 DEFAULT_VLM_TEMPERATURE = _env_float("ANNOTATE_VLM_TEMPERATURE", _required(_CONFIG, "vlm_sampling.temperature"))
 DEFAULT_VLM_TOP_P = _env_float("ANNOTATE_VLM_TOP_P", _required(_CONFIG, "vlm_sampling.top_p"))
 DEFAULT_VLM_TOP_K = _env_int("ANNOTATE_VLM_TOP_K", _required(_CONFIG, "vlm_sampling.top_k"))
 
 DEFAULT_MAX_FRAMES = _env_int("ANNOTATE_MAX_FRAMES", _required(_CONFIG, "video.max_frames"))
+DEFAULT_MERGE_VIEWS = DEFAULT_ANALYSIS_MERGE_VIEWS
+DEFAULT_MERGE_MODE = DEFAULT_ANALYSIS_MERGE_MODE
 
 _fallback_resize_width = os.environ.get("ANNOTATE_RESIZE_WIDTH")
+DEFAULT_SCENE_RESIZE_WIDTH = _env_int(
+    "ANNOTATE_SCENE_RESIZE_WIDTH",
+    _fallback_resize_width or _required(_CONFIG, "stages.scene.resize_width"),
+)
 DEFAULT_ANALYSIS_RESIZE_WIDTH = _env_int(
     "ANNOTATE_ANALYSIS_RESIZE_WIDTH",
     _fallback_resize_width or _required(_CONFIG, "stages.analysis.resize_width"),
@@ -111,6 +164,10 @@ DEFAULT_MERGE_VIEW_NAMES = _env_list(
 )
 DEFAULT_JPEG_QUALITY = _env_int("ANNOTATE_JPEG_QUALITY", _required(_CONFIG, "video.jpeg_quality"))
 
+DEFAULT_SCENE_DRAW_TIMESTAMPS = _env_bool(
+    "ANNOTATE_SCENE_DRAW_TIMESTAMPS",
+    _required(_CONFIG, "stages.scene.draw_timestamps"),
+)
 DEFAULT_ANALYSIS_DRAW_TIMESTAMPS = _env_bool(
     "ANNOTATE_ANALYSIS_DRAW_TIMESTAMPS",
     _required(_CONFIG, "stages.analysis.draw_timestamps"),

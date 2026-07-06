@@ -6,6 +6,10 @@ from .vocabulary import (
     FEW_SHOT_EXAMPLES,
 )
 from .robot_type import get_robot_type_prompt
+from .scene import (
+    SCENE_SYSTEM_PROMPT,
+    SCENE_PROMPT_TEMPLATE,
+)
 from .analysis import (
     ANALYSIS_SYSTEM_PROMPT,
     ANALYSIS_PROMPT_TEMPLATE,

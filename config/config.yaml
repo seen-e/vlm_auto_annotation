@@ -9,19 +9,31 @@
 # - ANNOTATE_BASE_URL
 # - ANNOTATE_ROBOT_TYPE
 # - ANNOTATE_PROMPT_LANGUAGE
+# - ANNOTATE_SCENE_FPS
 # - ANNOTATE_ANALYSIS_FPS
 # - ANNOTATE_REFINEMENT_FPS
+# - ANNOTATE_SCENE_MAX_TOKENS
 # - ANNOTATE_ANALYSIS_MAX_TOKENS
 # - ANNOTATE_REFINEMENT_MAX_TOKENS
+# - ANNOTATE_SCENE_MERGE_VIEWS
+# - ANNOTATE_ANALYSIS_MERGE_VIEWS
+# - ANNOTATE_REFINEMENT_MERGE_VIEWS
+# - ANNOTATE_SCENE_MERGE_MODE
+# - ANNOTATE_ANALYSIS_MERGE_MODE
+# - ANNOTATE_REFINEMENT_MERGE_MODE
+# - ANNOTATE_MERGE_VIEWS: compatibility override for all stage merge switches
+# - ANNOTATE_MERGE_MODE: compatibility override for all stage merge modes
 # - ANNOTATE_VLM_TEMPERATURE
 # - ANNOTATE_VLM_TOP_P
 # - ANNOTATE_VLM_TOP_K
 # - ANNOTATE_MAX_FRAMES
+# - ANNOTATE_SCENE_RESIZE_WIDTH
 # - ANNOTATE_ANALYSIS_RESIZE_WIDTH
 # - ANNOTATE_REFINEMENT_RESIZE_WIDTH
 # - ANNOTATE_RESIZE_WIDTH
 # - ANNOTATE_MERGE_VIEW_NAMES
 # - ANNOTATE_JPEG_QUALITY
+# - ANNOTATE_SCENE_DRAW_TIMESTAMPS
 # - ANNOTATE_ANALYSIS_DRAW_TIMESTAMPS
 # - ANNOTATE_REFINEMENT_DRAW_TIMESTAMPS
 # - ANNOTATE_DRAW_TIMESTAMPS
@@ -43,6 +55,22 @@ prompt:
   robot_type: bimanual
 
 stages:
+  scene:
+    # DEFAULT_SCENE_FPS: frame sampling FPS for scene/background context extraction.
+    fps: 1.0
+    # DEFAULT_SCENE_MAX_TOKENS: max output tokens for scene context.
+    max_tokens: 1024
+    # DEFAULT_SCENE_RESIZE_WIDTH: per-view image width before optional multi-view merge.
+    resize_width: 224
+    # DEFAULT_SCENE_DRAW_TIMESTAMPS: normally false; scene context does not need time boundaries.
+    draw_timestamps: false
+    # DEFAULT_SCENE_MERGE_VIEWS: whether this stage uses multi-view stitching.
+    merge_views: true
+    # DEFAULT_SCENE_MERGE_MODE: per_frame or timeline_grid.
+    # per_frame: each sampled timestamp is one vertically stitched image.
+    # timeline_grid: views are arranged vertically and sampled times horizontally in one image.
+    merge_mode: per_frame
+
   analysis:
     # DEFAULT_ANALYSIS_FPS: frame sampling FPS for coarse action analysis.
     fps: 1.0
@@ -52,6 +80,10 @@ stages:
     resize_width: 224
     # DEFAULT_ANALYSIS_DRAW_TIMESTAMPS: usually false to avoid distracting coarse recognition.
     draw_timestamps: false
+    # DEFAULT_ANALYSIS_MERGE_VIEWS: whether this stage uses multi-view stitching.
+    merge_views: true
+    # DEFAULT_ANALYSIS_MERGE_MODE: per_frame or timeline_grid.
+    merge_mode: per_frame
 
   refinement:
     # DEFAULT_REFINEMENT_FPS: frame sampling FPS for timestamp/action refinement.
@@ -62,6 +94,10 @@ stages:
     resize_width: 448
     # DEFAULT_REFINEMENT_DRAW_TIMESTAMPS and DEFAULT_DRAW_TIMESTAMPS compatibility value.
     draw_timestamps: true
+    # DEFAULT_REFINEMENT_MERGE_VIEWS: whether this stage uses multi-view stitching.
+    merge_views: true
+    # DEFAULT_REFINEMENT_MERGE_MODE: per_frame or timeline_grid.
+    merge_mode: per_frame
 
 vlm_sampling:
   # DEFAULT_VLM_TEMPERATURE: lower is more deterministic.

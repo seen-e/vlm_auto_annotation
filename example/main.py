@@ -45,6 +45,8 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
     DEFAULT_ANALYSIS_MAX_TOKENS,
+    DEFAULT_ANALYSIS_MERGE_MODE,
+    DEFAULT_ANALYSIS_MERGE_VIEWS,
     DEFAULT_ANALYSIS_RESIZE_WIDTH,
     DEFAULT_BASE_URL,
     DEFAULT_MAX_FRAMES,
@@ -52,9 +54,17 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
     DEFAULT_REFINEMENT_MAX_TOKENS,
+    DEFAULT_REFINEMENT_MERGE_MODE,
+    DEFAULT_REFINEMENT_MERGE_VIEWS,
     DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     DEFAULT_REFINEMENT_RESIZE_WIDTH,
     DEFAULT_ROBOT_TYPE,
+    DEFAULT_SCENE_DRAW_TIMESTAMPS,
+    DEFAULT_SCENE_FPS,
+    DEFAULT_SCENE_MAX_TOKENS,
+    DEFAULT_SCENE_MERGE_MODE,
+    DEFAULT_SCENE_MERGE_VIEWS,
+    DEFAULT_SCENE_RESIZE_WIDTH,
 )
 
 
@@ -93,15 +103,26 @@ def parse_args() -> argparse.Namespace:
         choices=["cn", "en"],
         help="Prompt language: cn uses prompts_cn, en uses prompts.",
     )
+    parser.add_argument("--scene-fps", type=float, default=DEFAULT_SCENE_FPS)
     parser.add_argument("--analysis-fps", type=float, default=DEFAULT_ANALYSIS_FPS)
     parser.add_argument("--refinement-fps", type=float, default=DEFAULT_REFINEMENT_FPS)
+    parser.add_argument("--scene-max-tokens", type=int, default=DEFAULT_SCENE_MAX_TOKENS)
     parser.add_argument("--analysis-max-tokens", type=int, default=DEFAULT_ANALYSIS_MAX_TOKENS)
     parser.add_argument("--refinement-max-tokens", type=int, default=DEFAULT_REFINEMENT_MAX_TOKENS)
+    parser.add_argument("--scene-resize-width", type=int, default=DEFAULT_SCENE_RESIZE_WIDTH)
     parser.add_argument("--analysis-resize-width", type=int, default=DEFAULT_ANALYSIS_RESIZE_WIDTH)
     parser.add_argument("--refinement-resize-width", type=int, default=DEFAULT_REFINEMENT_RESIZE_WIDTH)
+    parser.add_argument("--scene-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_DRAW_TIMESTAMPS)
     parser.add_argument("--analysis-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_DRAW_TIMESTAMPS)
     parser.add_argument("--refinement-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_TIMESTAMPS)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES)
+    parser.add_argument("--scene-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_MERGE_VIEWS)
+    parser.add_argument("--analysis-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_MERGE_VIEWS)
+    parser.add_argument("--refinement-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_MERGE_VIEWS)
+    parser.add_argument("--scene-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_SCENE_MERGE_MODE)
+    parser.add_argument("--analysis-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_ANALYSIS_MERGE_MODE)
+    parser.add_argument("--refinement-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_REFINEMENT_MERGE_MODE)
+    parser.add_argument("--merge-views", action=argparse.BooleanOptionalAction, default=None, help="Compatibility override for all stage merge switches.")
     parser.add_argument("--log-level", help="Override config logging.level for this CLI run.")
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
     parser.add_argument("--resume", action="store_true", help="Reuse successful items already in output JSON.")
@@ -131,15 +152,26 @@ def run_one(
     model: str = DEFAULT_MODEL,
     robot_type: str = DEFAULT_ROBOT_TYPE,
     prompt_language: str = DEFAULT_PROMPT_LANGUAGE,
+    scene_fps: float = DEFAULT_SCENE_FPS,
     analysis_fps: float = DEFAULT_ANALYSIS_FPS,
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
+    scene_max_tokens: int = DEFAULT_SCENE_MAX_TOKENS,
     analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
     refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
+    scene_resize_width: int = DEFAULT_SCENE_RESIZE_WIDTH,
     analysis_resize_width: int = DEFAULT_ANALYSIS_RESIZE_WIDTH,
     refinement_resize_width: int = DEFAULT_REFINEMENT_RESIZE_WIDTH,
+    scene_draw_timestamps: bool = DEFAULT_SCENE_DRAW_TIMESTAMPS,
     analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     max_frames: int = DEFAULT_MAX_FRAMES,
+    scene_merge_views: bool = DEFAULT_SCENE_MERGE_VIEWS,
+    analysis_merge_views: bool = DEFAULT_ANALYSIS_MERGE_VIEWS,
+    refinement_merge_views: bool = DEFAULT_REFINEMENT_MERGE_VIEWS,
+    scene_merge_mode: str = DEFAULT_SCENE_MERGE_MODE,
+    analysis_merge_mode: str = DEFAULT_ANALYSIS_MERGE_MODE,
+    refinement_merge_mode: str = DEFAULT_REFINEMENT_MERGE_MODE,
+    merge_views: bool | None = None,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
     result = run_single_view_no_steps_raw(
@@ -149,15 +181,26 @@ def run_one(
         model=model,
         robot_type=robot_type,
         prompt_language=prompt_language,
+        scene_fps=scene_fps,
         analysis_fps=analysis_fps,
         refinement_fps=refinement_fps,
+        scene_max_tokens=scene_max_tokens,
         analysis_max_tokens=analysis_max_tokens,
         refinement_max_tokens=refinement_max_tokens,
+        scene_resize_width=scene_resize_width,
         analysis_resize_width=analysis_resize_width,
         refinement_resize_width=refinement_resize_width,
+        scene_draw_timestamps=scene_draw_timestamps,
         analysis_draw_timestamps=analysis_draw_timestamps,
         refinement_draw_timestamps=refinement_draw_timestamps,
         max_frames=max_frames,
+        scene_merge_views=scene_merge_views,
+        analysis_merge_views=analysis_merge_views,
+        refinement_merge_views=refinement_merge_views,
+        scene_merge_mode=scene_merge_mode,
+        analysis_merge_mode=analysis_merge_mode,
+        refinement_merge_mode=refinement_merge_mode,
+        merge_views=merge_views,
     )
     return result.to_dict()
 
@@ -239,15 +282,26 @@ def run_batch(args: argparse.Namespace) -> None:
                 model=args.model,
                 robot_type=str(robot_type),
                 prompt_language=str(prompt_language),
+                scene_fps=args.scene_fps,
                 analysis_fps=args.analysis_fps,
                 refinement_fps=args.refinement_fps,
+                scene_max_tokens=args.scene_max_tokens,
                 analysis_max_tokens=args.analysis_max_tokens,
                 refinement_max_tokens=args.refinement_max_tokens,
+                scene_resize_width=args.scene_resize_width,
                 analysis_resize_width=args.analysis_resize_width,
                 refinement_resize_width=args.refinement_resize_width,
+                scene_draw_timestamps=args.scene_draw_timestamps,
                 analysis_draw_timestamps=args.analysis_draw_timestamps,
                 refinement_draw_timestamps=args.refinement_draw_timestamps,
                 max_frames=args.max_frames,
+                scene_merge_views=args.scene_merge_views,
+                analysis_merge_views=args.analysis_merge_views,
+                refinement_merge_views=args.refinement_merge_views,
+                scene_merge_mode=args.scene_merge_mode,
+                analysis_merge_mode=args.analysis_merge_mode,
+                refinement_merge_mode=args.refinement_merge_mode,
+                merge_views=args.merge_views,
             )
             merged["prediction"] = prediction
             merged["error"] = None
@@ -286,15 +340,26 @@ def run_single(args: argparse.Namespace) -> None:
         model=args.model,
         robot_type=args.robot_type,
         prompt_language=args.prompt_language,
+        scene_fps=args.scene_fps,
         analysis_fps=args.analysis_fps,
         refinement_fps=args.refinement_fps,
+        scene_max_tokens=args.scene_max_tokens,
         analysis_max_tokens=args.analysis_max_tokens,
         refinement_max_tokens=args.refinement_max_tokens,
+        scene_resize_width=args.scene_resize_width,
         analysis_resize_width=args.analysis_resize_width,
         refinement_resize_width=args.refinement_resize_width,
+        scene_draw_timestamps=args.scene_draw_timestamps,
         analysis_draw_timestamps=args.analysis_draw_timestamps,
         refinement_draw_timestamps=args.refinement_draw_timestamps,
         max_frames=args.max_frames,
+        scene_merge_views=args.scene_merge_views,
+        analysis_merge_views=args.analysis_merge_views,
+        refinement_merge_views=args.refinement_merge_views,
+        scene_merge_mode=args.scene_merge_mode,
+        analysis_merge_mode=args.analysis_merge_mode,
+        refinement_merge_mode=args.refinement_merge_mode,
+        merge_views=args.merge_views,
     )
     logger.info("Single run done elapsed=%.2fs", time.perf_counter() - start)
     print(json.dumps(prediction, ensure_ascii=False, indent=2))
