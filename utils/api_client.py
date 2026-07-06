@@ -22,7 +22,7 @@ def create_openai_client(api_key: str | None = None, base_url: str | None = None
     api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
-    logger.info("Creating OpenAI-compatible client base_url=%s", base_url or DEFAULT_BASE_URL)
+    logger.debug("Creating OpenAI-compatible client base_url=%s", base_url or DEFAULT_BASE_URL)
     return OpenAI(api_key=api_key, base_url=base_url or DEFAULT_BASE_URL)
 
 
@@ -80,7 +80,7 @@ def call_vlm(
                 request_kwargs["max_tokens"] = max_tokens
             if top_k > 0:
                 request_kwargs["extra_body"]["top_k"] = top_k
-            logger.info(
+            logger.debug(
                 "VLM request start model=%s images=%s max_tokens=%s temperature=%s top_p=%s top_k=%s attempt=%s/%s",
                 model,
                 len(parts),
@@ -102,7 +102,7 @@ def call_vlm(
                 "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
                 "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
             }
-            logger.info(
+            logger.debug(
                 "VLM request done model=%s elapsed=%.2fs prompt_tokens=%s completion_tokens=%s total_tokens=%s",
                 model,
                 time.perf_counter() - start,

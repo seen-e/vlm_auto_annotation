@@ -18,142 +18,243 @@
         "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
         "analysisResult": {
           "robot_type": "bimanual",
+          "scene": {
+            "robot_type": "bimanual",
+            "arms": [
+              {
+                "arm_id": "left",
+                "description": "左侧机械臂，负责固定笔记本电脑支架底座",
+                "best_view": "camera_top"
+              },
+              {
+                "arm_id": "right",
+                "description": "右侧机械臂，负责将笔记本电脑放置到支架上并调整姿态",
+                "best_view": "camera_top"
+              }
+            ],
+            "objects": [
+              {
+                "object_id": "laptop",
+                "description": "笔记本电脑",
+                "category": "manipulated_object"
+              },
+              {
+                "object_id": "laptop_stand",
+                "description": "笔记本电脑支架",
+                "category": "support_object"
+              },
+              {
+                "object_id": "mouse",
+                "description": "鼠标",
+                "category": "other"
+              },
+              {
+                "object_id": "mouse_pad",
+                "description": "鼠标垫",
+                "category": "other"
+              },
+              {
+                "object_id": "pencil",
+                "description": "铅笔",
+                "category": "other"
+              },
+              {
+                "object_id": "table",
+                "description": "操作台面",
+                "category": "surface"
+              }
+            ]
+          },
+          "main_object": "laptop",
           "action_sequence": [
             {
-              "executor": "left",
-              "action": "接近",
-              "object": "笔记本电脑支架"
-            },
-            {
-              "executor": "right",
-              "action": "接近",
-              "object": "笔记本电脑"
-            },
-            {
+              "event_id": "E001",
               "executor": "left",
               "action": "固定",
-              "object": "笔记本电脑支架"
+              "object": "laptop_stand",
+              "target": null,
+              "rough_order": 1
             },
             {
+              "event_id": "E002",
               "executor": "right",
               "action": "拿起",
-              "object": "笔记本电脑"
+              "object": "laptop",
+              "target": null,
+              "rough_order": 2
             },
             {
+              "event_id": "E003",
               "executor": "right",
               "action": "放置",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "right",
-              "action": "调整",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "right",
-              "action": "释放",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "left",
-              "action": "释放",
-              "object": "笔记本电脑支架"
-            },
-            {
-              "executor": "left",
-              "action": "撤回",
-              "object": ""
-            },
-            {
-              "executor": "right",
-              "action": "撤回",
-              "object": ""
+              "object": "laptop",
+              "target": "laptop_stand",
+              "rough_order": 3
             }
-          ],
-          "main_object": "笔记本电脑"
+          ]
         },
         "timestampedActionSequence": [
           {
-            "executor": "left",
-            "action": "接近",
-            "object": "笔记本电脑支架",
-            "start_time": "00:00.00",
-            "end_time": "00:02.63"
-          },
-          {
-            "executor": "right",
-            "action": "接近",
-            "object": "笔记本电脑",
-            "start_time": "00:00.00",
-            "end_time": "00:02.63"
-          },
-          {
+            "event_id": "E001",
             "executor": "left",
             "action": "固定",
-            "object": "笔记本电脑支架",
-            "start_time": "00:02.63",
-            "end_time": "00:10.03"
+            "object": "laptop_stand",
+            "target": null,
+            "start_time": "00:01.87",
+            "end_time": "00:03.43"
           },
           {
+            "event_id": "E002",
             "executor": "right",
             "action": "拿起",
-            "object": "笔记本电脑",
-            "start_time": "00:02.63",
-            "end_time": "00:10.03"
+            "object": "laptop",
+            "target": null,
+            "start_time": "00:01.33",
+            "end_time": "00:04.50"
           },
           {
+            "event_id": "E003",
             "executor": "right",
             "action": "放置",
-            "object": "笔记本电脑",
-            "start_time": "00:10.03",
-            "end_time": "00:15.87"
-          },
+            "object": "laptop",
+            "target": "laptop_stand",
+            "start_time": "00:04.50",
+            "end_time": "00:17.17"
+          }
+        ],
+        "phaseSegments": [
           {
-            "executor": "right",
-            "action": "调整",
-            "object": "笔记本电脑",
-            "start_time": "00:15.87",
-            "end_time": "00:20.10"
-          },
-          {
-            "executor": "right",
-            "action": "释放",
-            "object": "笔记本电脑",
-            "start_time": "00:20.10",
-            "end_time": "00:21.13"
-          },
-          {
+            "phase_id": "P001",
+            "source_event_id": "E001",
             "executor": "left",
-            "action": "释放",
-            "object": "笔记本电脑支架",
-            "start_time": "00:21.13",
-            "end_time": "00:22.20"
+            "primitive": "approach",
+            "action": "接近",
+            "object": "laptop_stand",
+            "target": null,
+            "start_time": "00:01.87",
+            "end_time": "00:02.63",
+            "start_condition": "左臂从初始位置开始向笔记本电脑支架底座移动",
+            "end_condition": "左臂夹爪到达笔记本电脑支架底座上方",
+            "confidence": 0.85,
+            "quality_flags": []
           },
           {
+            "phase_id": "P002",
+            "source_event_id": "E001",
             "executor": "left",
-            "action": "撤回",
-            "object": "",
-            "start_time": "00:22.20",
-            "end_time": "00:33.57"
+            "primitive": "grasp",
+            "action": "固定",
+            "object": "laptop_stand",
+            "target": null,
+            "start_time": "00:02.63",
+            "end_time": "00:03.43",
+            "start_condition": "左臂夹爪接触笔记本电脑支架底座边缘",
+            "end_condition": "左臂夹爪闭合，稳固抓住支架底座，防止其移动",
+            "confidence": 0.85,
+            "quality_flags": []
           },
           {
+            "phase_id": "P003",
+            "source_event_id": "E002",
             "executor": "right",
-            "action": "撤回",
-            "object": "",
-            "start_time": "00:21.13",
-            "end_time": "00:33.57"
+            "primitive": "approach",
+            "action": "接近",
+            "object": "laptop",
+            "target": null,
+            "start_time": "00:01.33",
+            "end_time": "00:02.10",
+            "start_condition": "右臂从初始位置开始向笔记本电脑移动",
+            "end_condition": "右臂夹爪到达笔记本电脑边缘上方",
+            "confidence": 0.85,
+            "quality_flags": []
+          },
+          {
+            "phase_id": "P004",
+            "source_event_id": "E002",
+            "executor": "right",
+            "primitive": "grasp",
+            "action": "抓取",
+            "object": "laptop",
+            "target": null,
+            "start_time": "00:02.10",
+            "end_time": "00:03.17",
+            "start_condition": "右臂夹爪接触笔记本电脑右侧边缘",
+            "end_condition": "右臂夹爪闭合，稳固抓住笔记本电脑",
+            "confidence": 0.85,
+            "quality_flags": []
+          },
+          {
+            "phase_id": "P005",
+            "source_event_id": "E002",
+            "executor": "right",
+            "primitive": "lift",
+            "action": "拿起",
+            "object": "laptop",
+            "target": null,
+            "start_time": "00:03.17",
+            "end_time": "00:04.50",
+            "start_condition": "右臂开始向上抬起笔记本电脑",
+            "end_condition": "笔记本电脑完全离开桌面，悬空于右臂夹爪中",
+            "confidence": 0.85,
+            "quality_flags": []
+          },
+          {
+            "phase_id": "P006",
+            "source_event_id": "E003",
+            "executor": "right",
+            "primitive": "transfer",
+            "action": "移动",
+            "object": "laptop",
+            "target": "laptop_stand",
+            "start_time": "00:04.50",
+            "end_time": "00:11.10",
+            "start_condition": "右臂携带笔记本电脑向支架位置移动",
+            "end_condition": "笔记本电脑移动至支架上方，准备放置",
+            "confidence": 0.85,
+            "quality_flags": []
+          },
+          {
+            "phase_id": "P007",
+            "source_event_id": "E003",
+            "executor": "right",
+            "primitive": "place",
+            "action": "放置",
+            "object": "laptop",
+            "target": "laptop_stand",
+            "start_time": "00:11.10",
+            "end_time": "00:16.13",
+            "start_condition": "右臂将笔记本电脑降低至支架表面",
+            "end_condition": "笔记本电脑平稳放置在支架上，姿态调整完毕",
+            "confidence": 0.85,
+            "quality_flags": []
+          },
+          {
+            "phase_id": "P008",
+            "source_event_id": "E003",
+            "executor": "right",
+            "primitive": "release",
+            "action": "释放",
+            "object": "laptop",
+            "target": null,
+            "start_time": "00:16.13",
+            "end_time": "00:17.17",
+            "start_condition": "右臂夹爪松开笔记本电脑",
+            "end_condition": "右臂完全脱离笔记本电脑，任务完成",
+            "confidence": 0.85,
+            "quality_flags": []
           }
         ],
         "fineGrainedSteps": [
-          "00:00.00 - 00:02.63：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动，双臂同时接近目标。",
-          "00:02.63 - 00:10.03：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘以保持稳定；右臂夹爪从上方抓住笔记本电脑的右侧边缘，将其垂直抬起离开桌面。",
-          "00:10.03 - 00:15.87：右臂将笔记本电脑水平向左移动并降低，放置在左臂固定的支架上，左臂全程保持固定姿态。",
-          "00:15.87 - 00:20.10：右臂在支架上微调笔记本电脑的位置和角度，确保其平稳放置，左臂继续固定支架。",
-          "00:20.10 - 00:21.13：右臂松开夹爪释放笔记本电脑，随后向上抬起并撤回。",
-          "00:21.13 - 00:22.20：左臂松开夹爪释放笔记本电脑支架，随后向上抬起并撤回。",
-          "00:22.20 - 00:33.57：左右双臂均完全离开操作区域，回到初始待机位置。"
+          "00:01.33 - 00:02.10: 右臂接近笔记本电脑",
+          "00:01.87 - 00:02.63: 左臂接近笔记本电脑支架底座",
+          "00:02.10 - 00:03.17: 右臂抓取笔记本电脑",
+          "00:02.63 - 00:03.43: 左臂固定笔记本电脑支架底座",
+          "00:03.17 - 00:04.50: 右臂拿起笔记本电脑",
+          "00:04.50 - 00:11.10: 右臂将笔记本电脑移动至支架上方",
+          "00:11.10 - 00:16.13: 右臂将笔记本电脑放置到支架上并调整姿态",
+          "00:16.13 - 00:17.17: 右臂释放笔记本电脑"
         ],
-        "refinedInstruction": "左臂首先接近并固定住笔记本电脑支架，右臂同时接近并拿起笔记本电脑，随后将电脑放置在支架上并进行微调，最后双臂依次释放物体并撤回。",
+        "refinedInstruction": "左臂首先接近并固定笔记本电脑支架底座，与此同时右臂接近并抓取笔记本电脑。随后，右臂将笔记本电脑拿起并移动至支架上方，在左臂的辅助下，右臂将笔记本电脑平稳放置到支架上并调整姿态，最后释放笔记本电脑。",
         "metadata": {
           "prompt_language": "cn",
           "analysis": {
@@ -182,7 +283,9 @@
               0,
               1008
             ],
-            "draw_timestamps": false
+            "draw_timestamps": false,
+            "load_elapsed_seconds": 0.628,
+            "postprocess_elapsed_seconds": 53.25
           },
           "refinement": {
             "video_path": {
@@ -210,553 +313,437 @@
               0,
               1008
             ],
-            "draw_timestamps": true
-          }
+            "draw_timestamps": true,
+            "load_elapsed_seconds": 1.341,
+            "postprocess_elapsed_seconds": 0.0
+          },
+          "elapsed_seconds": 234.194
         }
       },
       "stages": {
-        "analysis": {
+        "analysis_scene": {
           "success": true,
           "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "接近",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "right",
-                "action": "接近",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "left",
-                "action": "固定",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "right",
-                "action": "拿起",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "放置",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "调整",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "释放",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "left",
-                "action": "释放",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "left",
-                "action": "撤回",
-                "object": ""
-              },
-              {
-                "executor": "right",
-                "action": "撤回",
-                "object": ""
-              }
-            ],
-            "main_object": "笔记本电脑"
+            "scene": {
+              "robot_type": "bimanual",
+              "arms": [
+                {
+                  "arm_id": "left",
+                  "description": "左侧机械臂，负责固定笔记本电脑支架底座",
+                  "best_view": "camera_top"
+                },
+                {
+                  "arm_id": "right",
+                  "description": "右侧机械臂，负责将笔记本电脑放置到支架上并调整姿态",
+                  "best_view": "camera_top"
+                }
+              ],
+              "objects": [
+                {
+                  "object_id": "laptop",
+                  "description": "笔记本电脑",
+                  "category": "manipulated_object"
+                },
+                {
+                  "object_id": "laptop_stand",
+                  "description": "笔记本电脑支架",
+                  "category": "support_object"
+                },
+                {
+                  "object_id": "mouse",
+                  "description": "鼠标",
+                  "category": "other"
+                },
+                {
+                  "object_id": "mouse_pad",
+                  "description": "鼠标垫",
+                  "category": "other"
+                },
+                {
+                  "object_id": "pencil",
+                  "description": "铅笔",
+                  "category": "other"
+                },
+                {
+                  "object_id": "table",
+                  "description": "操作台面",
+                  "category": "surface"
+                }
+              ]
+            },
+            "main_object": "laptop"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 3959,
-            "completion_tokens": 338,
-            "total_tokens": 4297
+            "prompt_tokens": 3397,
+            "completion_tokens": 342,
+            "total_tokens": 3739
           }
         },
-        "refinement": {
+        "analysis_events": {
+          "success": true,
+          "output": {
+            "action_sequence": [
+              {
+                "event_id": "E001",
+                "executor": "left",
+                "action": "固定",
+                "object": "laptop_stand",
+                "target": null,
+                "rough_order": 1
+              },
+              {
+                "event_id": "E002",
+                "executor": "right",
+                "action": "拿起",
+                "object": "laptop",
+                "target": null,
+                "rough_order": 2
+              },
+              {
+                "event_id": "E003",
+                "executor": "right",
+                "action": "放置",
+                "object": "laptop",
+                "target": "laptop_stand",
+                "rough_order": 3
+              }
+            ]
+          },
+          "error": null,
+          "token_usage": {
+            "prompt_tokens": 3584,
+            "completion_tokens": 197,
+            "total_tokens": 3781
+          }
+        },
+        "refinement_phases": {
           "success": true,
           "output": {
             "action_corrections": [],
-            "timestamped_action_sequence": [
+            "phaseSegments": [
               {
+                "phase_id": "P001",
+                "source_event_id": "E001",
                 "executor": "left",
+                "primitive": "approach",
                 "action": "接近",
-                "object": "笔记本电脑支架",
-                "start_time": "00:00.00",
-                "end_time": "00:02.63"
+                "object": "laptop_stand",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "左臂从初始位置开始向笔记本电脑支架底座移动",
+                "end_condition": "左臂夹爪到达笔记本电脑支架底座上方",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
               },
               {
-                "executor": "right",
-                "action": "接近",
-                "object": "笔记本电脑",
-                "start_time": "00:00.00",
-                "end_time": "00:02.63"
-              },
-              {
+                "phase_id": "P002",
+                "source_event_id": "E001",
                 "executor": "left",
+                "primitive": "grasp",
                 "action": "固定",
-                "object": "笔记本电脑支架",
-                "start_time": "00:02.63",
-                "end_time": "00:10.03"
+                "object": "laptop_stand",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "左臂夹爪接触笔记本电脑支架底座边缘",
+                "end_condition": "左臂夹爪闭合，稳固抓住支架底座，防止其移动",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
               },
               {
+                "phase_id": "P003",
+                "source_event_id": "E002",
                 "executor": "right",
+                "primitive": "approach",
+                "action": "接近",
+                "object": "laptop",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂从初始位置开始向笔记本电脑移动",
+                "end_condition": "右臂夹爪到达笔记本电脑边缘上方",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
+              },
+              {
+                "phase_id": "P004",
+                "source_event_id": "E002",
+                "executor": "right",
+                "primitive": "grasp",
+                "action": "抓取",
+                "object": "laptop",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂夹爪接触笔记本电脑右侧边缘",
+                "end_condition": "右臂夹爪闭合，稳固抓住笔记本电脑",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
+              },
+              {
+                "phase_id": "P005",
+                "source_event_id": "E002",
+                "executor": "right",
+                "primitive": "lift",
                 "action": "拿起",
-                "object": "笔记本电脑",
-                "start_time": "00:02.63",
-                "end_time": "00:10.03"
+                "object": "laptop",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂开始向上抬起笔记本电脑",
+                "end_condition": "笔记本电脑完全离开桌面，悬空于右臂夹爪中",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
               },
               {
+                "phase_id": "P006",
+                "source_event_id": "E003",
                 "executor": "right",
+                "primitive": "transfer",
+                "action": "移动",
+                "object": "laptop",
+                "target": "laptop_stand",
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂携带笔记本电脑向支架位置移动",
+                "end_condition": "笔记本电脑移动至支架上方，准备放置",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
+              },
+              {
+                "phase_id": "P007",
+                "source_event_id": "E003",
+                "executor": "right",
+                "primitive": "place",
                 "action": "放置",
-                "object": "笔记本电脑",
-                "start_time": "00:10.03",
-                "end_time": "00:15.87"
+                "object": "laptop",
+                "target": "laptop_stand",
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂将笔记本电脑降低至支架表面",
+                "end_condition": "笔记本电脑平稳放置在支架上，姿态调整完毕",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
               },
               {
+                "phase_id": "P008",
+                "source_event_id": "E003",
                 "executor": "right",
-                "action": "调整",
-                "object": "笔记本电脑",
-                "start_time": "00:15.87",
-                "end_time": "00:20.10"
-              },
-              {
-                "executor": "right",
+                "primitive": "release",
                 "action": "释放",
-                "object": "笔记本电脑",
-                "start_time": "00:20.10",
-                "end_time": "00:21.13"
-              },
-              {
-                "executor": "left",
-                "action": "释放",
-                "object": "笔记本电脑支架",
-                "start_time": "00:21.13",
-                "end_time": "00:22.20"
-              },
-              {
-                "executor": "left",
-                "action": "撤回",
-                "object": "",
-                "start_time": "00:22.20",
-                "end_time": "00:33.57"
-              },
-              {
-                "executor": "right",
-                "action": "撤回",
-                "object": "",
-                "start_time": "00:21.13",
-                "end_time": "00:33.57"
+                "object": "laptop",
+                "target": null,
+                "start_time": "",
+                "end_time": "",
+                "start_condition": "右臂夹爪松开笔记本电脑",
+                "end_condition": "右臂完全脱离笔记本电脑，任务完成",
+                "confidence": 0.6,
+                "quality_flags": [
+                  "need_review"
+                ]
               }
-            ],
-            "fine_grained_steps": [
-              "00:00.00 - 00:02.63：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动，双臂同时接近目标。",
-              "00:02.63 - 00:10.03：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘以保持稳定；右臂夹爪从上方抓住笔记本电脑的右侧边缘，将其垂直抬起离开桌面。",
-              "00:10.03 - 00:15.87：右臂将笔记本电脑水平向左移动并降低，放置在左臂固定的支架上，左臂全程保持固定姿态。",
-              "00:15.87 - 00:20.10：右臂在支架上微调笔记本电脑的位置和角度，确保其平稳放置，左臂继续固定支架。",
-              "00:20.10 - 00:21.13：右臂松开夹爪释放笔记本电脑，随后向上抬起并撤回。",
-              "00:21.13 - 00:22.20：左臂松开夹爪释放笔记本电脑支架，随后向上抬起并撤回。",
-              "00:22.20 - 00:33.57：左右双臂均完全离开操作区域，回到初始待机位置。"
-            ],
-            "refined_instruction": "左臂首先接近并固定住笔记本电脑支架，右臂同时接近并拿起笔记本电脑，随后将电脑放置在支架上并进行微调，最后双臂依次释放物体并撤回。"
+            ]
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 40681,
-            "completion_tokens": 1007,
-            "total_tokens": 41688
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 81.96
-  },
-  {
-    "episode_id": "episode_000001",
-    "video_path": {
-      "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
-      "observation.rgb_images.camera_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_left\\episode_000001.mp4",
-      "observation.rgb_images.camera_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_right\\episode_000001.mp4",
-      "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
-      "observation.rgb_images.camera_wrist_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_left\\episode_000001.mp4",
-      "observation.rgb_images.camera_wrist_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_right\\episode_000001.mp4"
-    },
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "接近",
-              "object": "笔记本电脑支架"
-            },
-            {
-              "executor": "right",
-              "action": "接近",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "left",
-              "action": "固定",
-              "object": "笔记本电脑支架"
-            },
-            {
-              "executor": "right",
-              "action": "拿起",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "right",
-              "action": "放置",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "right",
-              "action": "调整",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "right",
-              "action": "释放",
-              "object": "笔记本电脑"
-            },
-            {
-              "executor": "left",
-              "action": "释放",
-              "object": "笔记本电脑支架"
-            },
-            {
-              "executor": "left",
-              "action": "撤回",
-              "object": ""
-            },
-            {
-              "executor": "right",
-              "action": "撤回",
-              "object": ""
-            }
-          ],
-          "main_object": "笔记本电脑"
-        },
-        "timestampedActionSequence": [
-          {
-            "executor": "left",
-            "action": "接近",
-            "object": "笔记本电脑支架",
-            "start_time": "00:00.00",
-            "end_time": "00:03.17"
-          },
-          {
-            "executor": "right",
-            "action": "接近",
-            "object": "笔记本电脑",
-            "start_time": "00:00.00",
-            "end_time": "00:05.67"
-          },
-          {
-            "executor": "left",
-            "action": "固定",
-            "object": "笔记本电脑支架",
-            "start_time": "00:03.17",
-            "end_time": "00:21.03"
-          },
-          {
-            "executor": "right",
-            "action": "拿起",
-            "object": "笔记本电脑",
-            "start_time": "00:05.67",
-            "end_time": "00:08.83"
-          },
-          {
-            "executor": "right",
-            "action": "放置",
-            "object": "笔记本电脑",
-            "start_time": "00:08.83",
-            "end_time": "00:12.60"
-          },
-          {
-            "executor": "right",
-            "action": "调整",
-            "object": "笔记本电脑",
-            "start_time": "00:12.60",
-            "end_time": "00:20.80"
-          },
-          {
-            "executor": "right",
-            "action": "释放",
-            "object": "笔记本电脑",
-            "start_time": "00:20.80",
-            "end_time": "00:21.03"
-          },
-          {
-            "executor": "left",
-            "action": "释放",
-            "object": "笔记本电脑支架",
-            "start_time": "00:21.03",
-            "end_time": "00:22.07"
-          },
-          {
-            "executor": "left",
-            "action": "撤回",
-            "object": "",
-            "start_time": "00:22.07",
-            "end_time": "00:26.70"
-          },
-          {
-            "executor": "right",
-            "action": "撤回",
-            "object": "",
-            "start_time": "00:21.03",
-            "end_time": "00:26.70"
-          }
-        ],
-        "fineGrainedSteps": [
-          "00:00.00 - 00:03.17：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动。",
-          "00:03.17 - 00:05.67：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘，右臂继续接近笔记本电脑。",
-          "00:05.67 - 00:08.83：右臂夹爪从右侧抓住笔记本电脑边缘，将其垂直抬起并水平向左移动，准备放置到支架上。",
-          "00:08.83 - 00:12.60：右臂将笔记本电脑放置在支架上，左臂持续固定支架防止其滑动。",
-          "00:12.60 - 00:20.80：右臂在支架上微调笔记本电脑的位置和角度，确保其稳固放置，左臂保持固定状态。",
-          "00:20.80 - 00:21.03：右臂松开笔记本电脑，左臂松开支架，双臂准备撤回。",
-          "00:21.03 - 00:26.70：左臂和右臂同时向各自起始位置撤回，任务完成。"
-        ],
-        "refinedInstruction": "左臂首先接近并固定住中央的黑色笔记本电脑支架，随后右臂接近并拿起右侧的银色笔记本电脑，将其放置到支架上并进行位置调整，最后双臂同时释放物体并撤回。",
-        "metadata": {
-          "prompt_language": "cn",
-          "analysis": {
-            "video_path": {
-              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
-              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4"
-            },
-            "selected_views": [
-              "observation.rgb_images.camera_front",
-              "observation.rgb_images.camera_top"
-            ],
-            "input_mode": "merged_views",
-            "merge_layout": "vertical",
-            "video_fps": 30.0,
-            "video_fps_by_view": {
-              "observation.rgb_images.camera_front": 30.0,
-              "observation.rgb_images.camera_top": 30.0
-            },
-            "total_frames": 802,
-            "total_frames_by_view": {
-              "observation.rgb_images.camera_front": 802,
-              "observation.rgb_images.camera_top": 802
-            },
-            "sampled_frames": 27,
-            "frame_range": [
-              0,
-              802
-            ],
-            "draw_timestamps": false
-          },
-          "refinement": {
-            "video_path": {
-              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
-              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4"
-            },
-            "selected_views": [
-              "observation.rgb_images.camera_front",
-              "observation.rgb_images.camera_top"
-            ],
-            "input_mode": "merged_views",
-            "merge_layout": "vertical",
-            "video_fps": 30.0,
-            "video_fps_by_view": {
-              "observation.rgb_images.camera_front": 30.0,
-              "observation.rgb_images.camera_top": 30.0
-            },
-            "total_frames": 802,
-            "total_frames_by_view": {
-              "observation.rgb_images.camera_front": 802,
-              "observation.rgb_images.camera_top": 802
-            },
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              802
-            ],
-            "draw_timestamps": true
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "接近",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "right",
-                "action": "接近",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "left",
-                "action": "固定",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "right",
-                "action": "拿起",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "放置",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "调整",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "right",
-                "action": "释放",
-                "object": "笔记本电脑"
-              },
-              {
-                "executor": "left",
-                "action": "释放",
-                "object": "笔记本电脑支架"
-              },
-              {
-                "executor": "left",
-                "action": "撤回",
-                "object": ""
-              },
-              {
-                "executor": "right",
-                "action": "撤回",
-                "object": ""
-              }
-            ],
-            "main_object": "笔记本电脑"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 3455,
-            "completion_tokens": 338,
-            "total_tokens": 3793
+            "prompt_tokens": 40141,
+            "completion_tokens": 878,
+            "total_tokens": 41019
           }
         },
-        "refinement": {
+        "refinement_boundaries": {
           "success": true,
           "output": {
             "action_corrections": [],
-            "timestamped_action_sequence": [
+            "phaseSegments": [
               {
+                "phase_id": "P001",
+                "source_event_id": "E001",
                 "executor": "left",
+                "primitive": "approach",
                 "action": "接近",
-                "object": "笔记本电脑支架",
-                "start_time": "00:00.00",
-                "end_time": "00:03.17"
+                "object": "laptop_stand",
+                "target": null,
+                "start_time": "00:01.87",
+                "end_time": "00:02.63",
+                "start_condition": "左臂从初始位置开始向笔记本电脑支架底座移动",
+                "end_condition": "左臂夹爪到达笔记本电脑支架底座上方",
+                "confidence": 0.85,
+                "quality_flags": []
               },
               {
-                "executor": "right",
-                "action": "接近",
-                "object": "笔记本电脑",
-                "start_time": "00:00.00",
-                "end_time": "00:05.67"
-              },
-              {
+                "phase_id": "P002",
+                "source_event_id": "E001",
                 "executor": "left",
+                "primitive": "grasp",
                 "action": "固定",
-                "object": "笔记本电脑支架",
+                "object": "laptop_stand",
+                "target": null,
+                "start_time": "00:02.63",
+                "end_time": "00:03.43",
+                "start_condition": "左臂夹爪接触笔记本电脑支架底座边缘",
+                "end_condition": "左臂夹爪闭合，稳固抓住支架底座，防止其移动",
+                "confidence": 0.85,
+                "quality_flags": []
+              },
+              {
+                "phase_id": "P003",
+                "source_event_id": "E002",
+                "executor": "right",
+                "primitive": "approach",
+                "action": "接近",
+                "object": "laptop",
+                "target": null,
+                "start_time": "00:01.33",
+                "end_time": "00:02.10",
+                "start_condition": "右臂从初始位置开始向笔记本电脑移动",
+                "end_condition": "右臂夹爪到达笔记本电脑边缘上方",
+                "confidence": 0.85,
+                "quality_flags": []
+              },
+              {
+                "phase_id": "P004",
+                "source_event_id": "E002",
+                "executor": "right",
+                "primitive": "grasp",
+                "action": "抓取",
+                "object": "laptop",
+                "target": null,
+                "start_time": "00:02.10",
+                "end_time": "00:03.17",
+                "start_condition": "右臂夹爪接触笔记本电脑右侧边缘",
+                "end_condition": "右臂夹爪闭合，稳固抓住笔记本电脑",
+                "confidence": 0.85,
+                "quality_flags": []
+              },
+              {
+                "phase_id": "P005",
+                "source_event_id": "E002",
+                "executor": "right",
+                "primitive": "lift",
+                "action": "拿起",
+                "object": "laptop",
+                "target": null,
                 "start_time": "00:03.17",
-                "end_time": "00:21.03"
+                "end_time": "00:04.50",
+                "start_condition": "右臂开始向上抬起笔记本电脑",
+                "end_condition": "笔记本电脑完全离开桌面，悬空于右臂夹爪中",
+                "confidence": 0.85,
+                "quality_flags": []
               },
               {
+                "phase_id": "P006",
+                "source_event_id": "E003",
+                "executor": "right",
+                "primitive": "transfer",
+                "action": "移动",
+                "object": "laptop",
+                "target": "laptop_stand",
+                "start_time": "00:04.50",
+                "end_time": "00:11.10",
+                "start_condition": "右臂携带笔记本电脑向支架位置移动",
+                "end_condition": "笔记本电脑移动至支架上方，准备放置",
+                "confidence": 0.85,
+                "quality_flags": []
+              },
+              {
+                "phase_id": "P007",
+                "source_event_id": "E003",
+                "executor": "right",
+                "primitive": "place",
+                "action": "放置",
+                "object": "laptop",
+                "target": "laptop_stand",
+                "start_time": "00:11.10",
+                "end_time": "00:16.13",
+                "start_condition": "右臂将笔记本电脑降低至支架表面",
+                "end_condition": "笔记本电脑平稳放置在支架上，姿态调整完毕",
+                "confidence": 0.85,
+                "quality_flags": []
+              },
+              {
+                "phase_id": "P008",
+                "source_event_id": "E003",
+                "executor": "right",
+                "primitive": "release",
+                "action": "释放",
+                "object": "laptop",
+                "target": null,
+                "start_time": "00:16.13",
+                "end_time": "00:17.17",
+                "start_condition": "右臂夹爪松开笔记本电脑",
+                "end_condition": "右臂完全脱离笔记本电脑，任务完成",
+                "confidence": 0.85,
+                "quality_flags": []
+              }
+            ],
+            "timestamped_action_sequence": [
+              {
+                "event_id": "E001",
+                "executor": "left",
+                "action": "固定",
+                "object": "laptop_stand",
+                "target": null,
+                "start_time": "00:01.87",
+                "end_time": "00:03.43"
+              },
+              {
+                "event_id": "E002",
                 "executor": "right",
                 "action": "拿起",
-                "object": "笔记本电脑",
-                "start_time": "00:05.67",
-                "end_time": "00:08.83"
+                "object": "laptop",
+                "target": null,
+                "start_time": "00:01.33",
+                "end_time": "00:04.50"
               },
               {
+                "event_id": "E003",
                 "executor": "right",
                 "action": "放置",
-                "object": "笔记本电脑",
-                "start_time": "00:08.83",
-                "end_time": "00:12.60"
-              },
-              {
-                "executor": "right",
-                "action": "调整",
-                "object": "笔记本电脑",
-                "start_time": "00:12.60",
-                "end_time": "00:20.80"
-              },
-              {
-                "executor": "right",
-                "action": "释放",
-                "object": "笔记本电脑",
-                "start_time": "00:20.80",
-                "end_time": "00:21.03"
-              },
-              {
-                "executor": "left",
-                "action": "释放",
-                "object": "笔记本电脑支架",
-                "start_time": "00:21.03",
-                "end_time": "00:22.07"
-              },
-              {
-                "executor": "left",
-                "action": "撤回",
-                "object": "",
-                "start_time": "00:22.07",
-                "end_time": "00:26.70"
-              },
-              {
-                "executor": "right",
-                "action": "撤回",
-                "object": "",
-                "start_time": "00:21.03",
-                "end_time": "00:26.70"
+                "object": "laptop",
+                "target": "laptop_stand",
+                "start_time": "00:04.50",
+                "end_time": "00:17.17"
               }
             ],
             "fine_grained_steps": [
-              "00:00.00 - 00:03.17：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动。",
-              "00:03.17 - 00:05.67：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘，右臂继续接近笔记本电脑。",
-              "00:05.67 - 00:08.83：右臂夹爪从右侧抓住笔记本电脑边缘，将其垂直抬起并水平向左移动，准备放置到支架上。",
-              "00:08.83 - 00:12.60：右臂将笔记本电脑放置在支架上，左臂持续固定支架防止其滑动。",
-              "00:12.60 - 00:20.80：右臂在支架上微调笔记本电脑的位置和角度，确保其稳固放置，左臂保持固定状态。",
-              "00:20.80 - 00:21.03：右臂松开笔记本电脑，左臂松开支架，双臂准备撤回。",
-              "00:21.03 - 00:26.70：左臂和右臂同时向各自起始位置撤回，任务完成。"
+              "00:01.33 - 00:02.10: 右臂接近笔记本电脑",
+              "00:01.87 - 00:02.63: 左臂接近笔记本电脑支架底座",
+              "00:02.10 - 00:03.17: 右臂抓取笔记本电脑",
+              "00:02.63 - 00:03.43: 左臂固定笔记本电脑支架底座",
+              "00:03.17 - 00:04.50: 右臂拿起笔记本电脑",
+              "00:04.50 - 00:11.10: 右臂将笔记本电脑移动至支架上方",
+              "00:11.10 - 00:16.13: 右臂将笔记本电脑放置到支架上并调整姿态",
+              "00:16.13 - 00:17.17: 右臂释放笔记本电脑"
             ],
-            "refined_instruction": "左臂首先接近并固定住中央的黑色笔记本电脑支架，随后右臂接近并拿起右侧的银色笔记本电脑，将其放置到支架上并进行位置调整，最后双臂同时释放物体并撤回。"
+            "refined_instruction": "左臂首先接近并固定笔记本电脑支架底座，与此同时右臂接近并抓取笔记本电脑。随后，右臂将笔记本电脑拿起并移动至支架上方，在左臂的辅助下，右臂将笔记本电脑平稳放置到支架上并调整姿态，最后释放笔记本电脑。"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 40681,
-            "completion_tokens": 997,
-            "total_tokens": 41678
+            "prompt_tokens": 40561,
+            "completion_tokens": 1855,
+            "total_tokens": 42416
           }
         }
       }
     },
     "error": null,
-    "processing_time_seconds": 90.22
+    "processing_time_seconds": 234.2
   }
 ]

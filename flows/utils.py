@@ -20,6 +20,61 @@ from ..utils.schemas import StageResult
 
 
 logger = logging.getLogger(__name__)
+PHASE_PRIMITIVES = {
+    "approach",
+    "grasp",
+    "lift",
+    "transfer",
+    "place",
+    "release",
+    "push",
+    "pull",
+    "rotate",
+    "insert",
+    "withdraw",
+    "open",
+    "close",
+    "handover",
+    "retract",
+    "idle",
+}
+ACTION_TO_PRIMITIVE = {
+    "接近": "approach",
+    "抓住": "grasp",
+    "夹取": "grasp",
+    "拿起": "lift",
+    "移动": "transfer",
+    "拖动": "transfer",
+    "放置": "place",
+    "释放": "release",
+    "推动": "push",
+    "拉动": "pull",
+    "旋转": "rotate",
+    "插入": "insert",
+    "拔出": "withdraw",
+    "打开": "open",
+    "关闭": "close",
+    "交接": "handover",
+    "撤回": "retract",
+    "approach": "approach",
+    "navigate": "approach",
+    "grasp": "grasp",
+    "lift": "lift",
+    "move": "transfer",
+    "transfer": "transfer",
+    "place": "place",
+    "release": "release",
+    "push": "push",
+    "pull": "pull",
+    "rotate": "rotate",
+    "insert": "insert",
+    "withdraw": "withdraw",
+    "open": "open",
+    "close": "close",
+    "handover": "handover",
+    "retract": "retract",
+    "idle": "idle",
+}
 
 
 def as_list(value: Any) -> list[Any]:
@@ -127,17 +182,80 @@ def _action_items_from_text(text: str, robot_type: str) -> list[dict[str, str]]:
 
 
 def normalize_action_sequence(value: Any, robot_type: str) -> list[dict[str, str]]:
-    items: list[dict[str, str]] = []
-    for item in as_list(value):
+    items: list[dict[str, Any]] = []
+    for index, item in enumerate(as_list(value), start=1):
         if isinstance(item, dict):
             action = str(item.get("action") or item.get("verb") or item.get("name") or "").strip()
             executor = normalize_executor(item.get("executor", item.get("arm")), robot_type)
-            obj = str(item.get("object", "") or "").strip()
+            obj = item.get("object", None)
+            target = item.get("target", None)
+            event_id = str(item.get("event_id") or item.get("id") or f"E{index:03d}").strip()
+            rough_order = item.get("rough_order", index)
             if action:
-                items.append({"executor": executor, "action": action, "object": obj})
+                items.append(
+                    {
+                        "event_id": event_id,
+                        "executor": executor,
+                        "action": action,
+                        "object": str(obj).strip() if obj is not None and str(obj).strip() else None,
+                        "target": str(target).strip() if target is not None and str(target).strip() else None,
+                        "rough_order": int(rough_order) if str(rough_order).isdigit() else index,
+                    }
+                )
         else:
-            items.extend(_action_items_from_text(str(item), robot_type))
+            for parsed in _action_items_from_text(str(item), robot_type):
+                index = len(items) + 1
+                parsed.update({"event_id": f"E{index:03d}", "target": None, "rough_order": index})
+                if parsed.get("object") == "":
+                    parsed["object"] = None
+                items.append(parsed)
     return items
+
+
+def normalize_scene(value: Any, robot_type: str, action_sequence: list[dict[str, Any]]) -> dict[str, Any]:
+    raw = value if isinstance(value, dict) else {}
+    arms = []
+    for item in as_list(raw.get("arms")):
+        if not isinstance(item, dict):
+            continue
+        arm_id = normalize_executor(item.get("arm_id", item.get("executor")), robot_type)
+        arms.append(
+            {
+                "arm_id": arm_id,
+                "description": str(item.get("description", "") or "").strip(),
+                "best_view": str(item.get("best_view", "") or "").strip(),
+            }
+        )
+    if not arms:
+        executors = []
+        for item in action_sequence:
+            executor = item.get("executor", default_executor_for_robot_type(robot_type))
+            if executor not in executors:
+                executors.append(executor)
+        arms = [{"arm_id": executor, "description": "", "best_view": ""} for executor in executors]
+
+    objects_by_id: dict[str, dict[str, str]] = {}
+    for item in as_list(raw.get("objects")):
+        if not isinstance(item, dict):
+            continue
+        object_id = str(item.get("object_id", item.get("id", "")) or "").strip()
+        if not object_id:
+            continue
+        objects_by_id[object_id] = {
+            "object_id": object_id,
+            "description": str(item.get("description", object_id) or object_id).strip(),
+            "category": str(item.get("category", "other") or "other").strip(),
+        }
+    for item in action_sequence:
+        for key in ("object", "target"):
+            object_id = item.get(key)
+            if object_id and object_id not in objects_by_id:
+                objects_by_id[str(object_id)] = {
+                    "object_id": str(object_id),
+                    "description": str(object_id),
+                    "category": "other",
+                }
+    return {"robot_type": robot_type, "arms": arms, "objects": list(objects_by_id.values())}
 
 
 def _timestamp_value(item: dict[str, Any], *keys: str) -> str:
@@ -150,9 +268,9 @@ def _timestamp_value(item: dict[str, Any], *keys: str) -> str:
 
 def normalize_timestamped_action_sequence(
     value: Any,
-    fallback_actions: list[dict[str, str]],
+    fallback_actions: list[dict[str, Any]],
     robot_type: str,
-) -> list[dict[str, str]]:
+) -> list[dict[str, Any]]:
     """Align refinement timestamps with the analysis action sequence."""
     raw_items = as_list(value)
     normalized: list[dict[str, str]] = []
@@ -169,14 +287,76 @@ def normalize_timestamped_action_sequence(
         obj = str(raw_dict.get("object") or fallback.get("object", "") or "").strip()
         normalized.append(
             {
+                "event_id": str(raw_dict.get("event_id") or fallback.get("event_id", f"E{index + 1:03d}")),
                 "executor": executor,
                 "action": action,
-                "object": obj,
+                "object": obj or None,
+                "target": str(raw_dict.get("target") or fallback.get("target") or "").strip() or None,
                 "start_time": _timestamp_value(raw_dict, "start_time", "startTime", "starttime"),
                 "end_time": _timestamp_value(raw_dict, "end_time", "endTime", "endtime"),
             }
         )
     return normalized
+
+
+def primitive_from_action(action: Any) -> str:
+    text = str(action or "").strip().lower()
+    return ACTION_TO_PRIMITIVE.get(text, ACTION_TO_PRIMITIVE.get(str(action or "").strip(), "idle"))
+
+
+def normalize_phase_segments(
+    value: Any,
+    timestamped_actions: list[dict[str, Any]],
+    robot_type: str,
+    *,
+    is_single_view: bool,
+    fallback_actions: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    raw_items = as_list(value)
+    fallback = not raw_items
+    fallback_from_actions = fallback and not timestamped_actions
+    source_items = raw_items or timestamped_actions or (fallback_actions or [])
+    phases: list[dict[str, Any]] = []
+    for index, raw in enumerate(source_items, start=1):
+        item = raw if isinstance(raw, dict) else {}
+        action = str(item.get("action") or "").strip()
+        primitive = str(item.get("primitive") or primitive_from_action(action)).strip().lower()
+        if primitive not in PHASE_PRIMITIVES:
+            primitive = "idle"
+        flags = [str(flag) for flag in as_list(item.get("quality_flags")) if str(flag).strip()]
+        if fallback and "fallback_from_timestampedActionSequence" not in flags:
+            flags.append("fallback_from_action_sequence" if fallback_from_actions else "fallback_from_timestampedActionSequence")
+        if is_single_view and "single_view" not in flags:
+            flags.append("single_view")
+        confidence = item.get("confidence", 0.6)
+        try:
+            confidence = float(confidence)
+        except (TypeError, ValueError):
+            confidence = 0.6
+        start_time = _timestamp_value(item, "start_time", "startTime", "starttime")
+        end_time = _timestamp_value(item, "end_time", "endTime", "endtime")
+        if (fallback or not start_time or not end_time) and "need_review" not in flags:
+            flags.append("need_review")
+        if is_single_view and confidence < 0.7 and "single_view_low_confidence" not in flags:
+            flags.append("single_view_low_confidence")
+        phases.append(
+            {
+                "phase_id": str(item.get("phase_id") or f"P{index:03d}"),
+                "source_event_id": str(item.get("source_event_id") or item.get("event_id") or f"E{index:03d}"),
+                "executor": normalize_executor(item.get("executor"), robot_type),
+                "primitive": primitive,
+                "action": action,
+                "object": str(item.get("object") or "").strip() or None,
+                "target": str(item.get("target") or "").strip() or None,
+                "start_time": start_time,
+                "end_time": end_time,
+                "start_condition": str(item.get("start_condition", "") or "").strip(),
+                "end_condition": str(item.get("end_condition", "") or "").strip(),
+                "confidence": confidence,
+                "quality_flags": flags,
+            }
+        )
+    return phases
 
 
 CN_OBJECT_TRANSLATIONS = {
@@ -299,7 +479,7 @@ def call_json_stage(
     top_p: float = DEFAULT_VLM_TOP_P,
     top_k: int = DEFAULT_VLM_TOP_K,
 ) -> StageResult:
-    logger.info(
+    logger.debug(
         "Stage %s start images=%s max_tokens=%s temperature=%s top_p=%s top_k=%s",
         name,
         len(parts),
@@ -309,25 +489,28 @@ def call_json_stage(
         top_k,
     )
     start = time.perf_counter()
-    raw, usage = call_vlm(
-        client,
-        parts,
-        system_prompt,
-        user_prompt,
-        model=model,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        top_p=top_p,
-        top_k=top_k,
-    )
-    stage = make_stage(name, raw, usage, fallback=fallback)
-    logger.info(
-        "Stage %s done success=%s elapsed=%.2fs prompt_tokens=%s completion_tokens=%s total_tokens=%s",
-        name,
-        stage.success,
-        time.perf_counter() - start,
-        usage.get("prompt_tokens", 0),
-        usage.get("completion_tokens", 0),
-        usage.get("total_tokens", 0),
-    )
-    return stage
+    try:
+        raw, usage = call_vlm(
+            client,
+            parts,
+            system_prompt,
+            user_prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+        )
+        stage = make_stage(name, raw, usage, fallback=fallback)
+        logger.info("Stage %s elapsed=%.2fs success=%s", name, time.perf_counter() - start, stage.success)
+        logger.debug(
+            "Stage %s token_usage prompt=%s completion=%s total=%s",
+            name,
+            usage.get("prompt_tokens", 0),
+            usage.get("completion_tokens", 0),
+            usage.get("total_tokens", 0),
+        )
+        return stage
+    except Exception:
+        logger.exception("Stage %s failed elapsed=%.2fs", name, time.perf_counter() - start)
+        raise

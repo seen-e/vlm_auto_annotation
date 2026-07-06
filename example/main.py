@@ -103,6 +103,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--refinement-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_TIMESTAMPS)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES)
     parser.add_argument("--log-level", help="Override config logging.level for this CLI run.")
+    parser.add_argument("--log-dir", help="Override config logging.dir for this CLI run.")
+    parser.add_argument("--log-to-file", action=argparse.BooleanOptionalAction, default=None, help="Save logs to a local file.")
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
     parser.add_argument("--resume", action="store_true", help="Reuse successful items already in output JSON.")
     return parser.parse_args()
@@ -207,7 +209,7 @@ def run_batch(args: argparse.Namespace) -> None:
     if args.limit is not None:
         records = records[: args.limit]
 
-    logger.info("Batch start records=%s input=%s output=%s resume=%s", len(records), args.input_json, args.output_json, args.resume)
+    logger.debug("Batch start records=%s input=%s output=%s resume=%s", len(records), args.input_json, args.output_json, args.resume)
     existing_successes = load_existing_successes(args.output_json) if args.resume else {}
     client = create_openai_client(api_key=args.api_key, base_url=args.base_url)
     outputs: list[dict[str, Any]] = []
@@ -231,7 +233,7 @@ def run_batch(args: argparse.Namespace) -> None:
                 raise ValueError("Missing video_path/main_video_path/main_video")
             if not instruction:
                 raise ValueError("Missing task/instruction/initialInstruction")
-            logger.info("[%s/%s] %s start", index + 1, len(records), key)
+            logger.debug("[%s/%s] %s start", index + 1, len(records), key)
             prediction = run_one(
                 client,
                 main_video=main_video,
@@ -252,7 +254,7 @@ def run_batch(args: argparse.Namespace) -> None:
             merged["prediction"] = prediction
             merged["error"] = None
             elapsed = time.time() - start
-            logger.info("[%s/%s] %s success elapsed=%.2fs", index + 1, len(records), key, elapsed)
+            logger.debug("[%s/%s] %s success elapsed=%.2fs", index + 1, len(records), key, elapsed)
             print(f"[{index + 1}/{len(records)}] {key}: success")
         except Exception as exc:
             merged["prediction"] = None
@@ -266,7 +268,7 @@ def run_batch(args: argparse.Namespace) -> None:
         write_json(args.output_json, outputs)
 
     write_json(args.output_json, outputs)
-    logger.info("Batch done records=%s output=%s", len(outputs), args.output_json)
+    logger.debug("Batch done records=%s output=%s", len(outputs), args.output_json)
     print(f"Saved {len(outputs)} records to {args.output_json}")
 
 
@@ -278,7 +280,7 @@ def run_single(args: argparse.Namespace) -> None:
 
     client = create_openai_client(api_key=args.api_key, base_url=args.base_url)
     start = time.perf_counter()
-    logger.info("Single run start video=%s", args.main_video)
+    logger.debug("Single run start video=%s", args.main_video)
     prediction = run_one(
         client,
         main_video=args.main_video,
@@ -296,13 +298,17 @@ def run_single(args: argparse.Namespace) -> None:
         refinement_draw_timestamps=args.refinement_draw_timestamps,
         max_frames=args.max_frames,
     )
-    logger.info("Single run done elapsed=%.2fs", time.perf_counter() - start)
+    logger.debug("Single run done elapsed=%.2fs", time.perf_counter() - start)
     print(json.dumps(prediction, ensure_ascii=False, indent=2))
 
 
 def main() -> None:
     args = parse_args()
-    configure_logging(level=args.log_level) if args.log_level else configure_logging()
+    configure_logging(
+        level=args.log_level or None,
+        log_to_file=args.log_to_file,
+        log_dir=args.log_dir or None,
+    )
     if args.main_video:
         run_single(args)
     else:

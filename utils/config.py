@@ -126,3 +126,5 @@ MAX_STEP_WORKERS = _env_int("ANNOTATE_MAX_STEP_WORKERS", _required(_CONFIG, "wor
 
 DEFAULT_LOG_LEVEL = _env_str("ANNOTATE_LOG_LEVEL", _required(_CONFIG, "logging.level"))
 DEFAULT_LOG_FORMAT = _env_str("ANNOTATE_LOG_FORMAT", _required(_CONFIG, "logging.format"))
+DEFAULT_LOG_TO_FILE = _env_bool("ANNOTATE_LOG_TO_FILE", _required(_CONFIG, "logging.to_file"))
+DEFAULT_LOG_DIR = _env_str("ANNOTATE_LOG_DIR", _required(_CONFIG, "logging.dir"))

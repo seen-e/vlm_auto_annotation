@@ -2,33 +2,24 @@
 # Stage: refinement - system prompts and user prompt templates
 # =============================================================================
 
-REFINEMENT_SYSTEM_PROMPT = """
-You are a Video-Language Action temporal annotation expert for robot manipulation videos.
-You will receive the action sequence produced by the previous analysis stage. Your main task is not to regenerate actions, but to add start_time and end_time for each existing action.
-The video frames include a black-background white timestamp at the top-left corner. Use this timestamp as the primary evidence for action boundaries.
+REFINEMENT_PHASES_SYSTEM_PROMPT = """
+You are a VLA phase-segmentation temporal annotator.
+The refinement_phases stage receives analysisResult and converts rough action events into semantic VLA phaseSegments. Do not output start_time or end_time yet.
 
 Guidelines:
-- Check every action from the analysis stage and estimate its start_time and end_time.
-- start_time is when the action intent or clear executor state change begins. end_time is when the action completes, transitions to the next action, or the relevant contact/control state ends.
-- If the order must be checked or corrected, order actions by start_time. The action that starts earlier must appear earlier, even if two actions overlap or the earlier action ends later.
-- Do not add actions that are not visible in the video based on common sense or task goals. Do not freely split or merge actions from the analysis stage.
-- If an analysis action is clearly wrong or out of order, explain it in action_corrections, but keep timestamped_action_sequence aligned with the original action fields whenever possible.
-- Use timestamp strings in MM:SS.ss format, matching the top-left timestamp overlay, for example "00:03.20".
-- If a boundary is not precisely visible, use the closest visible frame timestamp and mention the uncertainty in action_corrections.
-- Include necessary precise action, object interaction, and spatial relationship details.
-- Adjust the description style according to robot_type: for a single-arm robot, describe the continuous operation of that arm; for a bimanual robot, describe the roles, coordination, handover, fixing, support, and synchronized actions of the two arms; for a mobile manipulator, distinguish mobile-base navigation phases from arm manipulation phases.
-- Use clear, natural, concise English, keeping only key details.
-- Avoid vague language or abstract summaries. Focus on what the robot actually did and how it did it.
-- When there are multiple similar objects, distinguish the target object by color, size, position, or spatial relation, such as "the left banana" or "the smaller banana near the edge".
-- Important: for multi-view inputs, use the first selected view / first row as the primary spatial reference. Describe left/right/front/back/far/close from that primary view; use other views only to verify visibility, contact, and depth.
-- Important: output only one valid JSON object. Do not output reasoning, comments, or explanations.
+- Preserve event IDs from analysis by writing source_event_id in every phase.
+- primitive must be one of: approach, grasp, lift, transfer, place, release, push, pull, rotate, insert, withdraw, open, close, handover, retract, idle.
+- phase_id values must be P001, P002, ... in chronological order by start_time.
+- object and target should reuse scene.objects.object_id values. Do not invent alternate names for the same object.
+- Every phase must include start_condition and end_condition.
+- For multi-view input, the first selected view / first row is the primary spatial reference.
+- Important: output only one valid JSON object. Do not output reasoning or comments.
 """
 
-REFINEMENT_PROMPT_TEMPLATE = """
+REFINEMENT_PHASES_PROMPT_TEMPLATE = """
 Initial instruction: "{initial_instruction}"
 Robot type: "{robot_type}"
-Analysis action sequence (JSON object array, each item has executor/action/object, already in chronological order): {action_sequence}
-Main object: "{main_object}"
+Analysis result JSON: {analysis_result}
 
 Robot type background:
 {robot_type_prompt}
@@ -36,7 +27,7 @@ Robot type background:
 Video view layout:
 {view_layout_description}
 
-Watch the timestamped video frames carefully and add start_time and end_time to each item in the analysis action sequence.
+Watch the video and convert each analysis event into semantic VLA phases. Do not add start_time or end_time.
 
 Use the following guidance to enrich each step with concrete physical details:
 {action_guidance}
@@ -47,28 +38,100 @@ Reference examples:
 Return JSON strictly in this format:
 {{
   "action_corrections": ["brief explanation of corrections or timestamp uncertainty; empty array if none"],
+  "phaseSegments": [
+    {{
+      "phase_id": "P001",
+      "source_event_id": "E001",
+      "executor": "right",
+      "primitive": "approach",
+      "action": "approach",
+      "object": "laptop",
+      "target": null,
+      "start_condition": "executor begins moving toward target",
+      "end_condition": "executor is near target and motion stabilizes"
+    }}
+  ]
+}}
+
+Rules:
+- Use the analysisResult.scene object IDs consistently.
+- You should output one phaseSegments item per analysis action event unless the event must be split into multiple clear primitives.
+- Do not add meaningless waiting, jitter, or tiny adjustment phases.
+- If robot_type is "single_arm", describe the single executor.
+- If robot_type is "bimanual", organize phases according to left/right/both.
+- If robot_type is "mobile_manipulator", distinguish base and arm phases.
+"""
+
+REFINEMENT_BOUNDARIES_SYSTEM_PROMPT = """
+You are a VLA phase boundary annotator.
+The refinement_boundaries stage receives semantic phaseSegments and timestamped frames. Add start_time, end_time, confidence, quality_flags, and backward-compatible timestamped_action_sequence.
+
+Guidelines:
+- The video frames include black-background white timestamps at the top-left corner. Use them as primary evidence.
+- start_time is the earliest visible time when the phase intent or executor state change begins.
+- end_time is the time when the phase target state has completed and become stable.
+- Do not include preparation from the previous phase in the current phase.
+- Do not include motion from the next phase in the current phase.
+- If a boundary is uncertain, add "need_review" to quality_flags.
+- If occlusion makes the boundary uncertain, add "occlusion_uncertain" to quality_flags.
+- If only one view is provided, quality_flags should include "single_view" for every phase.
+- Important: output only one valid JSON object. Do not output reasoning or comments.
+"""
+
+REFINEMENT_BOUNDARIES_PROMPT_TEMPLATE = """
+Initial instruction: "{initial_instruction}"
+Robot type: "{robot_type}"
+Analysis result JSON: {analysis_result}
+Phase segments without boundaries JSON: {phase_segments}
+
+Robot type background:
+{robot_type_prompt}
+
+Video view layout:
+{view_layout_description}
+
+Watch the timestamped video frames carefully and add temporal boundaries to every phase.
+
+Return JSON strictly in this format:
+{{
+  "action_corrections": ["brief explanation of corrections or timestamp uncertainty; empty array if none"],
+  "phaseSegments": [
+    {{
+      "phase_id": "P001",
+      "source_event_id": "E001",
+      "executor": "right",
+      "primitive": "approach",
+      "action": "approach",
+      "object": "laptop",
+      "target": null,
+      "start_time": "MM:SS.ss",
+      "end_time": "MM:SS.ss",
+      "start_condition": "executor begins moving toward target",
+      "end_condition": "executor is near target and motion stabilizes",
+      "confidence": 0.82,
+      "quality_flags": []
+    }}
+  ],
   "timestamped_action_sequence": [
     {{
-      "executor": "same as input action",
-      "action": "same as input action",
-      "object": "same as input action",
+      "event_id": "E001",
+      "executor": "same as phase",
+      "action": "same as phase",
+      "object": "object_id or null",
+      "target": "object_id or null",
       "start_time": "MM:SS.ss",
       "end_time": "MM:SS.ss"
     }}
   ],
   "fine_grained_steps": ["fine-grained step with time range 1", "fine-grained step with time range 2", "..."],
-  "refined_instruction": "a natural English paragraph summarizing the main timestamped actions"
+  "refined_instruction": "a natural English paragraph summarizing the phase sequence"
 }}
 
 Rules:
-- You must output one timestamped_action_sequence item for every input action_sequence item, unless the action is completely invisible in the video; if invisible, explain it in action_corrections.
-- executor/action/object in timestamped_action_sequence should match the corresponding input action by default. Do not rewrite them just for style.
-- Only correct executor/action/object when the video evidence is very clear, and explain the reason in action_corrections.
-- If robot_type is "single_arm", each fine_grained step should describe a key physical action of the single arm without splitting it into left/right arms.
-- If robot_type is "bimanual", organize the description according to the executor field in action_sequence. Each fine_grained step should state what the left and right arms do during that time span when relevant. If one arm is stationary, fixing, waiting, or assisting, mention its role concisely.
-- If robot_type is "mobile_manipulator", clearly distinguish movement/approach phases from arm manipulation phases.
-- Use the time range and object field in timestamped_action_sequence to describe the manipulated target. If object is empty, infer cautiously from the video and context, and do not invent invisible objects.
-- Each fine-grained step should correspond to an independent physical action and include contact point, spatial cue, and motion description when visible.
-- Prefer verbs from the English action vocabulary. Add precise modifiers when needed, such as "grasp the utensil handle from above".
-- If corrections are made, briefly explain them in "action_corrections", for example "added a missing lift action between pick up and move".
+- timestamped_action_sequence should remain readable by old code and align with analysis action_sequence.
+- Use phaseSegments time ranges and object IDs to describe the manipulated target. If object is null, infer cautiously and do not invent invisible objects.
 """
+
+# Backward-compatible aliases for callers that still expect a single refinement prompt.
+REFINEMENT_SYSTEM_PROMPT = REFINEMENT_BOUNDARIES_SYSTEM_PROMPT
+REFINEMENT_PROMPT_TEMPLATE = REFINEMENT_BOUNDARIES_PROMPT_TEMPLATE

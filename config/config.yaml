@@ -29,6 +29,8 @@
 # - ANNOTATE_MAX_STEP_WORKERS
 # - ANNOTATE_LOG_LEVEL
 # - ANNOTATE_LOG_FORMAT
+# - ANNOTATE_LOG_TO_FILE
+# - ANNOTATE_LOG_DIR
 
 model:
   # DEFAULT_MODEL: served model name sent to the OpenAI-compatible API.
@@ -47,7 +49,7 @@ stages:
     # DEFAULT_ANALYSIS_FPS: frame sampling FPS for coarse action analysis.
     fps: 1.0
     # DEFAULT_ANALYSIS_MAX_TOKENS: max output tokens for analysis; 0 means service default.
-    max_tokens: 512
+    max_tokens: 1024
     # DEFAULT_ANALYSIS_RESIZE_WIDTH: per-view image width before optional multi-view merge.
     resize_width: 224
     # DEFAULT_ANALYSIS_DRAW_TIMESTAMPS: usually false to avoid distracting coarse recognition.
@@ -57,7 +59,7 @@ stages:
     # DEFAULT_REFINEMENT_FPS: frame sampling FPS for timestamp/action refinement.
     fps: 5.0
     # DEFAULT_REFINEMENT_MAX_TOKENS: max output tokens for refinement; 0 means service default.
-    max_tokens: 2048
+    max_tokens: 3072
     # DEFAULT_REFINEMENT_RESIZE_WIDTH and DEFAULT_RESIZE_WIDTH compatibility value.
     resize_width: 448
     # DEFAULT_REFINEMENT_DRAW_TIMESTAMPS and DEFAULT_DRAW_TIMESTAMPS compatibility value.
@@ -93,3 +95,7 @@ logging:
   level: INFO
   # DEFAULT_LOG_FORMAT: Python logging format used by CLI/debug entrypoints.
   format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+  # DEFAULT_LOG_TO_FILE: save CLI/debug logs to a local file.
+  to_file: true
+  # DEFAULT_LOG_DIR: relative paths are resolved from the package root.
+  dir: logs

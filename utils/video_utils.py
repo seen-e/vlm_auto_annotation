@@ -194,7 +194,7 @@ def load_video_as_image_parts(
 
     start_time = time.perf_counter()
     path = str(video_path)
-    logger.info(
+    logger.debug(
         "Load video frames start path=%s target_fps=%s max_frames=%s resize_width=%s draw_timestamps=%s",
         path,
         target_fps,
@@ -234,7 +234,7 @@ def load_video_as_image_parts(
             raise RuntimeError(f"No frames sampled from {path}")
 
         elapsed = time.perf_counter() - start_time
-        logger.info(
+        logger.debug(
             "Load video frames done path=%s elapsed=%.2fs sampled_frames=%s total_frames=%s fps=%s",
             path,
             elapsed,
@@ -287,7 +287,7 @@ def load_video_or_views_as_image_parts(
 
     import cv2
 
-    logger.info(
+    logger.debug(
         "Load merged views start views=%s target_fps=%s max_frames=%s resize_width=%s draw_timestamps=%s",
         [name for name, _ in selected],
         target_fps,
@@ -338,7 +338,7 @@ def load_video_or_views_as_image_parts(
             raise RuntimeError(f"No frames sampled from selected views: {[path for _, path in selected]}")
 
         elapsed = time.perf_counter() - start_time
-        logger.info(
+        logger.debug(
             "Load merged views done elapsed=%.2fs sampled_frames=%s selected_views=%s total_frames=%s fps=%s",
             elapsed,
             len(parts),
@@ -432,6 +432,8 @@ def _main() -> None:
     parser.add_argument("--target-fps", type=float, help="Sampling FPS. Defaults to the selected stage FPS.")
     parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES, help="Maximum sampled frames.")
     parser.add_argument("--log-level", help="Override config logging.level for this debug run.")
+    parser.add_argument("--log-dir", help="Override config logging.dir for this debug run.")
+    parser.add_argument("--log-to-file", action=argparse.BooleanOptionalAction, default=None, help="Save logs to a local file.")
     parser.add_argument("--frame-start", type=int, default=0, help="Inclusive start frame index.")
     parser.add_argument("--frame-end", type=int, default=None, help="Inclusive end frame index.")
     parser.add_argument(
@@ -456,7 +458,7 @@ def _main() -> None:
         help="Whether to draw black-background white timestamps.",
     )
     args = parser.parse_args()
-    configure_logging(level=args.log_level) if args.log_level else configure_logging()
+    configure_logging(level=args.log_level or None, log_to_file=args.log_to_file, log_dir=args.log_dir or None)
 
     view_names = [item.strip() for item in args.view_names.split(",") if item.strip()]
     video_path = _load_debug_video_path(args)
@@ -487,7 +489,7 @@ def _main() -> None:
     saved = _save_debug_parts(parts, output_dir)
     meta_path = output_dir / "metadata.json"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-    logger.info("Saved debug frames count=%s output_dir=%s metadata=%s", len(saved), output_dir, meta_path)
+    logger.debug("Saved debug frames count=%s output_dir=%s metadata=%s", len(saved), output_dir, meta_path)
     print(json.dumps({"saved_frames": saved, "metadata": str(meta_path), **meta}, ensure_ascii=False, indent=2))
 
 
