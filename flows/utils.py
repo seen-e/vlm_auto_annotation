@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from importlib import import_module
 import json
+import logging
+import time
 from typing import Any
 
 from ..utils.api_client import call_vlm, extract_json_from_response
@@ -15,6 +17,9 @@ from ..utils.config import (
     DEFAULT_VLM_TOP_P,
 )
 from ..utils.schemas import StageResult
+
+
+logger = logging.getLogger(__name__)
 
 
 def as_list(value: Any) -> list[Any]:
@@ -135,6 +140,45 @@ def normalize_action_sequence(value: Any, robot_type: str) -> list[dict[str, str
     return items
 
 
+def _timestamp_value(item: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = item.get(key)
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return ""
+
+
+def normalize_timestamped_action_sequence(
+    value: Any,
+    fallback_actions: list[dict[str, str]],
+    robot_type: str,
+) -> list[dict[str, str]]:
+    """Align refinement timestamps with the analysis action sequence."""
+    raw_items = as_list(value)
+    normalized: list[dict[str, str]] = []
+    total = max(len(raw_items), len(fallback_actions))
+    for index in range(total):
+        fallback = fallback_actions[index] if index < len(fallback_actions) else {}
+        raw = raw_items[index] if index < len(raw_items) else {}
+        raw_dict = raw if isinstance(raw, dict) else {}
+
+        action = str(raw_dict.get("action") or fallback.get("action", "")).strip()
+        if not action:
+            continue
+        executor = normalize_executor(raw_dict.get("executor", fallback.get("executor")), robot_type)
+        obj = str(raw_dict.get("object") or fallback.get("object", "") or "").strip()
+        normalized.append(
+            {
+                "executor": executor,
+                "action": action,
+                "object": obj,
+                "start_time": _timestamp_value(raw_dict, "start_time", "startTime", "starttime"),
+                "end_time": _timestamp_value(raw_dict, "end_time", "endTime", "endtime"),
+            }
+        )
+    return normalized
+
+
 CN_OBJECT_TRANSLATIONS = {
     "laptop": "笔记本电脑",
     "laptop stand": "笔记本电脑支架",
@@ -172,6 +216,41 @@ def localize_action_sequence_objects(items: list[dict[str, str]], prompt_languag
     return localized
 
 
+def describe_view_layout(meta: dict[str, Any], prompt_language: str) -> str:
+    language = normalize_prompt_language(prompt_language)
+    views = [str(view) for view in meta.get("selected_views", [])]
+    input_mode = meta.get("input_mode", "single_view")
+    if input_mode == "merged_views" and len(views) > 1:
+        if language == "cn":
+            rows = "\n".join(f"- 第 {i + 1} 行：{view}" for i, view in enumerate(views))
+            return (
+                "每一张输入图片都是同一时间点的多视角帧纵向拼接图。"
+                "拼接前，每个视角图像会先按当前阶段配置的 resize_width 单独缩放；"
+                "拼接后从上到下的行顺序如下：\n"
+                f"{rows}\n"
+                "第 1 行/第一个视角是主视角；描述 left/right/front/back/far/close 等空间方向时，"
+                "必须以主视角为准，其他视角只用于补充确认遮挡、接触和深度关系。"
+                "分析动作时请综合所有行的视角信息，不要把不同行误认为时间先后。"
+                "动作的前后顺序以动作开始时间为准：哪个动作先开始，哪个动作就排在前面。"
+            )
+        rows = "\n".join(f"- Row {i + 1}: {view}" for i, view in enumerate(views))
+        return (
+            "Each input image is a vertical concatenation of frames from multiple views at the same timestamp. "
+            "Before concatenation, each view is resized independently according to the current stage's resize_width. "
+            "The row order from top to bottom is:\n"
+            f"{rows}\n"
+            "Row 1 / the first selected view is the primary view. When describing spatial directions such as "
+            "left/right/front/back/far/close, use the primary view as the reference frame; use other views only "
+            "to confirm occlusion, contact, and depth relations. Use all rows as simultaneous views of the same "
+            "moment; do not interpret different rows as temporal order. Order actions by their start time: the "
+            "action that starts earlier must appear earlier."
+        )
+    view = views[0] if views else "unknown"
+    if language == "cn":
+        return f"每张输入图片来自单一视角：{view}。不同图片之间才表示按时间采样的帧序列。"
+    return f"Each input image comes from a single view: {view}. Different images represent the temporal frame sequence."
+
+
 def numbered_text(items: list[str]) -> str:
     return "\n".join(f"{i}. {item}" for i, item in enumerate(items))
 
@@ -192,6 +271,10 @@ def make_stage(
     fallback: dict[str, Any] | None = None,
 ) -> StageResult:
     parsed = extract_json_from_response(raw_response) or fallback or {}
+    if parsed:
+        logger.debug("Stage %s JSON parsed keys=%s", name, list(parsed.keys()))
+    else:
+        logger.warning("Stage %s produced no parseable JSON", name)
     return StageResult(
         name=name,
         output=parsed,
@@ -216,6 +299,16 @@ def call_json_stage(
     top_p: float = DEFAULT_VLM_TOP_P,
     top_k: int = DEFAULT_VLM_TOP_K,
 ) -> StageResult:
+    logger.info(
+        "Stage %s start images=%s max_tokens=%s temperature=%s top_p=%s top_k=%s",
+        name,
+        len(parts),
+        max_tokens,
+        temperature,
+        top_p,
+        top_k,
+    )
+    start = time.perf_counter()
     raw, usage = call_vlm(
         client,
         parts,
@@ -227,4 +320,14 @@ def call_json_stage(
         top_p=top_p,
         top_k=top_k,
     )
-    return make_stage(name, raw, usage, fallback=fallback)
+    stage = make_stage(name, raw, usage, fallback=fallback)
+    logger.info(
+        "Stage %s done success=%s elapsed=%.2fs prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+        name,
+        stage.success,
+        time.perf_counter() - start,
+        usage.get("prompt_tokens", 0),
+        usage.get("completion_tokens", 0),
+        usage.get("total_tokens", 0),
+    )
+    return stage

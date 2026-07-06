@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import time
 from typing import Any
 
 from .config import DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_VLM_TEMPERATURE, DEFAULT_VLM_TOP_K, DEFAULT_VLM_TOP_P
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_openai_client(api_key: str | None = None, base_url: str | None = None):
@@ -18,6 +22,7 @@ def create_openai_client(api_key: str | None = None, base_url: str | None = None
     api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
+    logger.info("Creating OpenAI-compatible client base_url=%s", base_url or DEFAULT_BASE_URL)
     return OpenAI(api_key=api_key, base_url=base_url or DEFAULT_BASE_URL)
 
 
@@ -58,6 +63,7 @@ def call_vlm(
 
     last_error: Exception | None = None
     for attempt in range(max_retries):
+        start = time.perf_counter()
         try:
             request_kwargs: dict[str, Any] = {
                 "model": model,
@@ -74,6 +80,17 @@ def call_vlm(
                 request_kwargs["max_tokens"] = max_tokens
             if top_k > 0:
                 request_kwargs["extra_body"]["top_k"] = top_k
+            logger.info(
+                "VLM request start model=%s images=%s max_tokens=%s temperature=%s top_p=%s top_k=%s attempt=%s/%s",
+                model,
+                len(parts),
+                max_tokens,
+                temperature,
+                top_p,
+                top_k,
+                attempt + 1,
+                max_retries,
+            )
             response = client.chat.completions.create(
                 **request_kwargs,
             )
@@ -85,9 +102,24 @@ def call_vlm(
                 "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
                 "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
             }
+            logger.info(
+                "VLM request done model=%s elapsed=%.2fs prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+                model,
+                time.perf_counter() - start,
+                usage["prompt_tokens"],
+                usage["completion_tokens"],
+                usage["total_tokens"],
+            )
             return content, usage
         except Exception as exc:  # pragma: no cover - network/runtime dependent
             last_error = exc
+            logger.warning(
+                "VLM request failed attempt=%s/%s elapsed=%.2fs error=%s",
+                attempt + 1,
+                max_retries,
+                time.perf_counter() - start,
+                exc,
+            )
             time.sleep(min(2 ** attempt, 8))
     raise RuntimeError(f"VLM call failed after {max_retries} attempts: {last_error}")
 

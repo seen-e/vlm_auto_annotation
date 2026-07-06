@@ -10,6 +10,8 @@ Requirements:
 - Use the provided robot_type as the robot type and output the same value in the "robot_type" field. Do not infer or modify the robot type from the video.
 - Use verbs from the provided English action vocabulary to extract the ordered sequence of actions actually performed by the robot.
 - "action_sequence" must be strictly ordered by the real temporal order in the video, from the earliest action to the latest action. Do not reorder actions by importance, executor, object category, or task phase.
+- When two actions overlap or occur close together, order them by their start time: the action that starts earlier must appear earlier, even if it ends later.
+- For multi-view inputs, use the first selected view / first row as the primary spatial reference. Interpret left/right/front/back/far/close from that primary view; use other views only to verify visibility, contact, and depth.
 - Do not ignore actions before or after the core task. Preparatory actions such as approach, align, pre-grasp, fix, support, or waiting for coordination, and ending actions such as release, retract, move away, reset, close, or other finishing motions must be recorded in chronological order when visible.
 - Whenever an executor's state clearly changes, record it as an action node. Examples include starting to approach a target, changing movement direction, contacting an object, grasping/clamping an object, lifting an object, moving an object, placing an object, releasing an object, fixing/supporting an object, and retracting from an object. Do not record only the final task-completion actions.
 - For bimanual robots, track the state changes of left, right, and both executors separately. Any clear state change of either arm must be recorded in chronological order, even if the other arm is stationary, waiting, or only assisting.
@@ -32,6 +34,9 @@ English action vocabulary: {action_vocabulary}
 
 Robot type background:
 {robot_type_prompt}
+
+Video view layout:
+{view_layout_description}
 
 Watch the video and analyze the robot action sequence.
 

@@ -1,7 +1,14 @@
 [
   {
     "episode_id": "episode_000000",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+    "video_path": {
+      "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000000.mp4",
+      "observation.rgb_images.camera_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_left\\episode_000000.mp4",
+      "observation.rgb_images.camera_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_right\\episode_000000.mp4",
+      "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+      "observation.rgb_images.camera_wrist_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_left\\episode_000000.mp4",
+      "observation.rgb_images.camera_wrist_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_right\\episode_000000.mp4"
+    },
     "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
     "prediction": {
       "flow_name": "single_view_no_steps_raw",
@@ -14,101 +21,196 @@
           "action_sequence": [
             {
               "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
+              "action": "接近",
+              "object": "笔记本电脑支架"
             },
             {
               "executor": "right",
-              "action": "approach",
-              "object": "laptop"
+              "action": "接近",
+              "object": "笔记本电脑"
             },
             {
               "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
+              "action": "固定",
+              "object": "笔记本电脑支架"
             },
             {
               "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
+              "action": "拿起",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
+              "action": "放置",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "place",
-              "object": "laptop"
+              "action": "调整",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
+              "action": "释放",
+              "object": "笔记本电脑"
             },
             {
               "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
+              "action": "释放",
+              "object": "笔记本电脑支架"
             },
             {
               "executor": "left",
-              "action": "retract",
+              "action": "撤回",
               "object": ""
             },
             {
               "executor": "right",
-              "action": "retract",
+              "action": "撤回",
               "object": ""
             }
           ],
-          "main_object": "laptop"
+          "main_object": "笔记本电脑"
         },
-        "fineGrainedSteps": [
-          "The left arm approaches the black laptop stand located at the top center of the table.",
-          "The right arm approaches the silver laptop located in the center of the table.",
-          "The left arm grasps the black laptop stand from the left side to hold it steady.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The right arm lifts the silver laptop slightly, revealing a pen underneath.",
-          "The right arm releases the laptop and grasps the pen.",
-          "The right arm moves the pen to the right side of the table and places it down.",
-          "The right arm returns to the silver laptop and grasps the right edge again.",
-          "The right arm lifts the silver laptop completely off the table.",
-          "The right arm moves the laptop towards the black stand held by the left arm.",
-          "The right arm places the silver laptop onto the black stand.",
-          "The right arm adjusts the position of the laptop on the stand to ensure it is centered.",
-          "The right arm releases the laptop.",
-          "The left arm releases the black laptop stand.",
-          "Both arms retract to their starting positions."
+        "timestampedActionSequence": [
+          {
+            "executor": "left",
+            "action": "接近",
+            "object": "笔记本电脑支架",
+            "start_time": "00:00.00",
+            "end_time": "00:02.63"
+          },
+          {
+            "executor": "right",
+            "action": "接近",
+            "object": "笔记本电脑",
+            "start_time": "00:00.00",
+            "end_time": "00:02.63"
+          },
+          {
+            "executor": "left",
+            "action": "固定",
+            "object": "笔记本电脑支架",
+            "start_time": "00:02.63",
+            "end_time": "00:10.03"
+          },
+          {
+            "executor": "right",
+            "action": "拿起",
+            "object": "笔记本电脑",
+            "start_time": "00:02.63",
+            "end_time": "00:10.03"
+          },
+          {
+            "executor": "right",
+            "action": "放置",
+            "object": "笔记本电脑",
+            "start_time": "00:10.03",
+            "end_time": "00:15.87"
+          },
+          {
+            "executor": "right",
+            "action": "调整",
+            "object": "笔记本电脑",
+            "start_time": "00:15.87",
+            "end_time": "00:20.10"
+          },
+          {
+            "executor": "right",
+            "action": "释放",
+            "object": "笔记本电脑",
+            "start_time": "00:20.10",
+            "end_time": "00:21.13"
+          },
+          {
+            "executor": "left",
+            "action": "释放",
+            "object": "笔记本电脑支架",
+            "start_time": "00:21.13",
+            "end_time": "00:22.20"
+          },
+          {
+            "executor": "left",
+            "action": "撤回",
+            "object": "",
+            "start_time": "00:22.20",
+            "end_time": "00:33.57"
+          },
+          {
+            "executor": "right",
+            "action": "撤回",
+            "object": "",
+            "start_time": "00:21.13",
+            "end_time": "00:33.57"
+          }
         ],
-        "refinedInstruction": "The left arm stabilizes the black laptop stand while the right arm first removes a pen hidden underneath the silver laptop and places it aside. Then, the right arm lifts the silver laptop and places it onto the stand held by the left arm, adjusting its position before both arms release and retract.",
+        "fineGrainedSteps": [
+          "00:00.00 - 00:02.63：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动，双臂同时接近目标。",
+          "00:02.63 - 00:10.03：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘以保持稳定；右臂夹爪从上方抓住笔记本电脑的右侧边缘，将其垂直抬起离开桌面。",
+          "00:10.03 - 00:15.87：右臂将笔记本电脑水平向左移动并降低，放置在左臂固定的支架上，左臂全程保持固定姿态。",
+          "00:15.87 - 00:20.10：右臂在支架上微调笔记本电脑的位置和角度，确保其平稳放置，左臂继续固定支架。",
+          "00:20.10 - 00:21.13：右臂松开夹爪释放笔记本电脑，随后向上抬起并撤回。",
+          "00:21.13 - 00:22.20：左臂松开夹爪释放笔记本电脑支架，随后向上抬起并撤回。",
+          "00:22.20 - 00:33.57：左右双臂均完全离开操作区域，回到初始待机位置。"
+        ],
+        "refinedInstruction": "左臂首先接近并固定住笔记本电脑支架，右臂同时接近并拿起笔记本电脑，随后将电脑放置在支架上并进行微调，最后双臂依次释放物体并撤回。",
         "metadata": {
-          "prompt_language": "en",
+          "prompt_language": "cn",
           "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+            "video_path": {
+              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000000.mp4",
+              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4"
+            },
+            "selected_views": [
+              "observation.rgb_images.camera_front",
+              "observation.rgb_images.camera_top"
+            ],
+            "input_mode": "merged_views",
+            "merge_layout": "vertical",
             "video_fps": 30.0,
+            "video_fps_by_view": {
+              "observation.rgb_images.camera_front": 30.0,
+              "observation.rgb_images.camera_top": 30.0
+            },
             "total_frames": 1008,
-            "sampled_frames": 128,
+            "total_frames_by_view": {
+              "observation.rgb_images.camera_front": 1008,
+              "observation.rgb_images.camera_top": 1008
+            },
+            "sampled_frames": 34,
             "frame_range": [
               0,
               1008
-            ]
+            ],
+            "draw_timestamps": false
           },
           "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4",
+            "video_path": {
+              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000000.mp4",
+              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000000.mp4"
+            },
+            "selected_views": [
+              "observation.rgb_images.camera_front",
+              "observation.rgb_images.camera_top"
+            ],
+            "input_mode": "merged_views",
+            "merge_layout": "vertical",
             "video_fps": 30.0,
+            "video_fps_by_view": {
+              "observation.rgb_images.camera_front": 30.0,
+              "observation.rgb_images.camera_top": 30.0
+            },
             "total_frames": 1008,
+            "total_frames_by_view": {
+              "observation.rgb_images.camera_front": 1008,
+              "observation.rgb_images.camera_top": 1008
+            },
             "sampled_frames": 128,
             "frame_range": [
               0,
               1008
-            ]
+            ],
+            "draw_timestamps": true
           }
         }
       },
@@ -120,110 +222,173 @@
             "action_sequence": [
               {
                 "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
+                "action": "接近",
+                "object": "笔记本电脑支架"
               },
               {
                 "executor": "right",
-                "action": "approach",
-                "object": "laptop"
+                "action": "接近",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
+                "action": "固定",
+                "object": "笔记本电脑支架"
               },
               {
                 "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
+                "action": "拿起",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
+                "action": "放置",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "place",
-                "object": "laptop"
+                "action": "调整",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
+                "action": "释放",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
+                "action": "释放",
+                "object": "笔记本电脑支架"
               },
               {
                 "executor": "left",
-                "action": "retract",
+                "action": "撤回",
                 "object": ""
               },
               {
                 "executor": "right",
-                "action": "retract",
+                "action": "撤回",
                 "object": ""
               }
             ],
-            "main_object": "laptop"
+            "main_object": "笔记本电脑"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
+            "prompt_tokens": 3959,
+            "completion_tokens": 338,
+            "total_tokens": 4297
           }
         },
         "refinement": {
           "success": true,
           "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up a pen from under the laptop before placing the laptop on the stand.",
-              "The initial sequence incorrectly stated the left arm grasps the laptop stand base; the video shows the left arm grasps the laptop stand itself to stabilize it."
+            "action_corrections": [],
+            "timestamped_action_sequence": [
+              {
+                "executor": "left",
+                "action": "接近",
+                "object": "笔记本电脑支架",
+                "start_time": "00:00.00",
+                "end_time": "00:02.63"
+              },
+              {
+                "executor": "right",
+                "action": "接近",
+                "object": "笔记本电脑",
+                "start_time": "00:00.00",
+                "end_time": "00:02.63"
+              },
+              {
+                "executor": "left",
+                "action": "固定",
+                "object": "笔记本电脑支架",
+                "start_time": "00:02.63",
+                "end_time": "00:10.03"
+              },
+              {
+                "executor": "right",
+                "action": "拿起",
+                "object": "笔记本电脑",
+                "start_time": "00:02.63",
+                "end_time": "00:10.03"
+              },
+              {
+                "executor": "right",
+                "action": "放置",
+                "object": "笔记本电脑",
+                "start_time": "00:10.03",
+                "end_time": "00:15.87"
+              },
+              {
+                "executor": "right",
+                "action": "调整",
+                "object": "笔记本电脑",
+                "start_time": "00:15.87",
+                "end_time": "00:20.10"
+              },
+              {
+                "executor": "right",
+                "action": "释放",
+                "object": "笔记本电脑",
+                "start_time": "00:20.10",
+                "end_time": "00:21.13"
+              },
+              {
+                "executor": "left",
+                "action": "释放",
+                "object": "笔记本电脑支架",
+                "start_time": "00:21.13",
+                "end_time": "00:22.20"
+              },
+              {
+                "executor": "left",
+                "action": "撤回",
+                "object": "",
+                "start_time": "00:22.20",
+                "end_time": "00:33.57"
+              },
+              {
+                "executor": "right",
+                "action": "撤回",
+                "object": "",
+                "start_time": "00:21.13",
+                "end_time": "00:33.57"
+              }
             ],
             "fine_grained_steps": [
-              "The left arm approaches the black laptop stand located at the top center of the table.",
-              "The right arm approaches the silver laptop located in the center of the table.",
-              "The left arm grasps the black laptop stand from the left side to hold it steady.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The right arm lifts the silver laptop slightly, revealing a pen underneath.",
-              "The right arm releases the laptop and grasps the pen.",
-              "The right arm moves the pen to the right side of the table and places it down.",
-              "The right arm returns to the silver laptop and grasps the right edge again.",
-              "The right arm lifts the silver laptop completely off the table.",
-              "The right arm moves the laptop towards the black stand held by the left arm.",
-              "The right arm places the silver laptop onto the black stand.",
-              "The right arm adjusts the position of the laptop on the stand to ensure it is centered.",
-              "The right arm releases the laptop.",
-              "The left arm releases the black laptop stand.",
-              "Both arms retract to their starting positions."
+              "00:00.00 - 00:02.63：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动，双臂同时接近目标。",
+              "00:02.63 - 00:10.03：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘以保持稳定；右臂夹爪从上方抓住笔记本电脑的右侧边缘，将其垂直抬起离开桌面。",
+              "00:10.03 - 00:15.87：右臂将笔记本电脑水平向左移动并降低，放置在左臂固定的支架上，左臂全程保持固定姿态。",
+              "00:15.87 - 00:20.10：右臂在支架上微调笔记本电脑的位置和角度，确保其平稳放置，左臂继续固定支架。",
+              "00:20.10 - 00:21.13：右臂松开夹爪释放笔记本电脑，随后向上抬起并撤回。",
+              "00:21.13 - 00:22.20：左臂松开夹爪释放笔记本电脑支架，随后向上抬起并撤回。",
+              "00:22.20 - 00:33.57：左右双臂均完全离开操作区域，回到初始待机位置。"
             ],
-            "refined_instruction": "The left arm stabilizes the black laptop stand while the right arm first removes a pen hidden underneath the silver laptop and places it aside. Then, the right arm lifts the silver laptop and places it onto the stand held by the left arm, adjusting its position before both arms release and retract."
+            "refined_instruction": "左臂首先接近并固定住笔记本电脑支架，右臂同时接近并拿起笔记本电脑，随后将电脑放置在支架上并进行微调，最后双臂依次释放物体并撤回。"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 406,
-            "total_tokens": 11878
+            "prompt_tokens": 40681,
+            "completion_tokens": 1007,
+            "total_tokens": 41688
           }
         }
       }
     },
     "error": null,
-    "processing_time_seconds": 16.15
+    "processing_time_seconds": 81.96
   },
   {
     "episode_id": "episode_000001",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+    "video_path": {
+      "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
+      "observation.rgb_images.camera_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_left\\episode_000001.mp4",
+      "observation.rgb_images.camera_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_right\\episode_000001.mp4",
+      "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+      "observation.rgb_images.camera_wrist_left": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_left\\episode_000001.mp4",
+      "observation.rgb_images.camera_wrist_right": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_wrist_right\\episode_000001.mp4"
+    },
     "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
     "prediction": {
       "flow_name": "single_view_no_steps_raw",
@@ -236,99 +401,196 @@
           "action_sequence": [
             {
               "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
+              "action": "接近",
+              "object": "笔记本电脑支架"
             },
             {
               "executor": "right",
-              "action": "approach",
-              "object": "laptop"
+              "action": "接近",
+              "object": "笔记本电脑"
             },
             {
               "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
+              "action": "固定",
+              "object": "笔记本电脑支架"
             },
             {
               "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
+              "action": "拿起",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
+              "action": "放置",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "place",
-              "object": "laptop"
+              "action": "调整",
+              "object": "笔记本电脑"
             },
             {
               "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
+              "action": "释放",
+              "object": "笔记本电脑"
             },
             {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
+              "executor": "left",
+              "action": "释放",
+              "object": "笔记本电脑支架"
             },
             {
-              "executor": "right",
-              "action": "retract",
+              "executor": "left",
+              "action": "撤回",
               "object": ""
             },
             {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
+              "executor": "right",
+              "action": "撤回",
               "object": ""
             }
           ],
-          "main_object": "laptop"
+          "main_object": "笔记本电脑"
         },
-        "fineGrainedSteps": [
-          "The left arm approaches the black laptop stand base located at the top center of the table.",
-          "The right arm approaches the silver laptop lying flat on the table.",
-          "The right arm grasps the black laptop stand base from the top edge.",
-          "The right arm lifts the laptop stand base and moves it slightly to the left.",
-          "The left arm grasps the laptop stand base to hold it steady in place.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The right arm lifts the laptop vertically from the table surface.",
-          "The right arm moves the laptop towards the stand base held by the left arm.",
-          "The right arm places the laptop onto the stand base, aligning it with the hinge.",
-          "The right arm adjusts the laptop's position to ensure it is securely seated on the stand.",
-          "The right arm releases the laptop and retracts away from the stand.",
-          "The left arm releases the laptop stand base.",
-          "The left arm retracts to its home position."
+        "timestampedActionSequence": [
+          {
+            "executor": "left",
+            "action": "接近",
+            "object": "笔记本电脑支架",
+            "start_time": "00:00.00",
+            "end_time": "00:03.17"
+          },
+          {
+            "executor": "right",
+            "action": "接近",
+            "object": "笔记本电脑",
+            "start_time": "00:00.00",
+            "end_time": "00:05.67"
+          },
+          {
+            "executor": "left",
+            "action": "固定",
+            "object": "笔记本电脑支架",
+            "start_time": "00:03.17",
+            "end_time": "00:21.03"
+          },
+          {
+            "executor": "right",
+            "action": "拿起",
+            "object": "笔记本电脑",
+            "start_time": "00:05.67",
+            "end_time": "00:08.83"
+          },
+          {
+            "executor": "right",
+            "action": "放置",
+            "object": "笔记本电脑",
+            "start_time": "00:08.83",
+            "end_time": "00:12.60"
+          },
+          {
+            "executor": "right",
+            "action": "调整",
+            "object": "笔记本电脑",
+            "start_time": "00:12.60",
+            "end_time": "00:20.80"
+          },
+          {
+            "executor": "right",
+            "action": "释放",
+            "object": "笔记本电脑",
+            "start_time": "00:20.80",
+            "end_time": "00:21.03"
+          },
+          {
+            "executor": "left",
+            "action": "释放",
+            "object": "笔记本电脑支架",
+            "start_time": "00:21.03",
+            "end_time": "00:22.07"
+          },
+          {
+            "executor": "left",
+            "action": "撤回",
+            "object": "",
+            "start_time": "00:22.07",
+            "end_time": "00:26.70"
+          },
+          {
+            "executor": "right",
+            "action": "撤回",
+            "object": "",
+            "start_time": "00:21.03",
+            "end_time": "00:26.70"
+          }
         ],
-        "refinedInstruction": "The right arm picks up the black laptop stand base and moves it slightly, while the left arm grasps and secures the base in place. Then, the right arm lifts the silver laptop from the table and places it onto the secured stand base, adjusting its position before releasing it. Finally, both arms retract from the assembled laptop stand.",
+        "fineGrainedSteps": [
+          "00:00.00 - 00:03.17：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动。",
+          "00:03.17 - 00:05.67：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘，右臂继续接近笔记本电脑。",
+          "00:05.67 - 00:08.83：右臂夹爪从右侧抓住笔记本电脑边缘，将其垂直抬起并水平向左移动，准备放置到支架上。",
+          "00:08.83 - 00:12.60：右臂将笔记本电脑放置在支架上，左臂持续固定支架防止其滑动。",
+          "00:12.60 - 00:20.80：右臂在支架上微调笔记本电脑的位置和角度，确保其稳固放置，左臂保持固定状态。",
+          "00:20.80 - 00:21.03：右臂松开笔记本电脑，左臂松开支架，双臂准备撤回。",
+          "00:21.03 - 00:26.70：左臂和右臂同时向各自起始位置撤回，任务完成。"
+        ],
+        "refinedInstruction": "左臂首先接近并固定住中央的黑色笔记本电脑支架，随后右臂接近并拿起右侧的银色笔记本电脑，将其放置到支架上并进行位置调整，最后双臂同时释放物体并撤回。",
         "metadata": {
-          "prompt_language": "en",
+          "prompt_language": "cn",
           "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
+            "video_path": {
+              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
+              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4"
+            },
+            "selected_views": [
+              "observation.rgb_images.camera_front",
+              "observation.rgb_images.camera_top"
+            ],
+            "input_mode": "merged_views",
+            "merge_layout": "vertical",
             "video_fps": 30.0,
+            "video_fps_by_view": {
+              "observation.rgb_images.camera_front": 30.0,
+              "observation.rgb_images.camera_top": 30.0
+            },
             "total_frames": 802,
+            "total_frames_by_view": {
+              "observation.rgb_images.camera_front": 802,
+              "observation.rgb_images.camera_top": 802
+            },
+            "sampled_frames": 27,
+            "frame_range": [
+              0,
+              802
+            ],
+            "draw_timestamps": false
+          },
+          "refinement": {
+            "video_path": {
+              "observation.rgb_images.camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
+              "observation.rgb_images.camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4"
+            },
+            "selected_views": [
+              "observation.rgb_images.camera_front",
+              "observation.rgb_images.camera_top"
+            ],
+            "input_mode": "merged_views",
+            "merge_layout": "vertical",
+            "video_fps": 30.0,
+            "video_fps_by_view": {
+              "observation.rgb_images.camera_front": 30.0,
+              "observation.rgb_images.camera_top": 30.0
+            },
+            "total_frames": 802,
+            "total_frames_by_view": {
+              "observation.rgb_images.camera_front": 802,
+              "observation.rgb_images.camera_top": 802
+            },
             "sampled_frames": 128,
             "frame_range": [
               0,
               802
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4",
-            "video_fps": 30.0,
-            "total_frames": 802,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              802
-            ]
+            ],
+            "draw_timestamps": true
           }
         }
       },
@@ -340,2946 +602,161 @@
             "action_sequence": [
               {
                 "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
+                "action": "接近",
+                "object": "笔记本电脑支架"
               },
               {
                 "executor": "right",
-                "action": "approach",
-                "object": "laptop"
+                "action": "接近",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
+                "action": "固定",
+                "object": "笔记本电脑支架"
               },
               {
                 "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
+                "action": "拿起",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
+                "action": "放置",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "place",
-                "object": "laptop"
+                "action": "调整",
+                "object": "笔记本电脑"
               },
               {
                 "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
+                "action": "释放",
+                "object": "笔记本电脑"
               },
               {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
+                "executor": "left",
+                "action": "释放",
+                "object": "笔记本电脑支架"
               },
               {
-                "executor": "right",
-                "action": "retract",
+                "executor": "left",
+                "action": "撤回",
                 "object": ""
               },
               {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
+                "executor": "right",
+                "action": "撤回",
                 "object": ""
               }
             ],
-            "main_object": "laptop"
+            "main_object": "笔记本电脑"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
+            "prompt_tokens": 3455,
+            "completion_tokens": 338,
+            "total_tokens": 3793
           }
         },
         "refinement": {
           "success": true,
           "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the laptop stand base before the left arm secures it. The left arm's role is to fix the base while the right arm places the laptop, which is a coordinated bimanual action not fully captured in the initial simple list."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches the black laptop stand base located at the top center of the table.",
-              "The right arm approaches the silver laptop lying flat on the table.",
-              "The right arm grasps the black laptop stand base from the top edge.",
-              "The right arm lifts the laptop stand base and moves it slightly to the left.",
-              "The left arm grasps the laptop stand base to hold it steady in place.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The right arm lifts the laptop vertically from the table surface.",
-              "The right arm moves the laptop towards the stand base held by the left arm.",
-              "The right arm places the laptop onto the stand base, aligning it with the hinge.",
-              "The right arm adjusts the laptop's position to ensure it is securely seated on the stand.",
-              "The right arm releases the laptop and retracts away from the stand.",
-              "The left arm releases the laptop stand base.",
-              "The left arm retracts to its home position."
-            ],
-            "refined_instruction": "The right arm picks up the black laptop stand base and moves it slightly, while the left arm grasps and secures the base in place. Then, the right arm lifts the silver laptop from the table and places it onto the secured stand base, adjusting its position before releasing it. Finally, both arms retract from the assembled laptop stand."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 392,
-            "total_tokens": 11864
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 15.02
-  },
-  {
-    "episode_id": "episode_000002",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand base from the left side to hold it steady.",
-          "The right arm approaches the silver laptop, grasps the front edge, and lifts it slightly.",
-          "The right arm moves the laptop over to the stand, while the left arm continues to secure the base.",
-          "The right arm places the laptop onto the stand, tilting it into an upright position.",
-          "The right arm releases the laptop and immediately moves to grasp the pen lying on the table.",
-          "The right arm lifts the pen and inserts it into the holder on the laptop stand.",
-          "The left arm releases the stand base once the laptop is stable.",
-          "Both arms retract to their home positions."
-        ],
-        "refinedInstruction": "The left arm secures the laptop stand base while the right arm lifts the laptop and places it onto the stand. After positioning the laptop, the right arm picks up the pen from the table and inserts it into the stand's holder, while the left arm releases the base and both arms retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1029,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1029
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000002.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1029,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1029
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
+            "action_corrections": [],
+            "timestamped_action_sequence": [
               {
                 "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
+                "action": "接近",
+                "object": "笔记本电脑支架",
+                "start_time": "00:00.00",
+                "end_time": "00:03.17"
               },
               {
                 "executor": "right",
-                "action": "approach",
-                "object": "laptop"
+                "action": "接近",
+                "object": "笔记本电脑",
+                "start_time": "00:00.00",
+                "end_time": "00:05.67"
               },
               {
                 "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
+                "action": "固定",
+                "object": "笔记本电脑支架",
+                "start_time": "00:03.17",
+                "end_time": "00:21.03"
               },
               {
                 "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
+                "action": "拿起",
+                "object": "笔记本电脑",
+                "start_time": "00:05.67",
+                "end_time": "00:08.83"
               },
               {
                 "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
+                "action": "放置",
+                "object": "笔记本电脑",
+                "start_time": "00:08.83",
+                "end_time": "00:12.60"
               },
               {
                 "executor": "right",
-                "action": "place",
-                "object": "laptop"
+                "action": "调整",
+                "object": "笔记本电脑",
+                "start_time": "00:12.60",
+                "end_time": "00:20.80"
               },
               {
                 "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
+                "action": "释放",
+                "object": "笔记本电脑",
+                "start_time": "00:20.80",
+                "end_time": "00:21.03"
               },
               {
                 "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
+                "action": "释放",
+                "object": "笔记本电脑支架",
+                "start_time": "00:21.03",
+                "end_time": "00:22.07"
               },
               {
                 "executor": "left",
-                "action": "retract",
-                "object": ""
+                "action": "撤回",
+                "object": "",
+                "start_time": "00:22.07",
+                "end_time": "00:26.70"
               },
               {
                 "executor": "right",
-                "action": "retract",
-                "object": ""
+                "action": "撤回",
+                "object": "",
+                "start_time": "00:21.03",
+                "end_time": "00:26.70"
               }
             ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pen from the table before placing the laptop.",
-              "The initial sequence missed the step where the right arm places the pen into the stand.",
-              "The initial sequence missed the step where the left arm assists in stabilizing the laptop during placement."
-            ],
             "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand base from the left side to hold it steady.",
-              "The right arm approaches the silver laptop, grasps the front edge, and lifts it slightly.",
-              "The right arm moves the laptop over to the stand, while the left arm continues to secure the base.",
-              "The right arm places the laptop onto the stand, tilting it into an upright position.",
-              "The right arm releases the laptop and immediately moves to grasp the pen lying on the table.",
-              "The right arm lifts the pen and inserts it into the holder on the laptop stand.",
-              "The left arm releases the stand base once the laptop is stable.",
-              "Both arms retract to their home positions."
+              "00:00.00 - 00:03.17：左臂从左侧向中央的黑色笔记本电脑支架移动，右臂从右侧向银色笔记本电脑移动。",
+              "00:03.17 - 00:05.67：左臂夹爪接触并固定住笔记本电脑支架的左侧边缘，右臂继续接近笔记本电脑。",
+              "00:05.67 - 00:08.83：右臂夹爪从右侧抓住笔记本电脑边缘，将其垂直抬起并水平向左移动，准备放置到支架上。",
+              "00:08.83 - 00:12.60：右臂将笔记本电脑放置在支架上，左臂持续固定支架防止其滑动。",
+              "00:12.60 - 00:20.80：右臂在支架上微调笔记本电脑的位置和角度，确保其稳固放置，左臂保持固定状态。",
+              "00:20.80 - 00:21.03：右臂松开笔记本电脑，左臂松开支架，双臂准备撤回。",
+              "00:21.03 - 00:26.70：左臂和右臂同时向各自起始位置撤回，任务完成。"
             ],
-            "refined_instruction": "The left arm secures the laptop stand base while the right arm lifts the laptop and places it onto the stand. After positioning the laptop, the right arm picks up the pen from the table and inserts it into the stand's holder, while the left arm releases the base and both arms retract."
+            "refined_instruction": "左臂首先接近并固定住中央的黑色笔记本电脑支架，随后右臂接近并拿起右侧的银色笔记本电脑，将其放置到支架上并进行位置调整，最后双臂同时释放物体并撤回。"
           },
           "error": null,
           "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 320,
-            "total_tokens": 11792
+            "prompt_tokens": 40681,
+            "completion_tokens": 997,
+            "total_tokens": 41678
           }
         }
       }
     },
     "error": null,
-    "processing_time_seconds": 14.5
-  },
-  {
-    "episode_id": "episode_000003",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand base from the left side to hold it steady.",
-          "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-          "The right arm picks up a pen that was resting on the laptop lid and places it on the table.",
-          "The right arm lifts the laptop completely off the table and moves it towards the stand.",
-          "The right arm places the laptop onto the stand held by the left arm, adjusting its position to sit securely.",
-          "The right arm releases the laptop and retracts.",
-          "The left arm releases the stand and retracts."
-        ],
-        "refinedInstruction": "The left arm secures the laptop stand base while the right arm lifts the laptop, removes a pen from its surface, and places the laptop onto the stand before both arms retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
-            "video_fps": 30.0,
-            "total_frames": 927,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              927
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000003.mp4",
-            "video_fps": 30.0,
-            "total_frames": 927,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              927
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 419,
-            "total_tokens": 10871
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pen from the laptop before placing the laptop on the stand. The refined sequence includes this action."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand base from the left side to hold it steady.",
-              "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-              "The right arm picks up a pen that was resting on the laptop lid and places it on the table.",
-              "The right arm lifts the laptop completely off the table and moves it towards the stand.",
-              "The right arm places the laptop onto the stand held by the left arm, adjusting its position to sit securely.",
-              "The right arm releases the laptop and retracts.",
-              "The left arm releases the stand and retracts."
-            ],
-            "refined_instruction": "The left arm secures the laptop stand base while the right arm lifts the laptop, removes a pen from its surface, and places the laptop onto the stand before both arms retract."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11503,
-            "completion_tokens": 250,
-            "total_tokens": 11753
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 13.97
-  },
-  {
-    "episode_id": "episode_000004",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The right arm approaches the black stand base located at the top center of the table.",
-          "The right arm grasps the black stand base from above.",
-          "The right arm lifts the black stand base vertically off the table surface.",
-          "The right arm moves the lifted stand base towards the center of the workspace.",
-          "The right arm places the black stand base onto the table surface, positioning it upright.",
-          "The right arm approaches the silver laptop located to the right of the stand base.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The right arm lifts the silver laptop and rotates it to an upright position.",
-          "The right arm places the silver laptop onto the black stand base, aligning it with the support.",
-          "The right arm adjusts the laptop's position slightly to ensure stability on the stand.",
-          "The right arm releases the laptop and retracts away from the object."
-        ],
-        "refinedInstruction": "The right arm picks up the black stand base from the top of the table and places it upright in the center. Then, the right arm grasps the silver laptop, lifts it, and places it onto the stand base, adjusting its position before releasing it.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
-            "video_fps": 30.0,
-            "total_frames": 829,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              829
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000004.mp4",
-            "video_fps": 30.0,
-            "total_frames": 829,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              829
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the black stand base before placing the laptop. The laptop is placed onto the stand base held by the right arm, not directly onto the table.",
-              "The initial sequence incorrectly stated the left arm secures the stand base; the video shows the left arm remains stationary and does not grasp the stand base."
-            ],
-            "fine_grained_steps": [
-              "The right arm approaches the black stand base located at the top center of the table.",
-              "The right arm grasps the black stand base from above.",
-              "The right arm lifts the black stand base vertically off the table surface.",
-              "The right arm moves the lifted stand base towards the center of the workspace.",
-              "The right arm places the black stand base onto the table surface, positioning it upright.",
-              "The right arm approaches the silver laptop located to the right of the stand base.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The right arm lifts the silver laptop and rotates it to an upright position.",
-              "The right arm places the silver laptop onto the black stand base, aligning it with the support.",
-              "The right arm adjusts the laptop's position slightly to ensure stability on the stand.",
-              "The right arm releases the laptop and retracts away from the object."
-            ],
-            "refined_instruction": "The right arm picks up the black stand base from the top of the table and places it upright in the center. Then, the right arm grasps the silver laptop, lifts it, and places it onto the stand base, adjusting its position before releasing it."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 366,
-            "total_tokens": 11838
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 14.65
-  },
-  {
-    "episode_id": "episode_000005",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The right arm approaches and grasps the black laptop stand base from above.",
-          "The right arm lifts the laptop stand base and moves it slightly to the left.",
-          "The left arm approaches the laptop stand base and grasps it to hold it steady.",
-          "The right arm releases the laptop stand base and retracts slightly.",
-          "The right arm approaches the silver laptop from the right side.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The right arm lifts the laptop vertically and rotates it to an upright position.",
-          "The right arm moves the laptop towards the laptop stand base held by the left arm.",
-          "The right arm places the laptop onto the laptop stand base, aligning it with the stand's support.",
-          "The right arm adjusts the laptop's position on the stand to ensure stability.",
-          "The right arm releases the laptop and retracts away from the stand.",
-          "The left arm releases the laptop stand base and retracts to its home position."
-        ],
-        "refinedInstruction": "The right arm first picks up the black laptop stand base and positions it, while the left arm secures the base to prevent movement. Then, the right arm grasps the silver laptop, lifts it, and carefully places it onto the secured laptop stand base. The right arm makes final adjustments to the laptop's posture before releasing it, and both arms retract to complete the task.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
-            "video_fps": 30.0,
-            "total_frames": 954,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              954
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000005.mp4",
-            "video_fps": 30.0,
-            "total_frames": 954,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              954
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 419,
-            "total_tokens": 10871
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the laptop stand base before the left arm secures it. The left arm's role is to fix the base while the right arm places the laptop, which is a coordinated bimanual action not fully captured in the initial sequence."
-            ],
-            "fine_grained_steps": [
-              "The right arm approaches and grasps the black laptop stand base from above.",
-              "The right arm lifts the laptop stand base and moves it slightly to the left.",
-              "The left arm approaches the laptop stand base and grasps it to hold it steady.",
-              "The right arm releases the laptop stand base and retracts slightly.",
-              "The right arm approaches the silver laptop from the right side.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The right arm lifts the laptop vertically and rotates it to an upright position.",
-              "The right arm moves the laptop towards the laptop stand base held by the left arm.",
-              "The right arm places the laptop onto the laptop stand base, aligning it with the stand's support.",
-              "The right arm adjusts the laptop's position on the stand to ensure stability.",
-              "The right arm releases the laptop and retracts away from the stand.",
-              "The left arm releases the laptop stand base and retracts to its home position."
-            ],
-            "refined_instruction": "The right arm first picks up the black laptop stand base and positions it, while the left arm secures the base to prevent movement. Then, the right arm grasps the silver laptop, lifts it, and carefully places it onto the secured laptop stand base. The right arm makes final adjustments to the laptop's posture before releasing it, and both arms retract to complete the task."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11503,
-            "completion_tokens": 392,
-            "total_tokens": 11895
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 16.63
-  },
-  {
-    "episode_id": "episode_000006",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "fix",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The right arm approaches the silver laptop lying flat on the table.",
-          "The left arm approaches the black laptop stand base located at the top center of the table.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The left arm grasps the left side of the black laptop stand base to stabilize it.",
-          "The right arm lifts the silver laptop vertically from the table.",
-          "The left arm holds the laptop stand base steady while the right arm maneuvers the laptop.",
-          "The right arm places the silver laptop onto the black stand base, positioning it upright.",
-          "The right arm adjusts the angle of the laptop on the stand to ensure it is stable.",
-          "The right arm releases the laptop, leaving it resting on the stand.",
-          "The left arm releases the laptop stand base.",
-          "The right arm retracts away from the laptop.",
-          "The left arm retracts away from the stand."
-        ],
-        "refinedInstruction": "The right arm approaches and grasps the silver laptop, lifting it from the table while the left arm stabilizes the black laptop stand base. The right arm then places the laptop onto the stand, adjusts its posture to an upright position, and releases it. Finally, both arms retract from the objects.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1100,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1100
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000006.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1100,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1100
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "fix",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 421,
-            "total_tokens": 10873
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pen from the table before placing the laptop. The pen was initially on the table, then moved by the right arm."
-            ],
-            "fine_grained_steps": [
-              "The right arm approaches the silver laptop lying flat on the table.",
-              "The left arm approaches the black laptop stand base located at the top center of the table.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The left arm grasps the left side of the black laptop stand base to stabilize it.",
-              "The right arm lifts the silver laptop vertically from the table.",
-              "The left arm holds the laptop stand base steady while the right arm maneuvers the laptop.",
-              "The right arm places the silver laptop onto the black stand base, positioning it upright.",
-              "The right arm adjusts the angle of the laptop on the stand to ensure it is stable.",
-              "The right arm releases the laptop, leaving it resting on the stand.",
-              "The left arm releases the laptop stand base.",
-              "The right arm retracts away from the laptop.",
-              "The left arm retracts away from the stand."
-            ],
-            "refined_instruction": "The right arm approaches and grasps the silver laptop, lifting it from the table while the left arm stabilizes the black laptop stand base. The right arm then places the laptop onto the stand, adjusts its posture to an upright position, and releases it. Finally, both arms retract from the objects."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11505,
-            "completion_tokens": 340,
-            "total_tokens": 11845
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 15.67
-  },
-  {
-    "episode_id": "episode_000007",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand base from the left side to stabilize it.",
-          "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-          "The right arm moves the laptop to the right, revealing a pen underneath, then places the laptop back down.",
-          "The right arm grasps the pen, lifts it, and moves it out of the way to the right.",
-          "The right arm returns to the laptop, grasps the right edge of the lid again, and lifts the laptop.",
-          "The right arm moves the laptop towards the black stand held by the left arm.",
-          "The right arm places the laptop onto the black stand, adjusting its position to sit securely.",
-          "The right arm releases the laptop and moves to the right side of the table.",
-          "The right arm places the pen back on the table surface.",
-          "The left arm releases the black stand and retracts.",
-          "The right arm retracts to its home position."
-        ],
-        "refinedInstruction": "The left arm stabilizes the black laptop stand while the right arm lifts the silver laptop, moves it aside to retrieve a pen, and then places the laptop onto the stand. After securing the laptop, the right arm places the pen back on the table, and both arms retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
-            "video_fps": 30.0,
-            "total_frames": 870,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              870
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000007.mp4",
-            "video_fps": 30.0,
-            "total_frames": 870,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              870
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pen before moving the laptop.",
-              "The initial sequence incorrectly stated the left arm grasps the laptop stand base; the video shows the left arm grasps the black object (laptop stand) itself to stabilize it.",
-              "The initial sequence missed the final step where the right arm places the pen back on the table."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand base from the left side to stabilize it.",
-              "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-              "The right arm moves the laptop to the right, revealing a pen underneath, then places the laptop back down.",
-              "The right arm grasps the pen, lifts it, and moves it out of the way to the right.",
-              "The right arm returns to the laptop, grasps the right edge of the lid again, and lifts the laptop.",
-              "The right arm moves the laptop towards the black stand held by the left arm.",
-              "The right arm places the laptop onto the black stand, adjusting its position to sit securely.",
-              "The right arm releases the laptop and moves to the right side of the table.",
-              "The right arm places the pen back on the table surface.",
-              "The left arm releases the black stand and retracts.",
-              "The right arm retracts to its home position."
-            ],
-            "refined_instruction": "The left arm stabilizes the black laptop stand while the right arm lifts the silver laptop, moves it aside to retrieve a pen, and then places the laptop onto the stand. After securing the laptop, the right arm places the pen back on the table, and both arms retract."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 399,
-            "total_tokens": 11871
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 17.9
-  },
-  {
-    "episode_id": "episode_000008",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches the black laptop stand base located at the top center of the table and grasps it to hold it steady.",
-          "The right arm approaches the silver laptop lying flat on the table, grasps the front edge, and lifts it vertically.",
-          "While the left arm secures the stand, the right arm moves the lifted laptop towards the stand and places it onto the base.",
-          "The right arm adjusts the laptop's position on the stand to ensure it is seated correctly.",
-          "The right arm releases the laptop and retracts away from the stand.",
-          "The left arm releases the laptop stand base and retracts to its home position."
-        ],
-        "refinedInstruction": "The left arm secures the laptop stand base while the right arm picks up the laptop from the table, places it onto the stand, and adjusts its posture before both arms retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
-            "video_fps": 30.0,
-            "total_frames": 856,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              856
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000008.mp4",
-            "video_fps": 30.0,
-            "total_frames": 856,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              856
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 357,
-            "total_tokens": 10809
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the laptop from the table before placing it on the stand.",
-              "The initial sequence missed the step where the right arm adjusts the laptop's position on the stand after placing it.",
-              "The initial sequence missed the step where the right arm retracts after adjusting the laptop."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches the black laptop stand base located at the top center of the table and grasps it to hold it steady.",
-              "The right arm approaches the silver laptop lying flat on the table, grasps the front edge, and lifts it vertically.",
-              "While the left arm secures the stand, the right arm moves the lifted laptop towards the stand and places it onto the base.",
-              "The right arm adjusts the laptop's position on the stand to ensure it is seated correctly.",
-              "The right arm releases the laptop and retracts away from the stand.",
-              "The left arm releases the laptop stand base and retracts to its home position."
-            ],
-            "refined_instruction": "The left arm secures the laptop stand base while the right arm picks up the laptop from the table, places it onto the stand, and adjusts its posture before both arms retract."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11441,
-            "completion_tokens": 285,
-            "total_tokens": 11726
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 15.48
-  },
-  {
-    "episode_id": "episode_000009",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand base from the left side to stabilize it.",
-          "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-          "While holding the laptop, the right arm reaches under the lifted laptop to grasp a pencil lying on the table.",
-          "The right arm places the pencil on the table to the right of the laptop.",
-          "The right arm lifts the laptop completely off the table.",
-          "The right arm moves the laptop over to the laptop stand held by the left arm.",
-          "The right arm places the laptop onto the laptop stand, aligning it with the base.",
-          "The right arm adjusts the laptop's position on the stand to ensure it is seated correctly.",
-          "The right arm releases the laptop and retracts.",
-          "The left arm releases the laptop stand base and retracts."
-        ],
-        "refinedInstruction": "The left arm stabilizes the laptop stand base while the right arm lifts the laptop, retrieves a pencil from underneath it, and places the pencil aside. Then, the right arm places the laptop onto the stand held by the left arm, adjusts its position, and releases it before both arms retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1005,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1005
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000009.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1005,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1005
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pencil from under the laptop before placing the laptop on the stand.",
-              "The initial sequence incorrectly stated the left arm grasps the laptop stand base; the video shows the left arm grasps the laptop stand itself to stabilize it."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand base from the left side to stabilize it.",
-              "The right arm approaches the silver laptop, grasps the right edge of the lid, and lifts it slightly.",
-              "While holding the laptop, the right arm reaches under the lifted laptop to grasp a pencil lying on the table.",
-              "The right arm places the pencil on the table to the right of the laptop.",
-              "The right arm lifts the laptop completely off the table.",
-              "The right arm moves the laptop over to the laptop stand held by the left arm.",
-              "The right arm places the laptop onto the laptop stand, aligning it with the base.",
-              "The right arm adjusts the laptop's position on the stand to ensure it is seated correctly.",
-              "The right arm releases the laptop and retracts.",
-              "The left arm releases the laptop stand base and retracts."
-            ],
-            "refined_instruction": "The left arm stabilizes the laptop stand base while the right arm lifts the laptop, retrieves a pencil from underneath it, and places the pencil aside. Then, the right arm places the laptop onto the stand held by the left arm, adjusts its position, and releases it before both arms retract."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 353,
-            "total_tokens": 11825
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 18.2
-  },
-  {
-    "episode_id": "episode_000010",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches the black laptop stand base located at the top center of the table.",
-          "The right arm approaches the silver laptop located in the center of the table.",
-          "The left arm grasps the black laptop stand base to hold it steady.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "The right arm lifts the silver laptop slightly, revealing a pencil underneath.",
-          "The right arm moves the laptop to the right side to clear the area.",
-          "The right arm places the laptop down on the right side of the table.",
-          "The right arm moves back to the center and grasps the pencil that was under the laptop.",
-          "The right arm picks up the pencil and moves it to the right side of the table.",
-          "The right arm places the pencil on the table next to the laptop.",
-          "The right arm moves back to the center and grasps the silver laptop again.",
-          "The right arm lifts the silver laptop and moves it towards the laptop stand.",
-          "The right arm places the silver laptop onto the black laptop stand base held by the left arm.",
-          "The right arm adjusts the position of the laptop on the stand to ensure it is stable.",
-          "The right arm releases the laptop.",
-          "The left arm releases the laptop stand base.",
-          "Both arms retract to their starting positions."
-        ],
-        "refinedInstruction": "The left arm stabilizes the black laptop stand base while the right arm first lifts the silver laptop to retrieve a pencil hidden underneath, placing both items aside. Then, the right arm picks up the silver laptop again and carefully places it onto the stand held by the left arm, adjusting its position before both arms release and retract.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
-            "video_fps": 30.0,
-            "total_frames": 960,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              960
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000010.mp4",
-            "video_fps": 30.0,
-            "total_frames": 960,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              960
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 419,
-            "total_tokens": 10871
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the pencil from under the laptop before placing the laptop on the stand.",
-              "The initial sequence incorrectly stated the left arm grasps the laptop stand base; the video shows the left arm grasps the laptop stand itself to stabilize it."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches the black laptop stand base located at the top center of the table.",
-              "The right arm approaches the silver laptop located in the center of the table.",
-              "The left arm grasps the black laptop stand base to hold it steady.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "The right arm lifts the silver laptop slightly, revealing a pencil underneath.",
-              "The right arm moves the laptop to the right side to clear the area.",
-              "The right arm places the laptop down on the right side of the table.",
-              "The right arm moves back to the center and grasps the pencil that was under the laptop.",
-              "The right arm picks up the pencil and moves it to the right side of the table.",
-              "The right arm places the pencil on the table next to the laptop.",
-              "The right arm moves back to the center and grasps the silver laptop again.",
-              "The right arm lifts the silver laptop and moves it towards the laptop stand.",
-              "The right arm places the silver laptop onto the black laptop stand base held by the left arm.",
-              "The right arm adjusts the position of the laptop on the stand to ensure it is stable.",
-              "The right arm releases the laptop.",
-              "The left arm releases the laptop stand base.",
-              "Both arms retract to their starting positions."
-            ],
-            "refined_instruction": "The left arm stabilizes the black laptop stand base while the right arm first lifts the silver laptop to retrieve a pencil hidden underneath, placing both items aside. Then, the right arm picks up the silver laptop again and carefully places it onto the stand held by the left arm, adjusting its position before both arms release and retract."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11503,
-            "completion_tokens": 462,
-            "total_tokens": 11965
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 19.41
-  },
-  {
-    "episode_id": "episode_000011",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand located at the top center of the table.",
-          "The right arm approaches the silver laptop, grasps a pen lying next to it, and lifts the pen away.",
-          "The right arm places the pen on the table to the right, then re-grasps the silver laptop by its right edge.",
-          "The right arm lifts the laptop and moves it towards the left arm.",
-          "The left arm releases the stand and moves to receive the laptop from the right arm.",
-          "The right arm hands over the laptop to the left arm, which now holds the laptop securely.",
-          "The right arm retracts and moves away.",
-          "The left arm moves the laptop towards the black stand held in place by the right arm (which re-grasped it).",
-          "The left arm inserts the laptop into the black stand.",
-          "The left arm adjusts the laptop's position within the stand to ensure it is seated correctly.",
-          "The left arm releases the laptop and retracts.",
-          "The right arm releases the stand and retracts."
-        ],
-        "refinedInstruction": "The left arm first secures the black laptop stand at the top of the table. The right arm clears a pen from the workspace, then picks up the silver laptop and hands it over to the left arm. The left arm takes the laptop, moves it to the stand, and inserts it into the holder while the right arm stabilizes the stand. Finally, the left arm adjusts the laptop's posture and releases it, completing the assembly.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
-            "video_fps": 30.0,
-            "total_frames": 996,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              996
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000011.mp4",
-            "video_fps": 30.0,
-            "total_frames": 996,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              996
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up a pen before handling the laptop.",
-              "The initial sequence incorrectly stated the left arm grasps the laptop stand base; the video shows the left arm grasps the black object (laptop stand) at the top of the table.",
-              "The initial sequence missed the handover of the laptop from the right arm to the left arm.",
-              "The initial sequence missed the final placement of the laptop into the stand by the left arm."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand located at the top center of the table.",
-              "The right arm approaches the silver laptop, grasps a pen lying next to it, and lifts the pen away.",
-              "The right arm places the pen on the table to the right, then re-grasps the silver laptop by its right edge.",
-              "The right arm lifts the laptop and moves it towards the left arm.",
-              "The left arm releases the stand and moves to receive the laptop from the right arm.",
-              "The right arm hands over the laptop to the left arm, which now holds the laptop securely.",
-              "The right arm retracts and moves away.",
-              "The left arm moves the laptop towards the black stand held in place by the right arm (which re-grasped it).",
-              "The left arm inserts the laptop into the black stand.",
-              "The left arm adjusts the laptop's position within the stand to ensure it is seated correctly.",
-              "The left arm releases the laptop and retracts.",
-              "The right arm releases the stand and retracts."
-            ],
-            "refined_instruction": "The left arm first secures the black laptop stand at the top of the table. The right arm clears a pen from the workspace, then picks up the silver laptop and hands it over to the left arm. The left arm takes the laptop, moves it to the stand, and inserts it into the holder while the right arm stabilizes the stand. Finally, the left arm adjusts the laptop's posture and releases it, completing the assembly."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 468,
-            "total_tokens": 11940
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 21.97
-  },
-  {
-    "episode_id": "episode_000012",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "adjust",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The right arm approaches and grasps the black laptop stand base from above.",
-          "The right arm lifts the laptop stand base and moves it to the center of the table.",
-          "The left arm approaches the laptop stand base and grasps it to hold it steady.",
-          "The right arm releases the laptop stand base and retracts slightly.",
-          "The right arm approaches the silver laptop lying flat on the table.",
-          "The right arm grasps the right edge of the laptop.",
-          "The right arm lifts the laptop vertically and rotates it to an upright position.",
-          "The right arm moves the laptop towards the laptop stand base held by the left arm.",
-          "The right arm places the laptop onto the laptop stand base, aligning it with the support.",
-          "The right arm adjusts the laptop's position on the stand to ensure stability.",
-          "The right arm releases the laptop and retracts away from the stand.",
-          "The left arm releases the laptop stand base and retracts to its home position."
-        ],
-        "refinedInstruction": "The right arm picks up the black laptop stand base and places it in the center of the table. The left arm then grasps the base to secure it in place. The right arm approaches the silver laptop, grasps its edge, lifts it, and rotates it to an upright position. The right arm then places the laptop onto the stand base held by the left arm, adjusts its posture for stability, and releases it. Finally, both arms retract from the objects.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
-            "video_fps": 30.0,
-            "total_frames": 915,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              915
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000012.mp4",
-            "video_fps": 30.0,
-            "total_frames": 915,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              915
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "adjust",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 419,
-            "total_tokens": 10871
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the laptop stand base before the left arm secures it. The left arm's role is to fix the base while the right arm places the laptop, which is a coordinated bimanual action not fully captured in the initial 'left arm secures' description."
-            ],
-            "fine_grained_steps": [
-              "The right arm approaches and grasps the black laptop stand base from above.",
-              "The right arm lifts the laptop stand base and moves it to the center of the table.",
-              "The left arm approaches the laptop stand base and grasps it to hold it steady.",
-              "The right arm releases the laptop stand base and retracts slightly.",
-              "The right arm approaches the silver laptop lying flat on the table.",
-              "The right arm grasps the right edge of the laptop.",
-              "The right arm lifts the laptop vertically and rotates it to an upright position.",
-              "The right arm moves the laptop towards the laptop stand base held by the left arm.",
-              "The right arm places the laptop onto the laptop stand base, aligning it with the support.",
-              "The right arm adjusts the laptop's position on the stand to ensure stability.",
-              "The right arm releases the laptop and retracts away from the stand.",
-              "The left arm releases the laptop stand base and retracts to its home position."
-            ],
-            "refined_instruction": "The right arm picks up the black laptop stand base and places it in the center of the table. The left arm then grasps the base to secure it in place. The right arm approaches the silver laptop, grasps its edge, lifts it, and rotates it to an upright position. The right arm then places the laptop onto the stand base held by the left arm, adjusts its posture for stability, and releases it. Finally, both arms retract from the objects."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11503,
-            "completion_tokens": 416,
-            "total_tokens": 11919
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 18.97
-  },
-  {
-    "episode_id": "episode_000013",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches and grasps the black laptop stand base from above, securing it in place.",
-          "The right arm approaches the silver laptop, grasps its right edge from above, and lifts it vertically.",
-          "The right arm moves the laptop horizontally towards the laptop stand base held by the left arm.",
-          "The right arm places the laptop onto the laptop stand base, aligning it carefully.",
-          "The right arm releases the laptop and retracts slightly.",
-          "The left arm releases the laptop stand base and retracts.",
-          "The right arm approaches the laptop stand base again, grasps it from above, and lifts it vertically.",
-          "The right arm moves the laptop stand base away from the table surface and retracts."
-        ],
-        "refinedInstruction": "The left arm secures the black laptop stand base while the right arm picks up the silver laptop, moves it towards the stand, and places it on top. After releasing the laptop, the right arm then picks up the laptop stand base and moves it away.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
-            "video_fps": 30.0,
-            "total_frames": 772,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              772
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000013.mp4",
-            "video_fps": 30.0,
-            "total_frames": 772,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              772
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 388,
-            "total_tokens": 10840
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the step where the right arm picks up the laptop stand base after placing the laptop. The refined sequence includes this action.",
-              "The initial sequence did not specify that the left arm holds the laptop stand base while the right arm places the laptop. This coordination is added in the refined steps."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches and grasps the black laptop stand base from above, securing it in place.",
-              "The right arm approaches the silver laptop, grasps its right edge from above, and lifts it vertically.",
-              "The right arm moves the laptop horizontally towards the laptop stand base held by the left arm.",
-              "The right arm places the laptop onto the laptop stand base, aligning it carefully.",
-              "The right arm releases the laptop and retracts slightly.",
-              "The left arm releases the laptop stand base and retracts.",
-              "The right arm approaches the laptop stand base again, grasps it from above, and lifts it vertically.",
-              "The right arm moves the laptop stand base away from the table surface and retracts."
-            ],
-            "refined_instruction": "The left arm secures the black laptop stand base while the right arm picks up the silver laptop, moves it towards the stand, and places it on top. After releasing the laptop, the right arm then picks up the laptop stand base and moves it away."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11472,
-            "completion_tokens": 314,
-            "total_tokens": 11786
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 16.62
-  },
-  {
-    "episode_id": "episode_000014",
-    "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
-    "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-    "prediction": {
-      "flow_name": "single_view_no_steps_raw",
-      "success": true,
-      "output": {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
-        "analysisResult": {
-          "robot_type": "bimanual",
-          "action_sequence": [
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "left",
-              "action": "approach",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "grasp",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "pick up",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "place",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "approach",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "grasp",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "move",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "release",
-              "object": "laptop"
-            },
-            {
-              "executor": "right",
-              "action": "retract",
-              "object": ""
-            },
-            {
-              "executor": "left",
-              "action": "release",
-              "object": "laptop stand base"
-            },
-            {
-              "executor": "left",
-              "action": "retract",
-              "object": ""
-            }
-          ],
-          "main_object": "laptop"
-        },
-        "fineGrainedSteps": [
-          "The left arm approaches the black laptop stand base located at the top center of the table.",
-          "The right arm approaches the silver laptop located in the center of the table.",
-          "The left arm grasps the left side of the black laptop stand base to stabilize it.",
-          "The right arm grasps the right edge of the silver laptop.",
-          "Both arms coordinate to lift the silver laptop vertically from the table surface.",
-          "Both arms move the silver laptop towards the black stand base held by the left arm.",
-          "Both arms place the silver laptop onto the black stand base, positioning it upright.",
-          "The right arm releases the laptop while the left arm continues to hold the stand base steady.",
-          "The right arm re-grasps the right edge of the silver laptop.",
-          "The right arm pushes the silver laptop backward to align it securely on the stand.",
-          "The right arm releases the laptop and retracts away from the stand.",
-          "The left arm releases the black laptop stand base and retracts to the left side."
-        ],
-        "refinedInstruction": "The left arm approaches and grasps the black laptop stand base to secure it, while the right arm approaches and grasps the silver laptop. Both arms coordinate to lift the laptop and place it onto the stand base. After placing the laptop, the right arm re-grasps it to push it back into a secure position on the stand, then releases and retracts. Finally, the left arm releases the stand base and retracts.",
-        "metadata": {
-          "prompt_language": "en",
-          "analysis": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1038,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1038
-            ]
-          },
-          "refinement": {
-            "video_path": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000014.mp4",
-            "video_fps": 30.0,
-            "total_frames": 1038,
-            "sampled_frames": 128,
-            "frame_range": [
-              0,
-              1038
-            ]
-          }
-        }
-      },
-      "stages": {
-        "analysis": {
-          "success": true,
-          "output": {
-            "robot_type": "bimanual",
-            "action_sequence": [
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "left",
-                "action": "approach",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "grasp",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "pick up",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "place",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "approach",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "grasp",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "move",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "release",
-                "object": "laptop"
-              },
-              {
-                "executor": "right",
-                "action": "retract",
-                "object": ""
-              },
-              {
-                "executor": "left",
-                "action": "release",
-                "object": "laptop stand base"
-              },
-              {
-                "executor": "left",
-                "action": "retract",
-                "object": ""
-              }
-            ],
-            "main_object": "laptop"
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 10452,
-            "completion_tokens": 483,
-            "total_tokens": 10935
-          }
-        },
-        "refinement": {
-          "success": true,
-          "output": {
-            "action_corrections": [
-              "The initial sequence missed the initial approach of the left arm to the stand base before the right arm approached the laptop.",
-              "The initial sequence described the right arm placing the laptop, but the video shows a bimanual lift and placement where both arms coordinate to move the laptop onto the stand.",
-              "The initial sequence missed the final adjustment phase where the right arm pushes the laptop back to ensure it is seated correctly on the stand."
-            ],
-            "fine_grained_steps": [
-              "The left arm approaches the black laptop stand base located at the top center of the table.",
-              "The right arm approaches the silver laptop located in the center of the table.",
-              "The left arm grasps the left side of the black laptop stand base to stabilize it.",
-              "The right arm grasps the right edge of the silver laptop.",
-              "Both arms coordinate to lift the silver laptop vertically from the table surface.",
-              "Both arms move the silver laptop towards the black stand base held by the left arm.",
-              "Both arms place the silver laptop onto the black stand base, positioning it upright.",
-              "The right arm releases the laptop while the left arm continues to hold the stand base steady.",
-              "The right arm re-grasps the right edge of the silver laptop.",
-              "The right arm pushes the silver laptop backward to align it securely on the stand.",
-              "The right arm releases the laptop and retracts away from the stand.",
-              "The left arm releases the black laptop stand base and retracts to the left side."
-            ],
-            "refined_instruction": "The left arm approaches and grasps the black laptop stand base to secure it, while the right arm approaches and grasps the silver laptop. Both arms coordinate to lift the laptop and place it onto the stand base. After placing the laptop, the right arm re-grasps it to push it back into a secure position on the stand, then releases and retracts. Finally, the left arm releases the stand base and retracts."
-          },
-          "error": null,
-          "token_usage": {
-            "prompt_tokens": 11567,
-            "completion_tokens": 441,
-            "total_tokens": 12008
-          }
-        }
-      }
-    },
-    "error": null,
-    "processing_time_seconds": 21.33
+    "processing_time_seconds": 90.22
   }
 ]

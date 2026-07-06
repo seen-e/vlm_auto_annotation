@@ -18,7 +18,3 @@ from .refinement import (
     REFINEMENT_SYSTEM_PROMPT,
     REFINEMENT_PROMPT_TEMPLATE,
 )
-from .detail_refinement import (
-    DETAIL_REFINEMENT_SYSTEM_PROMPT,
-    DETAIL_REFINEMENT_PROMPT_TEMPLATE,
-)

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 import time
@@ -35,25 +36,29 @@ if str(REPO_ROOT) not in sys.path:
 
 EXAMPLE_DIR = Path(__file__).resolve().parent
 DEFAULT_INPUT_JSON = EXAMPLE_DIR / "robot_mind2_camera_top_tasks.json"
-DEFAULT_OUTPUT_JSON = EXAMPLE_DIR / "Qwen3-VL-30B-A3B-Instruct-bf16.json"
+DEFAULT_OUTPUT_JSON = EXAMPLE_DIR / "Qwen3.5-27B-bf16.json"
 
 from vlm_auto_annotation import create_openai_client
-from vlm_auto_annotation.flows import (
-    run_multiview_no_steps_raw,
-    run_single_view_no_steps_raw,
-)
+from vlm_auto_annotation.flows import run_single_view_no_steps_raw
+from vlm_auto_annotation.utils.logging_utils import configure_logging
 from vlm_auto_annotation.utils.config import (
+    DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
     DEFAULT_ANALYSIS_MAX_TOKENS,
+    DEFAULT_ANALYSIS_RESIZE_WIDTH,
     DEFAULT_BASE_URL,
-    DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
     DEFAULT_MAX_FRAMES,
     DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
     DEFAULT_REFINEMENT_MAX_TOKENS,
+    DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+    DEFAULT_REFINEMENT_RESIZE_WIDTH,
     DEFAULT_ROBOT_TYPE,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,8 +74,6 @@ def parse_args() -> argparse.Namespace:
         help=f"Where to save merged batch prediction results. Default: {DEFAULT_OUTPUT_JSON}",
     )
     parser.add_argument("--main-video", help="Path to the main/global view video for single-video mode.")
-    parser.add_argument("--detail-video", help="Optional path to the wrist/detail/auxiliary view video.")
-    parser.add_argument("--detail-view-name", default="wrist", help="Name of the detail view.")
     parser.add_argument(
         "--instruction",
         help="Initial task instruction, for example: 'pick up the cup and place it on the plate'.",
@@ -94,25 +97,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--refinement-fps", type=float, default=DEFAULT_REFINEMENT_FPS)
     parser.add_argument("--analysis-max-tokens", type=int, default=DEFAULT_ANALYSIS_MAX_TOKENS)
     parser.add_argument("--refinement-max-tokens", type=int, default=DEFAULT_REFINEMENT_MAX_TOKENS)
-    parser.add_argument("--detail-refinement-max-tokens", type=int, default=DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS)
+    parser.add_argument("--analysis-resize-width", type=int, default=DEFAULT_ANALYSIS_RESIZE_WIDTH)
+    parser.add_argument("--refinement-resize-width", type=int, default=DEFAULT_REFINEMENT_RESIZE_WIDTH)
+    parser.add_argument("--analysis-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_DRAW_TIMESTAMPS)
+    parser.add_argument("--refinement-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_TIMESTAMPS)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES)
+    parser.add_argument("--log-level", help="Override config logging.level for this CLI run.")
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
     parser.add_argument("--resume", action="store_true", help="Reuse successful items already in output JSON.")
     return parser.parse_args()
 
 
-def assert_video_exists(path: str) -> None:
-    if not Path(path).exists():
+def assert_video_exists(path: Any) -> None:
+    if isinstance(path, dict):
+        for view_name, view_path in path.items():
+            if not Path(str(view_path)).exists():
+                raise FileNotFoundError(f"Video not found for view {view_name}: {view_path}")
+        return
+    if isinstance(path, list):
+        for view_path in path:
+            if not Path(str(view_path)).exists():
+                raise FileNotFoundError(f"Video not found: {view_path}")
+        return
+    if not Path(str(path)).exists():
         raise FileNotFoundError(f"Video not found: {path}")
 
 
 def run_one(
     client,
     *,
-    main_video: str,
+    main_video: Any,
     instruction: str,
-    detail_video: str | None = None,
-    detail_view_name: str = "wrist",
     model: str = DEFAULT_MODEL,
     robot_type: str = DEFAULT_ROBOT_TYPE,
     prompt_language: str = DEFAULT_PROMPT_LANGUAGE,
@@ -120,42 +135,30 @@ def run_one(
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
     analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
     refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
-    detail_refinement_max_tokens: int = DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS,
+    analysis_resize_width: int = DEFAULT_ANALYSIS_RESIZE_WIDTH,
+    refinement_resize_width: int = DEFAULT_REFINEMENT_RESIZE_WIDTH,
+    analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
+    refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     max_frames: int = DEFAULT_MAX_FRAMES,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
-    if detail_video:
-        assert_video_exists(detail_video)
-        result = run_multiview_no_steps_raw(
-            client,
-            main_video_path=main_video,
-            detail_video_path=detail_video,
-            detail_view_name=detail_view_name,
-            initial_instruction=instruction,
-            model=model,
-            robot_type=robot_type,
-            prompt_language=prompt_language,
-            analysis_fps=analysis_fps,
-            refinement_fps=refinement_fps,
-            analysis_max_tokens=analysis_max_tokens,
-            refinement_max_tokens=refinement_max_tokens,
-            detail_refinement_max_tokens=detail_refinement_max_tokens,
-            max_frames=max_frames,
-        )
-    else:
-        result = run_single_view_no_steps_raw(
-            client,
-            video_path=main_video,
-            initial_instruction=instruction,
-            model=model,
-            robot_type=robot_type,
-            prompt_language=prompt_language,
-            analysis_fps=analysis_fps,
-            refinement_fps=refinement_fps,
-            analysis_max_tokens=analysis_max_tokens,
-            refinement_max_tokens=refinement_max_tokens,
-            max_frames=max_frames,
-        )
+    result = run_single_view_no_steps_raw(
+        client,
+        video_path=main_video,
+        initial_instruction=instruction,
+        model=model,
+        robot_type=robot_type,
+        prompt_language=prompt_language,
+        analysis_fps=analysis_fps,
+        refinement_fps=refinement_fps,
+        analysis_max_tokens=analysis_max_tokens,
+        refinement_max_tokens=refinement_max_tokens,
+        analysis_resize_width=analysis_resize_width,
+        refinement_resize_width=refinement_resize_width,
+        analysis_draw_timestamps=analysis_draw_timestamps,
+        refinement_draw_timestamps=refinement_draw_timestamps,
+        max_frames=max_frames,
+    )
     return result.to_dict()
 
 
@@ -204,6 +207,7 @@ def run_batch(args: argparse.Namespace) -> None:
     if args.limit is not None:
         records = records[: args.limit]
 
+    logger.info("Batch start records=%s input=%s output=%s resume=%s", len(records), args.input_json, args.output_json, args.resume)
     existing_successes = load_existing_successes(args.output_json) if args.resume else {}
     client = create_openai_client(api_key=args.api_key, base_url=args.base_url)
     outputs: list[dict[str, Any]] = []
@@ -216,7 +220,6 @@ def run_batch(args: argparse.Namespace) -> None:
             continue
 
         main_video = record.get("video_path") or record.get("main_video_path") or record.get("main_video")
-        detail_video = record.get("detail_video_path") or record.get("detail_video")
         instruction = record.get("task") or record.get("instruction") or record.get("initialInstruction")
         robot_type = record.get("robot_type") or args.robot_type
         prompt_language = record.get("prompt_language") or args.prompt_language
@@ -228,11 +231,10 @@ def run_batch(args: argparse.Namespace) -> None:
                 raise ValueError("Missing video_path/main_video_path/main_video")
             if not instruction:
                 raise ValueError("Missing task/instruction/initialInstruction")
+            logger.info("[%s/%s] %s start", index + 1, len(records), key)
             prediction = run_one(
                 client,
-                main_video=str(main_video),
-                detail_video=str(detail_video) if detail_video else None,
-                detail_view_name=args.detail_view_name,
+                main_video=main_video,
                 instruction=str(instruction),
                 model=args.model,
                 robot_type=str(robot_type),
@@ -241,15 +243,22 @@ def run_batch(args: argparse.Namespace) -> None:
                 refinement_fps=args.refinement_fps,
                 analysis_max_tokens=args.analysis_max_tokens,
                 refinement_max_tokens=args.refinement_max_tokens,
-                detail_refinement_max_tokens=args.detail_refinement_max_tokens,
+                analysis_resize_width=args.analysis_resize_width,
+                refinement_resize_width=args.refinement_resize_width,
+                analysis_draw_timestamps=args.analysis_draw_timestamps,
+                refinement_draw_timestamps=args.refinement_draw_timestamps,
                 max_frames=args.max_frames,
             )
             merged["prediction"] = prediction
             merged["error"] = None
+            elapsed = time.time() - start
+            logger.info("[%s/%s] %s success elapsed=%.2fs", index + 1, len(records), key, elapsed)
             print(f"[{index + 1}/{len(records)}] {key}: success")
         except Exception as exc:
             merged["prediction"] = None
             merged["error"] = str(exc)
+            elapsed = time.time() - start
+            logger.exception("[%s/%s] %s failed elapsed=%.2fs", index + 1, len(records), key, elapsed)
             print(f"[{index + 1}/{len(records)}] {key}: failed: {exc}")
 
         merged["processing_time_seconds"] = round(time.time() - start, 2)
@@ -257,6 +266,7 @@ def run_batch(args: argparse.Namespace) -> None:
         write_json(args.output_json, outputs)
 
     write_json(args.output_json, outputs)
+    logger.info("Batch done records=%s output=%s", len(outputs), args.output_json)
     print(f"Saved {len(outputs)} records to {args.output_json}")
 
 
@@ -267,11 +277,11 @@ def run_single(args: argparse.Namespace) -> None:
         raise ValueError("--instruction is required in single-video mode.")
 
     client = create_openai_client(api_key=args.api_key, base_url=args.base_url)
+    start = time.perf_counter()
+    logger.info("Single run start video=%s", args.main_video)
     prediction = run_one(
         client,
         main_video=args.main_video,
-        detail_video=args.detail_video,
-        detail_view_name=args.detail_view_name,
         instruction=args.instruction,
         model=args.model,
         robot_type=args.robot_type,
@@ -280,14 +290,19 @@ def run_single(args: argparse.Namespace) -> None:
         refinement_fps=args.refinement_fps,
         analysis_max_tokens=args.analysis_max_tokens,
         refinement_max_tokens=args.refinement_max_tokens,
-        detail_refinement_max_tokens=args.detail_refinement_max_tokens,
+        analysis_resize_width=args.analysis_resize_width,
+        refinement_resize_width=args.refinement_resize_width,
+        analysis_draw_timestamps=args.analysis_draw_timestamps,
+        refinement_draw_timestamps=args.refinement_draw_timestamps,
         max_frames=args.max_frames,
     )
+    logger.info("Single run done elapsed=%.2fs", time.perf_counter() - start)
     print(json.dumps(prediction, ensure_ascii=False, indent=2))
 
 
 def main() -> None:
     args = parse_args()
+    configure_logging(level=args.log_level) if args.log_level else configure_logging()
     if args.main_video:
         run_single(args)
     else:

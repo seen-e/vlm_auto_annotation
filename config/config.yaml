@@ -1,0 +1,95 @@
+# VLM auto annotation runtime configuration.
+#
+# This YAML file is the single source of default runtime parameters.
+# utils/config.py only loads this file and exposes compatibility constants.
+#
+# Optional environment variables can still override values temporarily:
+# - ANNOTATE_CONFIG: path to another YAML config file
+# - ANNOTATE_MODEL
+# - ANNOTATE_BASE_URL
+# - ANNOTATE_ROBOT_TYPE
+# - ANNOTATE_PROMPT_LANGUAGE
+# - ANNOTATE_ANALYSIS_FPS
+# - ANNOTATE_REFINEMENT_FPS
+# - ANNOTATE_ANALYSIS_MAX_TOKENS
+# - ANNOTATE_REFINEMENT_MAX_TOKENS
+# - ANNOTATE_VLM_TEMPERATURE
+# - ANNOTATE_VLM_TOP_P
+# - ANNOTATE_VLM_TOP_K
+# - ANNOTATE_MAX_FRAMES
+# - ANNOTATE_ANALYSIS_RESIZE_WIDTH
+# - ANNOTATE_REFINEMENT_RESIZE_WIDTH
+# - ANNOTATE_RESIZE_WIDTH
+# - ANNOTATE_MERGE_VIEW_NAMES
+# - ANNOTATE_JPEG_QUALITY
+# - ANNOTATE_ANALYSIS_DRAW_TIMESTAMPS
+# - ANNOTATE_REFINEMENT_DRAW_TIMESTAMPS
+# - ANNOTATE_DRAW_TIMESTAMPS
+# - ANNOTATE_MIN_API_FRAMES
+# - ANNOTATE_MAX_STEP_WORKERS
+# - ANNOTATE_LOG_LEVEL
+# - ANNOTATE_LOG_FORMAT
+
+model:
+  # DEFAULT_MODEL: served model name sent to the OpenAI-compatible API.
+  name: Qwen3.5-27B
+  # DEFAULT_BASE_URL: OpenAI-compatible API base URL.
+  base_url: http://localhost:8002/v1
+
+prompt:
+  # DEFAULT_PROMPT_LANGUAGE: cn uses prompts_cn, en uses prompts.
+  language: cn
+  # DEFAULT_ROBOT_TYPE: single_arm, bimanual, mobile_manipulator, or unknown.
+  robot_type: bimanual
+
+stages:
+  analysis:
+    # DEFAULT_ANALYSIS_FPS: frame sampling FPS for coarse action analysis.
+    fps: 1.0
+    # DEFAULT_ANALYSIS_MAX_TOKENS: max output tokens for analysis; 0 means service default.
+    max_tokens: 512
+    # DEFAULT_ANALYSIS_RESIZE_WIDTH: per-view image width before optional multi-view merge.
+    resize_width: 224
+    # DEFAULT_ANALYSIS_DRAW_TIMESTAMPS: usually false to avoid distracting coarse recognition.
+    draw_timestamps: false
+
+  refinement:
+    # DEFAULT_REFINEMENT_FPS: frame sampling FPS for timestamp/action refinement.
+    fps: 5.0
+    # DEFAULT_REFINEMENT_MAX_TOKENS: max output tokens for refinement; 0 means service default.
+    max_tokens: 2048
+    # DEFAULT_REFINEMENT_RESIZE_WIDTH and DEFAULT_RESIZE_WIDTH compatibility value.
+    resize_width: 448
+    # DEFAULT_REFINEMENT_DRAW_TIMESTAMPS and DEFAULT_DRAW_TIMESTAMPS compatibility value.
+    draw_timestamps: true
+
+vlm_sampling:
+  # DEFAULT_VLM_TEMPERATURE: lower is more deterministic.
+  temperature: 0.0
+  # DEFAULT_VLM_TOP_P: nucleus sampling parameter.
+  top_p: 0.95
+  # DEFAULT_VLM_TOP_K: 0 means do not explicitly send top_k.
+  top_k: 0
+
+video:
+  # DEFAULT_MAX_FRAMES: maximum sampled frames sent to a stage.
+  max_frames: 128
+  # DEFAULT_MERGE_VIEW_NAMES: selected views for multi-view vertical merge.
+  # The first view is the primary view for left/right/front/back spatial language.
+  merge_view_names:
+    - observation.rgb_images.camera_front
+    - observation.rgb_images.camera_top
+  # DEFAULT_JPEG_QUALITY: JPEG encoding quality for sampled frames.
+  jpeg_quality: 75
+  # MIN_API_FRAMES: force at least this many frames when a clip is long enough.
+  min_api_frames: 2
+
+workers:
+  # MAX_STEP_WORKERS: max worker threads for parallel step processing.
+  max_step_workers: 8
+
+logging:
+  # DEFAULT_LOG_LEVEL: DEBUG, INFO, WARNING, ERROR, or CRITICAL.
+  level: INFO
+  # DEFAULT_LOG_FORMAT: Python logging format used by CLI/debug entrypoints.
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"

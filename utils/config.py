@@ -1,48 +1,128 @@
-"""Runtime defaults for VLM auto annotation."""
+"""Compatibility constants loaded from ``config/config.yaml``.
+
+``config/config.yaml`` is the single source of default runtime parameters.
+This Python module exists so existing imports such as
+``from utils.config import DEFAULT_MODEL`` keep working.
+"""
 
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from typing import Any
 
-# 默认使用的视觉语言模型名称，可通过 ANNOTATE_MODEL 覆盖。
-DEFAULT_MODEL = os.environ.get("ANNOTATE_MODEL", "Qwen3-VL-30B-A3B-Instruct")
-# OpenAI 兼容接口的基础地址，可通过 ANNOTATE_BASE_URL 覆盖。
-DEFAULT_BASE_URL = os.environ.get(
-    "ANNOTATE_BASE_URL",
-    "http://localhost:8002/v1",
+import yaml
+
+
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "config.yaml"
+CONFIG_PATH = Path(os.environ.get("ANNOTATE_CONFIG", DEFAULT_CONFIG_PATH))
+
+
+def _load_yaml(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {path}")
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        raise ValueError(f"Config file must contain a YAML object: {path}")
+    return data
+
+
+def _required(data: dict[str, Any], dotted_key: str) -> Any:
+    current: Any = data
+    for key in dotted_key.split("."):
+        if not isinstance(current, dict) or key not in current:
+            raise KeyError(f"Missing required config key '{dotted_key}' in {CONFIG_PATH}")
+        current = current[key]
+    return current
+
+
+def _env_str(name: str, value: Any) -> str:
+    return str(os.environ.get(name, value))
+
+
+def _env_int(name: str, value: Any) -> int:
+    return int(os.environ.get(name, value))
+
+
+def _env_float(name: str, value: Any) -> float:
+    return float(os.environ.get(name, value))
+
+
+def _to_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() not in {"0", "false", "no", "off"}
+
+
+def _env_bool(name: str, value: Any) -> bool:
+    return _to_bool(os.environ.get(name, value))
+
+
+def _env_list(name: str, value: Any) -> list[str]:
+    raw = os.environ.get(name)
+    if raw is not None:
+        return [item.strip() for item in raw.split(",") if item.strip()]
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    raise TypeError(f"Expected list or comma-separated string for {name}, got {type(value).__name__}")
+
+
+_CONFIG = _load_yaml(CONFIG_PATH)
+
+DEFAULT_MODEL = _env_str("ANNOTATE_MODEL", _required(_CONFIG, "model.name"))
+DEFAULT_BASE_URL = _env_str("ANNOTATE_BASE_URL", _required(_CONFIG, "model.base_url"))
+
+DEFAULT_ANALYSIS_FPS = _env_float("ANNOTATE_ANALYSIS_FPS", _required(_CONFIG, "stages.analysis.fps"))
+DEFAULT_REFINEMENT_FPS = _env_float("ANNOTATE_REFINEMENT_FPS", _required(_CONFIG, "stages.refinement.fps"))
+
+DEFAULT_ROBOT_TYPE = _env_str("ANNOTATE_ROBOT_TYPE", _required(_CONFIG, "prompt.robot_type"))
+DEFAULT_PROMPT_LANGUAGE = _env_str("ANNOTATE_PROMPT_LANGUAGE", _required(_CONFIG, "prompt.language"))
+
+DEFAULT_ANALYSIS_MAX_TOKENS = _env_int(
+    "ANNOTATE_ANALYSIS_MAX_TOKENS",
+    _required(_CONFIG, "stages.analysis.max_tokens"),
 )
+DEFAULT_REFINEMENT_MAX_TOKENS = _env_int(
+    "ANNOTATE_REFINEMENT_MAX_TOKENS",
+    _required(_CONFIG, "stages.refinement.max_tokens"),
+)
+DEFAULT_VLM_TEMPERATURE = _env_float("ANNOTATE_VLM_TEMPERATURE", _required(_CONFIG, "vlm_sampling.temperature"))
+DEFAULT_VLM_TOP_P = _env_float("ANNOTATE_VLM_TOP_P", _required(_CONFIG, "vlm_sampling.top_p"))
+DEFAULT_VLM_TOP_K = _env_int("ANNOTATE_VLM_TOP_K", _required(_CONFIG, "vlm_sampling.top_k"))
 
-# 初始分析阶段的视频采样帧率，控制送入模型做粗分析的帧密度。
-DEFAULT_ANALYSIS_FPS = float(os.environ.get("ANNOTATE_ANALYSIS_FPS", "5.0"))
-# 细化阶段的视频采样帧率，控制对候选片段进一步复核时的帧密度。
-DEFAULT_REFINEMENT_FPS = float(os.environ.get("ANNOTATE_REFINEMENT_FPS", "5.0"))
+DEFAULT_MAX_FRAMES = _env_int("ANNOTATE_MAX_FRAMES", _required(_CONFIG, "video.max_frames"))
 
-# 标注时使用的机器人类型，可选 single_arm、bimanual、mobile_manipulator、unknown。
-DEFAULT_ROBOT_TYPE = os.environ.get("ANNOTATE_ROBOT_TYPE", "bimanual")
-# 提示词语言，可选 cn/en；cn 使用 prompts_cn，en 使用 prompts。
-DEFAULT_PROMPT_LANGUAGE = os.environ.get("ANNOTATE_PROMPT_LANGUAGE", "en")
+_fallback_resize_width = os.environ.get("ANNOTATE_RESIZE_WIDTH")
+DEFAULT_ANALYSIS_RESIZE_WIDTH = _env_int(
+    "ANNOTATE_ANALYSIS_RESIZE_WIDTH",
+    _fallback_resize_width or _required(_CONFIG, "stages.analysis.resize_width"),
+)
+DEFAULT_REFINEMENT_RESIZE_WIDTH = _env_int(
+    "ANNOTATE_REFINEMENT_RESIZE_WIDTH",
+    _fallback_resize_width or _required(_CONFIG, "stages.refinement.resize_width"),
+)
+DEFAULT_RESIZE_WIDTH = DEFAULT_REFINEMENT_RESIZE_WIDTH
 
-# analysis 阶段模型回复的最大 token 数；设为 0 表示使用模型服务默认限制。
-DEFAULT_ANALYSIS_MAX_TOKENS = int(os.environ.get("ANNOTATE_ANALYSIS_MAX_TOKENS", "512"))
-# refinement 阶段模型回复的最大 token 数；设为 0 表示使用模型服务默认限制。
-DEFAULT_REFINEMENT_MAX_TOKENS = int(os.environ.get("ANNOTATE_REFINEMENT_MAX_TOKENS", "2048"))
-# detail_refinement 阶段模型回复的最大 token 数；设为 0 表示使用模型服务默认限制。
-DEFAULT_DETAIL_REFINEMENT_MAX_TOKENS = int(os.environ.get("ANNOTATE_DETAIL_REFINEMENT_MAX_TOKENS", "2048"))
+DEFAULT_MERGE_VIEW_NAMES = _env_list(
+    "ANNOTATE_MERGE_VIEW_NAMES",
+    _required(_CONFIG, "video.merge_view_names"),
+)
+DEFAULT_JPEG_QUALITY = _env_int("ANNOTATE_JPEG_QUALITY", _required(_CONFIG, "video.jpeg_quality"))
 
-# VLM 输出采样温度，数值越低越稳定，越高越随机。
-DEFAULT_VLM_TEMPERATURE = float(os.environ.get("ANNOTATE_VLM_TEMPERATURE", "0.0"))
-# VLM nucleus sampling 参数，控制候选 token 的累计概率范围。
-DEFAULT_VLM_TOP_P = float(os.environ.get("ANNOTATE_VLM_TOP_P", "0.95"))
-# VLM top-k sampling 参数；设为 0 表示不显式传 top_k，使用模型服务默认值。
-DEFAULT_VLM_TOP_K = int(os.environ.get("ANNOTATE_VLM_TOP_K", "0"))
+DEFAULT_ANALYSIS_DRAW_TIMESTAMPS = _env_bool(
+    "ANNOTATE_ANALYSIS_DRAW_TIMESTAMPS",
+    _required(_CONFIG, "stages.analysis.draw_timestamps"),
+)
+DEFAULT_REFINEMENT_DRAW_TIMESTAMPS = _env_bool(
+    "ANNOTATE_REFINEMENT_DRAW_TIMESTAMPS",
+    os.environ.get("ANNOTATE_DRAW_TIMESTAMPS", _required(_CONFIG, "stages.refinement.draw_timestamps")),
+)
+DEFAULT_DRAW_TIMESTAMPS = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS
 
-# 单次处理最多抽取的视频帧数，用于限制请求体大小和推理耗时。
-DEFAULT_MAX_FRAMES = int(os.environ.get("ANNOTATE_MAX_FRAMES", "128"))
-# 送入模型前将视频帧缩放到的目标宽度，用于控制图像尺寸和显存占用。
-DEFAULT_RESIZE_WIDTH = int(os.environ.get("ANNOTATE_RESIZE_WIDTH", "224"))
-# 编码视频帧为 JPEG 时使用的质量参数，数值越高图像越清晰但体积越大。
-DEFAULT_JPEG_QUALITY = int(os.environ.get("ANNOTATE_JPEG_QUALITY", "75"))
-# 调用模型接口时至少提供的帧数，避免片段过短导致模型输入不足。
-MIN_API_FRAMES = int(os.environ.get("ANNOTATE_MIN_API_FRAMES", "2"))
-# 并行执行步骤的最大工作线程数，用于限制并发量和本机资源占用。
-MAX_STEP_WORKERS = int(os.environ.get("ANNOTATE_MAX_STEP_WORKERS", "8"))
+MIN_API_FRAMES = _env_int("ANNOTATE_MIN_API_FRAMES", _required(_CONFIG, "video.min_api_frames"))
+MAX_STEP_WORKERS = _env_int("ANNOTATE_MAX_STEP_WORKERS", _required(_CONFIG, "workers.max_step_workers"))
+
+DEFAULT_LOG_LEVEL = _env_str("ANNOTATE_LOG_LEVEL", _required(_CONFIG, "logging.level"))
+DEFAULT_LOG_FORMAT = _env_str("ANNOTATE_LOG_FORMAT", _required(_CONFIG, "logging.format"))

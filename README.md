@@ -1,97 +1,201 @@
 # VLM Auto Annotation
 
-This package currently implements the no-`steps_raw` part of the FineVLA-style
-automatic annotation pipeline.
+This package implements a FineVLA-style automatic annotation pipeline for robot
+manipulation videos. It supports Chinese and English prompts, configurable robot
+types, multi-view frame merging, stage-specific frame sampling, and timestamped
+refinement outputs.
 
 Prompts live in `prompts_cn/` and `prompts/`; flow implementations live in
 `flows/`; shared runtime helpers live in `utils/`.
 
+## Configuration
+
+Runtime defaults are configured in [config/config.yaml](config/config.yaml). This
+YAML file is the single source of default parameters. The Python module
+[utils/config.py](utils/config.py) only loads YAML and exports the existing
+`DEFAULT_*`, `MIN_*`, and `MAX_*` constants for compatibility; it does not keep
+its own hidden defaults.
+
+You can also point to another YAML file:
+
+```powershell
+$env:ANNOTATE_CONFIG="C:\path\to\config.yaml"
+```
+
+Environment variables with the `ANNOTATE_*` prefix still override YAML values.
+For example:
+
+```powershell
+$env:ANNOTATE_ANALYSIS_RESIZE_WIDTH="224"
+$env:ANNOTATE_REFINEMENT_RESIZE_WIDTH="448"
+$env:ANNOTATE_MERGE_VIEW_NAMES="observation.rgb_images.camera_front,observation.rgb_images.camera_top"
+```
+
+If `ANNOTATE_CONFIG` points to a custom YAML file, that file must contain the
+same required keys. Missing keys fail fast during import.
+
+Complete YAML structure:
+
+```yaml
+model:
+  name: Qwen3.5-27B
+  base_url: http://localhost:8002/v1
+
+prompt:
+  language: cn
+  robot_type: bimanual
+
+stages:
+  analysis:
+    fps: 1.0
+    max_tokens: 512
+    resize_width: 224
+    draw_timestamps: false
+  refinement:
+    fps: 5.0
+    max_tokens: 2048
+    resize_width: 448
+    draw_timestamps: true
+
+vlm_sampling:
+  temperature: 0.0
+  top_p: 0.95
+  top_k: 0
+
+video:
+  max_frames: 128
+  merge_view_names:
+    - observation.rgb_images.camera_front
+    - observation.rgb_images.camera_top
+  jpeg_quality: 75
+  min_api_frames: 2
+
+workers:
+  max_step_workers: 8
+
+logging:
+  level: INFO
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+```
+
+`analysis` normally does not need timestamps, so `draw_timestamps` is disabled
+by default. `refinement` uses timestamps to add `start_time` and `end_time` for
+each action.
+
 ## Implemented Flows
 
-| Flow | Function | Use case | Stages |
-|---|---|---|---|
-| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | one main/global view, no `steps_raw` | `analysis -> refinement` |
-| `multiview_no_steps_raw` | `flows/flow_analysis_refinement_detail_refinement.py` | main/global view plus wrist/detail/auxiliary view, no `steps_raw` | `analysis -> refinement -> detail_refinement` |
+| Flow | Function | Stages |
+|---|---|---|
+| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | `analysis -> refinement` |
 
 ## Stage Meaning
 
-`analysis` watches the full main-view trajectory, uses the configured
-`robot_type`, and extracts a coarse `action_sequence` plus `main_object`.
-`action_sequence` is a time-ordered list of objects with `executor`, `action`,
-and `object` fields. For bimanual robots, `executor` should identify `left`,
-`right`, or `both`; `object` may be an empty string when no target object is
-visible or relevant.
+`analysis` watches sampled frames, uses the configured `robot_type`, and
+extracts a coarse `action_sequence` plus `main_object`. The action sequence is
+a chronological list of objects:
 
-`refinement` watches the main view again and turns the coarse result into
-`fineGrainedSteps` and `refinedInstruction`, using `robot_type` to decide
-whether to describe single-arm actions, bimanual collaboration, or mobile
-manipulator navigation-plus-operation stages.
+```json
+{
+  "executor": "left",
+  "action": "抓住",
+  "object": "笔记本电脑"
+}
+```
 
-Set the robot type with `ANNOTATE_ROBOT_TYPE` or `--robot-type`. Supported
-values are `single_arm`, `bimanual`, `mobile_manipulator`, and `unknown`.
+For bimanual robots, `executor` should be `left`, `right`, or `both`. For mobile
+manipulators, use `base` for navigation and `arm` for manipulation. Actions are
+ordered by their start time: the action that starts earlier appears earlier,
+even if actions overlap.
 
-Set prompt language with `ANNOTATE_PROMPT_LANGUAGE` or `--prompt-language`.
-Supported values are `cn` for `prompts_cn` and `en` for `prompts`.
+`refinement` watches the video again, with timestamp overlays enabled by
+default, and adds a timestamped sequence:
 
-`detail_refinement` watches an auxiliary close-up view and only makes targeted
-corrections to the refinement result, such as contact point, gripper state,
-object identity, or spatial direction. It also records `changes_made` and keeps
-the pre-detail result under `detailRefinement`.
+```json
+{
+  "executor": "right",
+  "action": "接近",
+  "object": "笔记本电脑",
+  "start_time": "00:01.00",
+  "end_time": "00:02.20"
+}
+```
+
+It also outputs `fineGrainedSteps` and `refinedInstruction`.
+
+## Multi-View Input
+
+`video_path` may be a string, a list, or a dict. For dict input, keys are view
+names and values are video paths. The configured `video.merge_view_names`
+selects which views are merged.
+
+For multi-view input, frames at the same timestamp are vertically concatenated.
+The first selected view is the primary view. Spatial descriptions such as
+left/right/front/back/far/close use the first view as reference; other views
+only help confirm occlusion, contact, and depth.
 
 ## Basic Usage
 
 ```python
 from vlm_auto_annotation import create_openai_client
-from vlm_auto_annotation.flows import (
-    run_single_view_no_steps_raw,
-    run_multiview_no_steps_raw,
-)
+from vlm_auto_annotation.flows import run_single_view_no_steps_raw
 
 client = create_openai_client()
 
-single = run_single_view_no_steps_raw(
+result = run_single_view_no_steps_raw(
     client,
-    video_path="main.mp4",
-    initial_instruction="pick up the cup and place it on the plate",
+    video_path={
+        "observation.rgb_images.camera_front": r"C:\path\front.mp4",
+        "observation.rgb_images.camera_top": r"C:\path\top.mp4",
+    },
+    initial_instruction="place the laptop onto the laptop stand",
 )
 
-multi = run_multiview_no_steps_raw(
-    client,
-    main_video_path="main.mp4",
-    detail_video_path="wrist.mp4",
-    detail_view_name="wrist",
-    initial_instruction="pick up the cup and place it on the plate",
-)
-
-print(single.to_dict())
-print(multi.to_dict())
+print(result.to_dict())
 ```
 
-## Stage Output Token Limits
+## Example CLI
 
-Each VLM stage can use an independent output token limit. The default value is
-`0`, which means the request does not explicitly set `max_tokens` and keeps the
-model service default.
+Run the default batch:
 
-Environment variables:
+```powershell
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' .\example\main.py
+```
 
-- `ANNOTATE_ANALYSIS_MAX_TOKENS`: max output tokens for `analysis`.
-- `ANNOTATE_REFINEMENT_MAX_TOKENS`: max output tokens for `refinement`.
-- `ANNOTATE_DETAIL_REFINEMENT_MAX_TOKENS`: max output tokens for `detail_refinement`.
+Useful CLI overrides:
 
-The example CLI also exposes `--analysis-max-tokens`,
-`--refinement-max-tokens`, and `--detail-refinement-max-tokens`.
+```powershell
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' .\example\main.py `
+  --analysis-fps 1 `
+  --refinement-fps 5 `
+  --analysis-resize-width 224 `
+  --refinement-resize-width 448 `
+  --no-analysis-draw-timestamps `
+  --refinement-draw-timestamps `
+  --log-level INFO
+```
 
-Sampling defaults can also be configured with:
+The CLI logs stage timing, frame loading time, VLM request time, token usage,
+and per-record batch runtime. Set `logging.level` in `config/config.yaml`, or
+override it with `--log-level DEBUG`.
 
-- `ANNOTATE_VLM_TEMPERATURE`
-- `ANNOTATE_VLM_TOP_P`
-- `ANNOTATE_VLM_TOP_K`
+## Debug Frames
 
-Prompt selection:
+To inspect the actual frames sent to the VLM, run:
 
-- `ANNOTATE_PROMPT_LANGUAGE=cn`: use Chinese prompts from `prompts_cn`.
-- `ANNOTATE_PROMPT_LANGUAGE=en`: use English prompts from `prompts`.
+```powershell
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' .\utils\video_utils.py
+```
+
+By default this uses `example/robot_mind2_camera_top_tasks.json`, task index 0,
+the configured merge views, and writes sampled images to
+`debug_frames/multiview_timestamp_default`.
+
+Use stage defaults explicitly:
+
+```powershell
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' .\utils\video_utils.py --stage analysis
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' .\utils\video_utils.py --stage refinement
+```
 
 ## Output Shape
 
@@ -99,8 +203,12 @@ Every flow returns `AnnotationResult`:
 
 - `flow_name`: stable flow name.
 - `success`: whether every stage produced parseable JSON or a fallback.
-- `output`: user-facing annotation payload, including `fineGrainedSteps` and
-  `refinedInstruction`.
+- `output`: user-facing annotation payload.
+- `output.analysisResult.action_sequence`: coarse chronological actions.
+- `output.timestampedActionSequence`: refinement actions with `start_time` and
+  `end_time`.
+- `output.fineGrainedSteps`: detailed natural-language steps.
+- `output.refinedInstruction`: final refined instruction.
 - `stages`: intermediate VLM stage outputs and token usage.
 
 The old `run_standard_two_stage` name is kept as an alias of
