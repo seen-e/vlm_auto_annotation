@@ -460,7 +460,7 @@ def run_vla_phase_annotation(
     )
     refinement_contract = refinement_parse.output
     timestamped_actions = normalize_timestamped_action_sequence(
-        refinement.output.get("timestamped_action_sequence"),
+        refinement.output.get("action_sequence") or refinement.output.get("timestamped_action_sequence"),
         action_sequence,
         robot_type,
     )
@@ -514,6 +514,9 @@ def run_vla_phase_annotation(
         "candidate_segments": analysis_contract.model_dump(mode="json")["candidate_segments"],
         "refined_segments": refinement_contract.model_dump(mode="json")["refined_segments"],
         "changes": refinement_contract.model_dump(mode="json")["changes"],
+        "timestampedActionSequence": timestamped_actions,
+        "fineGrainedSteps": steps,
+        "refinedInstruction": refined_instruction,
         "validation_warnings": validation_warnings,
         "metadata": {
             **final_annotation.metadata,

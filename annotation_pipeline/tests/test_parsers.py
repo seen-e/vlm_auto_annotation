@@ -69,6 +69,42 @@ class TestParsers(unittest.TestCase):
         self.assertEqual(result.output.refined_segments[0].start_time, "00:01.00")
         self.assertTrue(result.warnings)
 
+    def test_refinement_action_sequence_with_times_maps_to_segments(self):
+        scene = parse_scene_output(
+            {
+                "scene_context": {
+                    "primary_view": "front",
+                    "executors": [{"executor_id": "left"}],
+                    "touched_objects": [{"object_id": "cup"}],
+                }
+            }
+        ).output
+        analysis = parse_analysis_output(
+            {"action_sequence": [{"executor": "left", "action": "grasp", "object": "cup"}]},
+            scene=scene,
+        ).output
+        result = parse_refinement_output(
+            {
+                "action_sequence": [
+                    {
+                        "executor": "left",
+                        "action": "grasp",
+                        "object": "cup",
+                        "start_time": "00:00.50",
+                        "end_time": "00:01.20",
+                    }
+                ],
+                "fine_grained_steps": ["00:00.50-00:01.20 left arm grasps the cup."],
+                "refined_instruction": "The left arm grasps the cup.",
+            },
+            analysis=analysis,
+            scene=scene,
+        )
+        segment = result.output.refined_segments[0]
+        self.assertEqual(segment.start_time, "00:00.50")
+        self.assertEqual(segment.end_time, "00:01.20")
+        self.assertEqual(segment.objects, ["cup"])
+
 
 if __name__ == "__main__":
     unittest.main()

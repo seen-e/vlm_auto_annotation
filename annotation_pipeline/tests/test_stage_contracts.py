@@ -60,18 +60,18 @@ class _Completions:
                 ]
             },
             {
-                "refined_segments": [
+                "action_sequence": [
                     {
-                        "segment_id": "S001",
                         "executor": "left",
                         "action": "grasp",
-                        "objects": ["cup"],
+                        "object": "cup",
                         "start_time": "00:00.00",
                         "end_time": "00:01.00",
-                        "confidence": 0.9,
                     }
                 ],
-                "changes": [{"original_segment_id": "S001", "change_type": "keep", "reason": ""}],
+                "action_corrections": [],
+                "fine_grained_steps": ["00:00.00-00:01.00 the left arm grasps the cup."],
+                "refined_instruction": "The left arm grasps the cup.",
             },
         ]
         return _Response(json.dumps(payloads[self.calls - 1]))
@@ -110,8 +110,10 @@ class TestStageContracts(unittest.TestCase):
         self.assertIn("scene_context", data)
         self.assertIn("candidate_segments", data)
         self.assertIn("refined_segments", data)
-        self.assertNotIn("fineGrainedSteps", data)
+        self.assertIn("fineGrainedSteps", data)
+        self.assertIn("timestampedActionSequence", data)
         self.assertEqual(data["action_sequence"][0]["objects"], ["cup"])
+        self.assertEqual(data["action_sequence"][0]["start_time"], "00:00.00")
 
     def test_save_processed_media_writes_stage_paths(self):
         with tempfile.TemporaryDirectory() as tmp:

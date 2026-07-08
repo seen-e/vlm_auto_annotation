@@ -118,7 +118,7 @@ stages:
     # DEFAULT_SCENE_MERGE_MODE: per_frame or timeline_grid.
     # per_frame: each sampled timestamp is one vertically stitched image.
     # timeline_grid: views are arranged vertically and sampled times horizontally in one image.
-    merge_mode: timeline_grid
+    merge_mode: per_frame
     # DEFAULT_SCENE_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
     merge_length: 8
 
@@ -148,7 +148,7 @@ stages:
     # DEFAULT_ANALYSIS_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_ANALYSIS_MERGE_MODE: per_frame or timeline_grid.
-    merge_mode: timeline_grid
+    merge_mode: per_frame
     # DEFAULT_ANALYSIS_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
     merge_length: 8
 
@@ -178,7 +178,7 @@ stages:
     # DEFAULT_REFINEMENT_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_REFINEMENT_MERGE_MODE: per_frame or timeline_grid.
-    merge_mode: timeline_grid
+    merge_mode: per_frame
     # DEFAULT_REFINEMENT_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
     merge_length: 8
 

@@ -159,11 +159,17 @@ def old_refinement_output_to_new(
     raw: dict[str, Any] | None,
     fallback: AnalysisStageOutput | None = None,
 ) -> RefinementStageOutput:
-    """Accept refined_segments or legacy timestamped_action_sequence."""
+    """Accept refined_segments, timestamped_action_sequence, or final action_sequence."""
     data = raw or {}
     raw_segments = data.get("refined_segments")
     if raw_segments is None:
-        raw_segments = data.get("timestamped_action_sequence") or data.get("timestampedActionSequence") or []
+        raw_segments = (
+            data.get("timestamped_action_sequence")
+            or data.get("timestampedActionSequence")
+            or data.get("action_sequence")
+            or data.get("actionSequence")
+            or []
+        )
 
     fallback_segments = fallback.candidate_segments if fallback else []
     segments: list[RefinedSegment] = []
