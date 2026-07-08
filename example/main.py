@@ -44,6 +44,7 @@ from vlm_auto_annotation.utils.logging_utils import configure_logging
 from vlm_auto_annotation.utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_INPUT_MODE,
     DEFAULT_ANALYSIS_JPEG_QUALITY,
     DEFAULT_ANALYSIS_MAX_FRAMES,
     DEFAULT_ANALYSIS_MAX_TOKENS,
@@ -56,6 +57,7 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_INPUT_MODE,
     DEFAULT_REFINEMENT_JPEG_QUALITY,
     DEFAULT_REFINEMENT_MAX_FRAMES,
     DEFAULT_REFINEMENT_MAX_TOKENS,
@@ -70,7 +72,10 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_SCENE_DRAW_VIEWPOSITION,
     DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
     DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
+    DEFAULT_SAVE_PROCESSED_DIR,
+    DEFAULT_SAVE_PROCESSED_STAGES,
     DEFAULT_SCENE_FPS,
+    DEFAULT_SCENE_INPUT_MODE,
     DEFAULT_SCENE_JPEG_QUALITY,
     DEFAULT_SCENE_MAX_FRAMES,
     DEFAULT_SCENE_MAX_TOKENS,
@@ -123,6 +128,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-fps", type=float, default=DEFAULT_SCENE_FPS)
     parser.add_argument("--analysis-fps", type=float, default=DEFAULT_ANALYSIS_FPS)
     parser.add_argument("--refinement-fps", type=float, default=DEFAULT_REFINEMENT_FPS)
+    parser.add_argument("--scene-input-mode", choices=["image_sequence", "video"], default=DEFAULT_SCENE_INPUT_MODE)
+    parser.add_argument("--analysis-input-mode", choices=["image_sequence", "video"], default=DEFAULT_ANALYSIS_INPUT_MODE)
+    parser.add_argument("--refinement-input-mode", choices=["image_sequence", "video"], default=DEFAULT_REFINEMENT_INPUT_MODE)
     parser.add_argument("--scene-max-tokens", type=int, default=DEFAULT_SCENE_MAX_TOKENS)
     parser.add_argument("--analysis-max-tokens", type=int, default=DEFAULT_ANALYSIS_MAX_TOKENS)
     parser.add_argument("--refinement-max-tokens", type=int, default=DEFAULT_REFINEMENT_MAX_TOKENS)
@@ -158,6 +166,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--analysis-merge-length", type=int, default=DEFAULT_ANALYSIS_MERGE_LENGTH, help="Max time columns in timeline_grid mode; 0 means unlimited.")
     parser.add_argument("--refinement-merge-length", type=int, default=DEFAULT_REFINEMENT_MERGE_LENGTH, help="Max time columns in timeline_grid mode; 0 means unlimited.")
     parser.add_argument("--merge-views", action=argparse.BooleanOptionalAction, default=None, help="Compatibility override for all stage merge switches.")
+    parser.add_argument(
+        "--save-processed-stages",
+        default=",".join(DEFAULT_SAVE_PROCESSED_STAGES),
+        help="Comma-separated stages to save processed media for: scene,analysis,refinement. Empty disables saving.",
+    )
+    parser.add_argument(
+        "--save-processed-dir",
+        default=DEFAULT_SAVE_PROCESSED_DIR,
+        help="Root directory for saved processed media when --save-processed-stages is non-empty.",
+    )
     parser.add_argument("--log-level", help="Override config logging.level for this CLI run.")
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
     parser.add_argument("--resume", action="store_true", help="Reuse successful items already in output JSON.")
@@ -198,6 +216,9 @@ def run_one(
     scene_fps: float = DEFAULT_SCENE_FPS,
     analysis_fps: float = DEFAULT_ANALYSIS_FPS,
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
+    scene_input_mode: str = DEFAULT_SCENE_INPUT_MODE,
+    analysis_input_mode: str = DEFAULT_ANALYSIS_INPUT_MODE,
+    refinement_input_mode: str = DEFAULT_REFINEMENT_INPUT_MODE,
     scene_max_tokens: int = DEFAULT_SCENE_MAX_TOKENS,
     analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
     refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
@@ -233,6 +254,9 @@ def run_one(
     analysis_merge_length: int = DEFAULT_ANALYSIS_MERGE_LENGTH,
     refinement_merge_length: int = DEFAULT_REFINEMENT_MERGE_LENGTH,
     merge_views: bool | None = None,
+    video_id: str | None = None,
+    save_processed_stages: list[str] | None = None,
+    save_processed_dir: str = DEFAULT_SAVE_PROCESSED_DIR,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
     result = run_vla_phase_annotation(
@@ -245,6 +269,9 @@ def run_one(
         scene_fps=scene_fps,
         analysis_fps=analysis_fps,
         refinement_fps=refinement_fps,
+        scene_input_mode=scene_input_mode,
+        analysis_input_mode=analysis_input_mode,
+        refinement_input_mode=refinement_input_mode,
         scene_max_tokens=scene_max_tokens,
         analysis_max_tokens=analysis_max_tokens,
         refinement_max_tokens=refinement_max_tokens,
@@ -280,6 +307,9 @@ def run_one(
         analysis_merge_length=analysis_merge_length,
         refinement_merge_length=refinement_merge_length,
         merge_views=merge_views,
+        video_id=video_id,
+        save_processed_stages=save_processed_stages,
+        save_processed_dir=save_processed_dir,
     )
     return result.to_dict()
 
@@ -364,6 +394,9 @@ def run_batch(args: argparse.Namespace) -> None:
                 scene_fps=args.scene_fps,
                 analysis_fps=args.analysis_fps,
                 refinement_fps=args.refinement_fps,
+                scene_input_mode=args.scene_input_mode,
+                analysis_input_mode=args.analysis_input_mode,
+                refinement_input_mode=args.refinement_input_mode,
                 scene_max_tokens=args.scene_max_tokens,
                 analysis_max_tokens=args.analysis_max_tokens,
                 refinement_max_tokens=args.refinement_max_tokens,
@@ -399,6 +432,9 @@ def run_batch(args: argparse.Namespace) -> None:
                 analysis_merge_length=args.analysis_merge_length,
                 refinement_merge_length=args.refinement_merge_length,
                 merge_views=args.merge_views,
+                video_id=key,
+                save_processed_stages=parse_csv_list(args.save_processed_stages),
+                save_processed_dir=args.save_processed_dir,
             )
             merged["prediction"] = prediction
             merged["error"] = None
@@ -440,6 +476,9 @@ def run_single(args: argparse.Namespace) -> None:
         scene_fps=args.scene_fps,
         analysis_fps=args.analysis_fps,
         refinement_fps=args.refinement_fps,
+        scene_input_mode=args.scene_input_mode,
+        analysis_input_mode=args.analysis_input_mode,
+        refinement_input_mode=args.refinement_input_mode,
         scene_max_tokens=args.scene_max_tokens,
         analysis_max_tokens=args.analysis_max_tokens,
         refinement_max_tokens=args.refinement_max_tokens,
@@ -475,6 +514,8 @@ def run_single(args: argparse.Namespace) -> None:
         analysis_merge_length=args.analysis_merge_length,
         refinement_merge_length=args.refinement_merge_length,
         merge_views=args.merge_views,
+        save_processed_stages=parse_csv_list(args.save_processed_stages),
+        save_processed_dir=args.save_processed_dir,
     )
     logger.info("Single run done elapsed=%.2fs", time.perf_counter() - start)
     print(json.dumps(prediction, ensure_ascii=False, indent=2))

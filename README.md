@@ -110,8 +110,13 @@ usage for compatibility and debugging.
 names and values are video paths. Each stage has its own
 `stages.<stage>.merge_view_names` list selecting which views are merged.
 
-Each stage has its own `max_frames`, `merge_view_names`, `jpeg_quality`,
-`min_api_frames`, and `merge_views` settings. When `merge_views` is `false`,
+Each stage has its own `input_mode`, `max_frames`, `merge_view_names`,
+`jpeg_quality`, `min_api_frames`, and `merge_views` settings. `input_mode:
+image_sequence` keeps the existing behavior and sends sampled frames as
+`image_url` parts. `input_mode: video` uses the same preprocessing path, then
+re-encodes the processed frame sequence and sends it as a `video_url` part.
+
+When `merge_views` is `false`,
 multi-view input is not concatenated and that stage uses only the primary view,
 i.e. the first path/view in `video_path`.
 
@@ -127,6 +132,23 @@ When a stage's `merge_views` is `true`, `merge_mode` controls the layout:
 The first selected view is always the primary view. Spatial descriptions such as
 left/right/front/back/far/close use the first view as reference; other views only
 help confirm occlusion, contact, and depth.
+
+## Processed Media Debugging
+
+`config/config.yaml` can save the final visual inputs that each stage sends to
+the VLM:
+
+```yaml
+processed_media:
+  save_processed_stages: []
+  save_processed_dir: ""
+```
+
+`save_processed_stages` accepts `scene`, `analysis`, and `refinement`. Empty,
+null, or missing means no processed media is saved. When it is non-empty,
+`save_processed_dir` must be set. Image-sequence stages are saved as
+`{save_processed_dir}/{stage}/{episode}/frame_000000.jpg`; video stages are
+saved as `{save_processed_dir}/{stage}/{episode}.mp4`.
 
 ## Basic Usage
 

@@ -15,6 +15,7 @@ from ..annotation_pipeline.parsers import parse_analysis_output, parse_refinemen
 from ..utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_INPUT_MODE,
     DEFAULT_ANALYSIS_JPEG_QUALITY,
     DEFAULT_ANALYSIS_MAX_TOKENS,
     DEFAULT_ANALYSIS_MAX_FRAMES,
@@ -26,6 +27,7 @@ from ..utils.config import (
     DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_INPUT_MODE,
     DEFAULT_REFINEMENT_JPEG_QUALITY,
     DEFAULT_REFINEMENT_MAX_TOKENS,
     DEFAULT_REFINEMENT_MAX_FRAMES,
@@ -38,6 +40,7 @@ from ..utils.config import (
     DEFAULT_ROBOT_TYPE,
     DEFAULT_SCENE_DRAW_TIMESTAMPS,
     DEFAULT_SCENE_FPS,
+    DEFAULT_SCENE_INPUT_MODE,
     DEFAULT_SCENE_JPEG_QUALITY,
     DEFAULT_SCENE_MAX_TOKENS,
     DEFAULT_SCENE_MAX_FRAMES,
@@ -52,9 +55,11 @@ from ..utils.config import (
     DEFAULT_SCENE_DRAW_VIEWPOSITION,
     DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
     DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
+    DEFAULT_SAVE_PROCESSED_DIR,
+    DEFAULT_SAVE_PROCESSED_STAGES,
 )
 from ..utils.results import AnnotationResult
-from ..utils.video_utils import load_video_or_views_as_image_parts
+from ..utils.video_utils import load_video_or_views_as_media_parts, save_processed_media
 from .utils import (
     as_str_list,
     call_json_stage,
@@ -75,12 +80,61 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
+def _default_episode_name(video_path: Any, video_id: str | None) -> str:
+    if video_id:
+        return str(video_id)
+    if isinstance(video_path, dict) and video_path:
+        first_path = next(iter(video_path.values()))
+        return Path(str(first_path)).stem or "episode"
+    if isinstance(video_path, (list, tuple)) and video_path:
+        return Path(str(video_path[0])).stem or "episode"
+    return Path(str(video_path)).stem or "episode"
+
+
+def _normalize_save_processed_stages(stages: list[str] | tuple[str, ...] | None) -> set[str]:
+    if not stages:
+        return set()
+    allowed = {"scene", "analysis", "refinement"}
+    normalized = {str(stage).strip() for stage in stages if str(stage).strip()}
+    invalid = sorted(stage for stage in normalized if stage not in allowed)
+    if invalid:
+        raise ValueError(f"save_processed_stages only allows scene, analysis, refinement; invalid stage(s): {invalid}")
+    return normalized
+
+
+def _save_processed_stage_if_enabled(
+    *,
+    stage_name: str,
+    parts: list[dict[str, Any]],
+    save_processed_stages: set[str],
+    save_processed_dir: str | Path,
+    episode_name: str,
+) -> None:
+    if stage_name not in save_processed_stages:
+        return
+    if not str(save_processed_dir).strip():
+        raise ValueError("save_processed_dir must be non-empty when save_processed_stages is non-empty")
+    try:
+        save_processed_media(
+            parts,
+            save_root=save_processed_dir,
+            stage_name=stage_name,
+            episode_name=episode_name,
+        )
+    except Exception as exc:
+        logger.error("Save processed media failed stage=%s episode=%s error=%s", stage_name, episode_name, exc)
+        raise
+
+
 def run_vla_phase_annotation(
     client,
     video_path: str | Path | list[str | Path] | dict[str, str | Path],
     initial_instruction: str,
     *,
     model: str = DEFAULT_MODEL,
+    scene_input_mode: str = DEFAULT_SCENE_INPUT_MODE,
+    analysis_input_mode: str = DEFAULT_ANALYSIS_INPUT_MODE,
+    refinement_input_mode: str = DEFAULT_REFINEMENT_INPUT_MODE,
     scene_fps: float = DEFAULT_SCENE_FPS,
     analysis_fps: float = DEFAULT_ANALYSIS_FPS,
     refinement_fps: float = DEFAULT_REFINEMENT_FPS,
@@ -122,6 +176,8 @@ def run_vla_phase_annotation(
     refinement_merge_length: int = DEFAULT_REFINEMENT_MERGE_LENGTH,
     merge_views: bool | None = None,
     video_id: str | None = None,
+    save_processed_stages: list[str] | tuple[str, ...] | None = None,
+    save_processed_dir: str | Path = DEFAULT_SAVE_PROCESSED_DIR,
     debug: bool = False,
 ) -> AnnotationResult:
     """Run scene -> analysis -> refinement on one main/global view."""
@@ -130,6 +186,12 @@ def run_vla_phase_annotation(
     prompt_language = normalize_prompt_language(prompt_language)
     prompts = load_prompt_package(prompt_language)
     robot_type_prompt = prompts.get_robot_type_prompt(robot_type)
+    if save_processed_stages is None:
+        save_processed_stages = DEFAULT_SAVE_PROCESSED_STAGES
+    save_processed_stage_set = _normalize_save_processed_stages(save_processed_stages)
+    if save_processed_stage_set and not str(save_processed_dir).strip():
+        raise ValueError("save_processed_dir must be non-empty when save_processed_stages is non-empty")
+    episode_name = _default_episode_name(video_path, video_id)
     if merge_views is not None:
         scene_merge_views = merge_views
         analysis_merge_views = merge_views
@@ -153,8 +215,9 @@ def run_vla_phase_annotation(
     )
 
     step_start = time.perf_counter()
-    scene_parts, scene_meta = load_video_or_views_as_image_parts(
+    scene_parts, scene_meta = load_video_or_views_as_media_parts(
         video_path,
+        input_mode=scene_input_mode,
         target_fps=scene_fps,
         max_frames=scene_max_frames,
         resize_width=scene_resize_width,
@@ -163,7 +226,7 @@ def run_vla_phase_annotation(
         draw_viewposition=scene_draw_viewposition,
         min_api_frames=scene_min_api_frames,
         merge_length=scene_merge_length,
-        view_names=scene_merge_view_names,
+        merge_view_names=scene_merge_view_names,
         merge_views=scene_merge_views,
         merge_mode=scene_merge_mode,
     )
@@ -176,6 +239,13 @@ def run_vla_phase_annotation(
         scene_meta.get("selected_views"),
         scene_resize_width,
         scene_draw_timestamps,
+    )
+    _save_processed_stage_if_enabled(
+        stage_name="scene",
+        parts=scene_parts,
+        save_processed_stages=save_processed_stage_set,
+        save_processed_dir=save_processed_dir,
+        episode_name=episode_name,
     )
     scene_view_layout = describe_view_layout(scene_meta, prompt_language)
     scene_prompt = prompts.SCENE_PROMPT_TEMPLATE.format(
@@ -238,8 +308,9 @@ def run_vla_phase_annotation(
     )
 
     step_start = time.perf_counter()
-    analysis_parts, analysis_meta = load_video_or_views_as_image_parts(
+    analysis_parts, analysis_meta = load_video_or_views_as_media_parts(
         video_path,
+        input_mode=analysis_input_mode,
         target_fps=analysis_fps,
         max_frames=analysis_max_frames,
         resize_width=analysis_resize_width,
@@ -248,7 +319,7 @@ def run_vla_phase_annotation(
         draw_viewposition=analysis_draw_viewposition,
         min_api_frames=analysis_min_api_frames,
         merge_length=analysis_merge_length,
-        view_names=analysis_merge_view_names,
+        merge_view_names=analysis_merge_view_names,
         merge_views=analysis_merge_views,
         merge_mode=analysis_merge_mode,
     )
@@ -261,6 +332,13 @@ def run_vla_phase_annotation(
         analysis_meta.get("selected_views"),
         analysis_resize_width,
         analysis_draw_timestamps,
+    )
+    _save_processed_stage_if_enabled(
+        stage_name="analysis",
+        parts=analysis_parts,
+        save_processed_stages=save_processed_stage_set,
+        save_processed_dir=save_processed_dir,
+        episode_name=episode_name,
     )
     analysis_view_layout = describe_view_layout(analysis_meta, prompt_language)
     analysis_prompt = prompts.ANALYSIS_PROMPT_TEMPLATE.format(
@@ -316,8 +394,9 @@ def run_vla_phase_annotation(
     )
 
     step_start = time.perf_counter()
-    refinement_parts, refinement_meta = load_video_or_views_as_image_parts(
+    refinement_parts, refinement_meta = load_video_or_views_as_media_parts(
         video_path,
+        input_mode=refinement_input_mode,
         target_fps=refinement_fps,
         max_frames=refinement_max_frames,
         resize_width=refinement_resize_width,
@@ -326,7 +405,7 @@ def run_vla_phase_annotation(
         draw_viewposition=refinement_draw_viewposition,
         min_api_frames=refinement_min_api_frames,
         merge_length=refinement_merge_length,
-        view_names=refinement_merge_view_names,
+        merge_view_names=refinement_merge_view_names,
         merge_views=refinement_merge_views,
         merge_mode=refinement_merge_mode,
     )
@@ -339,6 +418,13 @@ def run_vla_phase_annotation(
         refinement_meta.get("selected_views"),
         refinement_resize_width,
         refinement_draw_timestamps,
+    )
+    _save_processed_stage_if_enabled(
+        stage_name="refinement",
+        parts=refinement_parts,
+        save_processed_stages=save_processed_stage_set,
+        save_processed_dir=save_processed_dir,
+        episode_name=episode_name,
     )
     refinement_view_layout = describe_view_layout(refinement_meta, prompt_language)
     refinement_prompt = prompts.REFINEMENT_PROMPT_TEMPLATE.format(

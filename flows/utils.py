@@ -307,9 +307,9 @@ def localize_action_sequence_objects(items: list[dict[str, str]], prompt_languag
 def describe_view_layout(meta: dict[str, Any], prompt_language: str) -> str:
     language = normalize_prompt_language(prompt_language)
     views = [str(view) for view in meta.get("selected_views", [])]
-    input_mode = meta.get("input_mode", "single_view")
+    source_type = meta.get("source_type") or meta.get("input_mode", "single_view")
     merge_mode = meta.get("merge_mode", "per_frame")
-    if input_mode == "merged_views" and len(views) > 1:
+    if source_type in {"multi_view", "merged_views"} and len(views) > 1:
         if merge_mode == "timeline_grid":
             if language == "cn":
                 rows = "\n".join(f"- Y 方向第 {i + 1} 行：{view}" for i, view in enumerate(views))

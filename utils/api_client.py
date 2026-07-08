@@ -65,6 +65,8 @@ def call_vlm(
     for attempt in range(max_retries):
         start = time.perf_counter()
         try:
+            image_count = sum(1 for part in parts if part.get("type") == "image_url" or "image_url" in part)
+            video_count = sum(1 for part in parts if part.get("type") == "video_url" or "video_url" in part)
             request_kwargs: dict[str, Any] = {
                 "model": model,
                 "messages": messages,
@@ -81,9 +83,11 @@ def call_vlm(
             if top_k > 0:
                 request_kwargs["extra_body"]["top_k"] = top_k
             logger.info(
-                "VLM request start model=%s images=%s max_tokens=%s temperature=%s top_p=%s top_k=%s attempt=%s/%s",
+                "VLM request start model=%s media_parts=%s images=%s videos=%s max_tokens=%s temperature=%s top_p=%s top_k=%s attempt=%s/%s",
                 model,
                 len(parts),
+                image_count,
+                video_count,
                 max_tokens,
                 temperature,
                 top_p,

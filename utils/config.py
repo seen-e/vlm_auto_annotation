@@ -94,6 +94,33 @@ def _env_merge_mode(name: str, value: Any) -> str:
     return mode
 
 
+def _env_input_mode(name: str, value: Any) -> str:
+    mode = _env_str(name, value).strip().lower().replace("-", "_")
+    aliases = {
+        "images": "image_sequence",
+        "image": "image_sequence",
+        "image_parts": "image_sequence",
+        "frames": "image_sequence",
+        "video_part": "video",
+        "video_parts": "video",
+    }
+    mode = aliases.get(mode, mode)
+    if mode not in {"image_sequence", "video"}:
+        raise ValueError(f"{name} must be 'image_sequence' or 'video', got: {mode}")
+    return mode
+
+
+def _env_save_processed_stages(name: str, value: Any) -> list[str]:
+    stages = _env_list(name, value or [])
+    allowed = {"scene", "analysis", "refinement"}
+    invalid = [stage for stage in stages if stage not in allowed]
+    if invalid:
+        raise ValueError(
+            f"{name} only allows scene, analysis, refinement; invalid stage(s): {invalid}"
+        )
+    return stages
+
+
 _CONFIG = _load_yaml(CONFIG_PATH)
 
 DEFAULT_MODEL = _env_str("ANNOTATE_MODEL", _required(_CONFIG, "model.name"))
@@ -102,6 +129,33 @@ DEFAULT_BASE_URL = _env_str("ANNOTATE_BASE_URL", _required(_CONFIG, "model.base_
 DEFAULT_SCENE_FPS = _env_float("ANNOTATE_SCENE_FPS", _required(_CONFIG, "stages.scene.fps"))
 DEFAULT_ANALYSIS_FPS = _env_float("ANNOTATE_ANALYSIS_FPS", _required(_CONFIG, "stages.analysis.fps"))
 DEFAULT_REFINEMENT_FPS = _env_float("ANNOTATE_REFINEMENT_FPS", _required(_CONFIG, "stages.refinement.fps"))
+
+DEFAULT_SCENE_INPUT_MODE = _env_input_mode(
+    "ANNOTATE_SCENE_INPUT_MODE",
+    _optional(_CONFIG, "stages.scene.input_mode", "image_sequence"),
+)
+DEFAULT_ANALYSIS_INPUT_MODE = _env_input_mode(
+    "ANNOTATE_ANALYSIS_INPUT_MODE",
+    _optional(_CONFIG, "stages.analysis.input_mode", "image_sequence"),
+)
+DEFAULT_REFINEMENT_INPUT_MODE = _env_input_mode(
+    "ANNOTATE_REFINEMENT_INPUT_MODE",
+    _optional(_CONFIG, "stages.refinement.input_mode", "image_sequence"),
+)
+
+DEFAULT_SAVE_PROCESSED_STAGES = _env_save_processed_stages(
+    "ANNOTATE_SAVE_PROCESSED_STAGES",
+    _optional(_CONFIG, "processed_media.save_processed_stages", []),
+)
+DEFAULT_SAVE_PROCESSED_DIR = _env_str(
+    "ANNOTATE_SAVE_PROCESSED_DIR",
+    _optional(_CONFIG, "processed_media.save_processed_dir", ""),
+).strip()
+if DEFAULT_SAVE_PROCESSED_STAGES and not DEFAULT_SAVE_PROCESSED_DIR:
+    raise ValueError(
+        "processed_media.save_processed_dir must be non-empty when "
+        "processed_media.save_processed_stages is non-empty"
+    )
 
 DEFAULT_ROBOT_TYPE = _env_str("ANNOTATE_ROBOT_TYPE", _required(_CONFIG, "prompt.robot_type"))
 DEFAULT_PROMPT_LANGUAGE = _env_str("ANNOTATE_PROMPT_LANGUAGE", _required(_CONFIG, "prompt.language"))
