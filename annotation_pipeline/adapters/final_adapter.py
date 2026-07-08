@@ -1,4 +1,4 @@
-﻿"""Build compact final annotation output."""
+"""Build compact final annotation output."""
 
 from __future__ import annotations
 
@@ -28,11 +28,14 @@ def build_final_annotation(
             "executor": segment.executor,
             "action": segment.action,
             "objects": segment.objects,
+            "confidence": segment.confidence,
         }
         if segment.start_frame is not None:
             item["start_frame"] = segment.start_frame
         if segment.end_frame is not None:
             item["end_frame"] = segment.end_frame
+        if segment.boundary_reason:
+            item["boundary_reason"] = segment.boundary_reason
         action_sequence.append(item)
         touched_objects.extend(segment.objects)
         obj_text = ", ".join(segment.objects) if segment.objects else "no_object"

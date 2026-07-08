@@ -20,7 +20,13 @@ class StageResult:
 
 @dataclass
 class AnnotationResult:
-    """Complete flow result returned by public flow functions."""
+    """Complete flow result returned by public flow functions.
+
+    ``stages`` may be empty when ``include_stage_objects=False`` (the default
+    for lightweight output).  When ``stages`` is empty, ``success`` returns
+    ``False`` because stage-level success cannot be determined from the
+    lightweight output alone.
+    """
 
     flow_name: str
     stages: dict[str, StageResult] = field(default_factory=dict)
@@ -30,12 +36,18 @@ class AnnotationResult:
     def success(self) -> bool:
         return bool(self.stages) and all(stage.success for stage in self.stages.values())
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "flow_name": self.flow_name,
-            "success": self.success,
-            "output": self.output,
-            "stages": {
+    def to_dict(self, *, schema_version: str | None = None) -> dict[str, Any]:
+        """Serialize to plain dict.
+
+        ``schema_version`` controls how ``stages`` are included:
+          - ``"v2"`` (or empty stages): only emits stage-level status
+            (success / error / token_usage), never raw VLM output.
+          - ``"v1"``: includes full ``stage.output`` (raw VLM JSON) for
+            backward compatibility.
+        """
+        version = (schema_version or "").strip() or "v2"
+        if version == "v1":
+            stages_serialized = {
                 name: {
                     "success": stage.success,
                     "output": stage.output,
@@ -43,7 +55,21 @@ class AnnotationResult:
                     "token_usage": stage.token_usage,
                 }
                 for name, stage in self.stages.items()
-            },
+            }
+        else:
+            stages_serialized = {
+                name: {
+                    "success": stage.success,
+                    "error": stage.error,
+                    "token_usage": stage.token_usage,
+                }
+                for name, stage in self.stages.items()
+            }
+        return {
+            "flow_name": self.flow_name,
+            "success": self.success,
+            "output": self.output,
+            "stages": stages_serialized,
         }
 
 

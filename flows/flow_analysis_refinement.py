@@ -1,4 +1,4 @@
-﻿"""VLA phase annotation flow adapted from FineVLA.
+"""VLA phase annotation flow adapted from FineVLA.
 
 Flow: vla_phase_annotation = scene -> analysis -> refinement.
 """
@@ -10,7 +10,13 @@ from pathlib import Path
 import time
 from typing import Any
 
-from ..annotation_pipeline.adapters import build_final_annotation
+from ..annotation_pipeline.adapters import (
+    build_final_annotation,
+    build_lightweight_output,
+    build_debug_output,
+    build_trace_output,
+    build_legacy_output,
+)
 from ..annotation_pipeline.parsers import parse_analysis_output, parse_refinement_output, parse_scene_output
 from ..utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
@@ -57,6 +63,13 @@ from ..utils.config import (
     DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
     DEFAULT_SAVE_PROCESSED_DIR,
     DEFAULT_SAVE_PROCESSED_STAGES,
+    DEFAULT_OUTPUT_SCHEMA_VERSION,
+    DEFAULT_OUTPUT_INCLUDE_VALIDATION,
+    DEFAULT_OUTPUT_INCLUDE_DEBUG,
+    DEFAULT_OUTPUT_INCLUDE_TRACE,
+    DEFAULT_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS,
+    DEFAULT_OUTPUT_INCLUDE_LEGACY_FIELDS,
+    DEFAULT_OUTPUT_INCLUDE_STAGE_OBJECTS,
 )
 from ..utils.results import AnnotationResult
 from ..utils.video_utils import load_video_or_views_as_media_parts, save_processed_media
@@ -229,6 +242,13 @@ def run_vla_phase_annotation(
     save_processed_stages: list[str] | tuple[str, ...] | None = None,
     save_processed_dir: str | Path = DEFAULT_SAVE_PROCESSED_DIR,
     debug: bool = False,
+    output_schema_version: str = DEFAULT_OUTPUT_SCHEMA_VERSION,
+    include_intermediate_contracts: bool = DEFAULT_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS,
+    include_validation: bool = DEFAULT_OUTPUT_INCLUDE_VALIDATION,
+    include_debug: bool = DEFAULT_OUTPUT_INCLUDE_DEBUG,
+    include_trace: bool = DEFAULT_OUTPUT_INCLUDE_TRACE,
+    include_legacy_fields: bool = DEFAULT_OUTPUT_INCLUDE_LEGACY_FIELDS,
+    include_stage_objects: bool = DEFAULT_OUTPUT_INCLUDE_STAGE_OBJECTS,
 ) -> AnnotationResult:
     """Run scene -> analysis -> refinement on one main/global view."""
     flow_start = time.perf_counter()
@@ -553,56 +573,114 @@ def run_vla_phase_annotation(
         model=model,
         flow_name="vla_phase_annotation",
     )
-    output: dict[str, Any] = {
-        **final_annotation.model_dump(mode="json"),
-        "scene_context": scene_contract.model_dump(mode="json"),
-        "candidate_segments": analysis_contract.model_dump(mode="json")["candidate_segments"],
-        "refined_segments": refinement_contract.model_dump(mode="json")["refined_segments"],
-        "changes": refinement_contract.model_dump(mode="json")["changes"],
-        "validation_warnings": validation_warnings,
-        "metadata": {
-            **final_annotation.metadata,
-            "prompt_language": prompt_language,
-            "robot_type": robot_type,
-            "elapsed_seconds": round(total_elapsed, 3),
-        },
-    }
-    if debug:
-        output["debug"] = {
-            "initial_instruction": initial_instruction,
-            "legacy": {
-                "analysisResult": {
-                    "robot_type": robot_type,
-                    "sceneContext": scene_context,
-                    "action_sequence": action_sequence,
-                    "main_object": main_object,
-                },
-                "sceneContext": scene_context,
-                "timestampedActionSequence": timestamped_actions,
-                "fineGrainedSteps": steps,
-                "refinedInstruction": refined_instruction,
+
+    # ------------------------------------------------------------------
+    # Compose output via dedicated builders
+    # ------------------------------------------------------------------
+
+    total_elapsed_rounded = round(total_elapsed, 3)
+
+    output = build_lightweight_output(
+        final_annotation=final_annotation,
+        scene_contract=scene_contract,
+        video_id=video_id,
+        initial_instruction=initial_instruction,
+        refined_instruction=refined_instruction,
+        prompt_language=prompt_language,
+        robot_type=robot_type,
+        model=model,
+        flow_name="vla_phase_annotation",
+        schema_version=output_schema_version,
+        elapsed_seconds=total_elapsed_rounded,
+    )
+
+    # optional: full parsed contracts for parser debugging
+    if include_intermediate_contracts:
+        output["intermediate_contracts"] = {
+            "scene": scene_contract.model_dump(mode="json"),
+            "analysis": analysis_contract.model_dump(mode="json"),
+            "refinement": refinement_contract.model_dump(mode="json"),
+        }
+
+    # validation warnings (on by default)
+    if include_validation:
+        output["validation"] = {"warnings": validation_warnings}
+
+    # debug info: timing, stage metadata, validation (also triggered by legacy debug=True)
+    _effective_debug = debug or include_debug
+    if _effective_debug:
+        timing = {
+            "scene_load_seconds": round(scene_load_elapsed, 3),
+            "scene_postprocess_seconds": round(scene_postprocess_elapsed, 3),
+            "analysis_load_seconds": round(analysis_load_elapsed, 3),
+            "analysis_postprocess_seconds": round(analysis_postprocess_elapsed, 3),
+            "refinement_load_seconds": round(refinement_load_elapsed, 3),
+            "refinement_postprocess_seconds": round(refinement_postprocess_elapsed, 3),
+            "total_seconds": total_elapsed_rounded,
+        }
+        stage_metadata = {
+            "scene": {
+                **scene_meta,
+                "load_elapsed_seconds": round(scene_load_elapsed, 3),
+                "postprocess_elapsed_seconds": round(scene_postprocess_elapsed, 3),
             },
-            "stage_metadata": {
-                "scene": {
-                    **scene_meta,
-                    "load_elapsed_seconds": round(scene_load_elapsed, 3),
-                    "postprocess_elapsed_seconds": round(scene_postprocess_elapsed, 3),
-                },
-                "analysis": {
-                    **analysis_meta,
-                    "load_elapsed_seconds": round(analysis_load_elapsed, 3),
-                    "postprocess_elapsed_seconds": round(analysis_postprocess_elapsed, 3),
-                },
-                "refinement": {
-                    **refinement_meta,
-                    "load_elapsed_seconds": round(refinement_load_elapsed, 3),
-                    "postprocess_elapsed_seconds": round(refinement_postprocess_elapsed, 3),
-                },
+            "analysis": {
+                **analysis_meta,
+                "load_elapsed_seconds": round(analysis_load_elapsed, 3),
+                "postprocess_elapsed_seconds": round(analysis_postprocess_elapsed, 3),
+            },
+            "refinement": {
+                **refinement_meta,
+                "load_elapsed_seconds": round(refinement_load_elapsed, 3),
+                "postprocess_elapsed_seconds": round(refinement_postprocess_elapsed, 3),
             },
         }
+        debug_data = build_debug_output(
+            validation_warnings=validation_warnings,
+            timing=timing,
+            stage_metadata=stage_metadata,
+        )
+        output["debug"] = debug_data["debug"]
+
+    # trace: full raw output + parsed contracts for reproduction
+    if include_trace:
+        trace_data = build_trace_output(
+            scene_stage=scene,
+            analysis_stage=analysis,
+            refinement_stage=refinement,
+            scene_contract=scene_contract,
+            analysis_contract=analysis_contract,
+            refinement_contract=refinement_contract,
+        )
+        output["trace"] = trace_data["trace"]
+
+    # legacy compatibility (deprecated)
+    if include_legacy_fields:
+        legacy_data = build_legacy_output(
+            robot_type=robot_type,
+            scene_context=scene_context,
+            action_sequence=action_sequence,
+            main_object=main_object,
+            timestamped_actions=timestamped_actions,
+            steps=steps,
+            refined_instruction=refined_instruction,
+        )
+        output["legacy_output"] = legacy_data["legacy_output"]
+
+    # ------------------------------------------------------------------
+    # Stage objects in AnnotationResult (configurable)
+    # ------------------------------------------------------------------
+    result_stages: dict[str, Any] = {}
+    if include_stage_objects or include_trace:
+        result_stages = {
+            "scene": scene,
+            "analysis": analysis,
+            "refinement": refinement,
+        }
+
     return AnnotationResult(
         flow_name="vla_phase_annotation",
-        stages={"scene": scene, "analysis": analysis, "refinement": refinement},
+        stages=result_stages,
         output=output,
     )
 

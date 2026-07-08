@@ -158,6 +158,39 @@ if DEFAULT_SAVE_PROCESSED_STAGES and not DEFAULT_SAVE_PROCESSED_DIR:
         "processed_media.save_processed_stages is non-empty"
     )
 
+# ── Output control ──────────────────────────────────────────────────────
+DEFAULT_OUTPUT_SCHEMA_VERSION = _env_str(
+    "ANNOTATE_OUTPUT_SCHEMA_VERSION",
+    _optional(_CONFIG, "output.schema_version", "v2"),
+).strip()
+if DEFAULT_OUTPUT_SCHEMA_VERSION not in {"v1", "v2"}:
+    raise ValueError(f"output.schema_version must be 'v1' or 'v2', got: {DEFAULT_OUTPUT_SCHEMA_VERSION}")
+
+DEFAULT_OUTPUT_INCLUDE_VALIDATION = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_VALIDATION",
+    _optional(_CONFIG, "output.include_validation", True),
+)
+DEFAULT_OUTPUT_INCLUDE_DEBUG = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_DEBUG",
+    _optional(_CONFIG, "output.include_debug", False),
+)
+DEFAULT_OUTPUT_INCLUDE_TRACE = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_TRACE",
+    _optional(_CONFIG, "output.include_trace", False),
+)
+DEFAULT_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS",
+    _optional(_CONFIG, "output.include_intermediate_contracts", False),
+)
+DEFAULT_OUTPUT_INCLUDE_LEGACY_FIELDS = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_LEGACY",
+    _optional(_CONFIG, "output.include_legacy_fields", False),
+)
+DEFAULT_OUTPUT_INCLUDE_STAGE_OBJECTS = _env_bool(
+    "ANNOTATE_OUTPUT_INCLUDE_STAGE_OBJECTS",
+    _optional(_CONFIG, "output.include_stage_objects", False),
+)
+
 DEFAULT_ROBOT_TYPE = _env_str("ANNOTATE_ROBOT_TYPE", _required(_CONFIG, "prompt.robot_type"))
 DEFAULT_PROMPT_LANGUAGE = _env_str("ANNOTATE_PROMPT_LANGUAGE", _required(_CONFIG, "prompt.language"))
 

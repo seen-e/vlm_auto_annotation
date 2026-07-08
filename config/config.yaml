@@ -56,6 +56,13 @@
 # - ANNOTATE_REFINEMENT_DRAW_TIMESTAMPS
 # - ANNOTATE_DRAW_TIMESTAMPS
 # - ANNOTATE_MIN_API_FRAMES
+# - ANNOTATE_OUTPUT_SCHEMA_VERSION
+# - ANNOTATE_OUTPUT_INCLUDE_VALIDATION
+# - ANNOTATE_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS
+# - ANNOTATE_OUTPUT_INCLUDE_DEBUG
+# - ANNOTATE_OUTPUT_INCLUDE_TRACE
+# - ANNOTATE_OUTPUT_INCLUDE_LEGACY
+# - ANNOTATE_OUTPUT_INCLUDE_STAGE_OBJECTS
 # - ANNOTATE_MAX_STEP_WORKERS
 # - ANNOTATE_LOG_LEVEL
 # - ANNOTATE_LOG_FORMAT
@@ -184,6 +191,32 @@ stages:
     merge_mode: per_frame
     # DEFAULT_REFINEMENT_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
     merge_length: 8
+
+
+# ── Output control ──────────────────────────────────────────────────────
+# Controls which layers are included in the final JSON output dict.
+# Each boolean can be overridden at call-site via function parameters.
+# Set to false by default for the leanest possible annotation results.
+output:
+  # schema_version: "v2" is the new lightweight format; "v1" restores
+  # the full legacy structure (deprecated).
+  schema_version: v2
+  # include_validation: emit validation warnings / errors in output.validation.
+  include_validation: true
+  # include_debug: emit debug section (timing, stage metadata, validation).
+  include_debug: false
+  # include_trace: emit trace section (raw stage outputs, parsed contracts).
+  # Also forces include_stage_objects=true.
+  include_trace: false
+  # include_intermediate_contracts: emit full Scene/Analysis/Refinement
+  # parsed contracts under output.intermediate_contracts.
+  include_intermediate_contracts: false
+  # include_legacy_fields: emit deprecated legacy_output section for old
+  # downstream code compatibility.
+  include_legacy_fields: false
+  # include_stage_objects: keep full StageResult objects in
+  # AnnotationResult.stages.
+  include_stage_objects: false
 
 
 # 全局回退参数。当某个 stage 未配置同名项时，config.py 通过 _optional → _required 链
