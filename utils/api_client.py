@@ -9,7 +9,14 @@ import re
 import time
 from typing import Any
 
-from .config import DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_VLM_TEMPERATURE, DEFAULT_VLM_TOP_K, DEFAULT_VLM_TOP_P
+from .config import (
+    DEFAULT_API_KEY,
+    DEFAULT_BASE_URL,
+    DEFAULT_MODEL,
+    DEFAULT_VLM_TEMPERATURE,
+    DEFAULT_VLM_TOP_K,
+    DEFAULT_VLM_TOP_P,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -19,9 +26,9 @@ def create_openai_client(api_key: str | None = None, base_url: str | None = None
     """Create an OpenAI-compatible client."""
     from openai import OpenAI
 
-    api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
+    api_key = api_key or os.environ.get("OPENAI_API_KEY") or DEFAULT_API_KEY
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set")
+        raise RuntimeError("API key is not set; configure model.api_key or OPENAI_API_KEY")
     logger.info("Creating OpenAI-compatible client base_url=%s", base_url or DEFAULT_BASE_URL)
     return OpenAI(api_key=api_key, base_url=base_url or DEFAULT_BASE_URL)
 
@@ -75,7 +82,10 @@ def call_vlm(
                 "extra_body": {
                     "chat_template_kwargs": {
                         "enable_thinking": False
-                    }
+                    },
+                    "mm_processor_kwargs": {
+                        "do_sample_frames": False
+        }
                 },
             }
             if max_tokens > 0:

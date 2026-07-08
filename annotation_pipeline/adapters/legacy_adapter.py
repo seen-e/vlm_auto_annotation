@@ -35,6 +35,17 @@ def _int_or_none(value: Any) -> int | None:
         return None
 
 
+def _string_dicts(value: Any) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    for item in _as_list(value):
+        if not isinstance(item, dict):
+            continue
+        cleaned = {str(key): _text(val) for key, val in item.items() if _text(val)}
+        if cleaned:
+            items.append(cleaned)
+    return items
+
+
 def old_scene_output_to_new(raw: dict[str, Any] | None, meta: dict[str, Any] | None = None) -> SceneStageOutput:
     """Accept new scene_context or old sceneContext/arms/task_objects formats."""
     data = raw or {}
@@ -52,10 +63,12 @@ def old_scene_output_to_new(raw: dict[str, Any] | None, meta: dict[str, Any] | N
     raw_executors = context.get("executors")
     if raw_executors is None:
         raw_executors = context.get("arms")
+    if raw_executors is None:
+        raw_executors = context.get("operation_units")
     for item in _as_list(raw_executors):
         if not isinstance(item, dict):
             continue
-        executor_id = _text(item.get("executor_id") or item.get("arm_id") or item.get("executor"))
+        executor_id = _text(item.get("executor_id") or item.get("arm_id") or item.get("executor") or item.get("unit_id"))
         if not executor_id:
             continue
         views: list[str] = []
@@ -67,7 +80,7 @@ def old_scene_output_to_new(raw: dict[str, Any] | None, meta: dict[str, Any] | N
         executors.append(
             ExecutorInfo(
                 executor_id=executor_id,
-                description=_text(item.get("description")),
+                description=_text(item.get("description") or item.get("unit_type")),
                 main_workspace=_text(item.get("main_workspace")) or None,
                 best_observation_views=views,
             )
@@ -88,6 +101,8 @@ def old_scene_output_to_new(raw: dict[str, Any] | None, meta: dict[str, Any] | N
         raw_items = context.get(primary_key)
         if raw_items is None and fallback_key:
             raw_items = context.get(fallback_key)
+        if raw_items is None and primary_key == "touched_objects":
+            raw_items = context.get("manipulated_objects")
         objects: list[ObjectInfo] = []
         for item in _as_list(raw_items):
             if not isinstance(item, dict):
@@ -111,7 +126,7 @@ def old_scene_output_to_new(raw: dict[str, Any] | None, meta: dict[str, Any] | N
         background_objects=objects_from("background_objects"),
         executor_object_map=executor_object_map,
         best_observation_views=best_views,
-        scene_summary=_text(context.get("scene_summary") or context.get("main_action_summary"), 200),
+        scene_summary=_text(context.get("scene_summary") or context.get("video_summary") or context.get("main_action_summary"), 200),
     )
 
 
@@ -120,7 +135,7 @@ def old_analysis_output_to_new(raw: dict[str, Any] | None) -> AnalysisStageOutpu
     data = raw or {}
     raw_segments = data.get("candidate_segments")
     if raw_segments is None:
-        raw_segments = data.get("action_sequence") or data.get("actionSequence") or []
+        raw_segments = data.get("action_steps") or data.get("action_sequence") or data.get("actionSequence") or []
 
     segments: list[SegmentCandidate] = []
     for index, item in enumerate(_as_list(raw_segments), start=1):
@@ -135,7 +150,7 @@ def old_analysis_output_to_new(raw: dict[str, Any] | None) -> AnalysisStageOutpu
             objects = [obj] if obj else []
         segments.append(
             SegmentCandidate(
-                segment_id=_text(item.get("segment_id") or item.get("event_id") or f"S{index:03d}"),
+                segment_id=_text(item.get("segment_id") or item.get("step_id") or item.get("event_id") or f"S{index:03d}"),
                 start_time=_text(item.get("start_time")) or None,
                 end_time=_text(item.get("end_time")) or None,
                 start_frame=_int_or_none(item.get("start_frame")),
@@ -150,7 +165,7 @@ def old_analysis_output_to_new(raw: dict[str, Any] | None) -> AnalysisStageOutpu
 
     return AnalysisStageOutput(
         candidate_segments=segments,
-        uncertain_regions=_as_list(data.get("uncertain_regions")),
+        uncertain_regions=_string_dicts(data.get("uncertain_regions") or data.get("uncertain_steps")),
         analysis_notes=data.get("analysis_notes") or [],
     )
 

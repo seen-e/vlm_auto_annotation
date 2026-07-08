@@ -126,6 +126,56 @@ def _save_processed_stage_if_enabled(
         raise
 
 
+def _scene_result_for_analysis(scene_output: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(scene_output, dict):
+        scene_output = {}
+    nested_context = scene_output.get("scene_context") or scene_output.get("sceneContext")
+    if not isinstance(nested_context, dict):
+        nested_context = {}
+    primary_view = scene_output.get("primary_view") or nested_context.get("primary_view") or ""
+    spatial_reference_rule = (
+        scene_output.get("spatial_reference_rule")
+        or nested_context.get("spatial_reference_rule")
+        or "All left/right/front/back spatial names are defined from the primary_view."
+    )
+
+    operation_units = scene_output.get("operation_units")
+    if not isinstance(operation_units, list):
+        operation_units = nested_context.get("operation_units")
+    if not isinstance(operation_units, list):
+        operation_units = [
+            {
+                "unit_id": item.get("executor_id"),
+                "unit_type": "unknown",
+                "is_active": True,
+            }
+            for item in nested_context.get("executors", [])
+            if isinstance(item, dict) and item.get("executor_id")
+        ]
+
+    manipulated_objects = scene_output.get("manipulated_objects")
+    if not isinstance(manipulated_objects, list):
+        manipulated_objects = nested_context.get("manipulated_objects")
+    if not isinstance(manipulated_objects, list):
+        manipulated_objects = [
+            {
+                "object_id": item.get("object_id"),
+                "description": item.get("description") or item.get("object_id"),
+            }
+            for item in nested_context.get("touched_objects", [])
+            if isinstance(item, dict) and item.get("object_id")
+        ]
+    if not isinstance(manipulated_objects, list):
+        manipulated_objects = []
+    return {
+        "primary_view": primary_view,
+        "spatial_reference_rule": spatial_reference_rule,
+        "operation_units": operation_units,
+        "manipulated_objects": manipulated_objects,
+        "video_summary": scene_output.get("video_summary") or nested_context.get("video_summary") or nested_context.get("scene_summary") or "",
+    }
+
+
 def run_vla_phase_annotation(
     client,
     video_path: str | Path | list[str | Path] | dict[str, str | Path],
@@ -249,9 +299,6 @@ def run_vla_phase_annotation(
     )
     scene_view_layout = describe_view_layout(scene_meta, prompt_language)
     scene_prompt = prompts.SCENE_PROMPT_TEMPLATE.format(
-        initial_instruction=initial_instruction,
-        robot_type=robot_type,
-        robot_type_prompt=robot_type_prompt,
         view_layout_description=scene_view_layout,
     )
     scene = call_json_stage(
@@ -341,13 +388,11 @@ def run_vla_phase_annotation(
         episode_name=episode_name,
     )
     analysis_view_layout = describe_view_layout(analysis_meta, prompt_language)
+    scene_result = _scene_result_for_analysis(scene.output)
     analysis_prompt = prompts.ANALYSIS_PROMPT_TEMPLATE.format(
-        initial_instruction=initial_instruction,
-        robot_type=robot_type,
-        action_vocabulary=prompts.ACTION_VOCABULARY,
-        scene_context=json_dumps(scene_contract.model_dump(mode="json")),
-        robot_type_prompt=robot_type_prompt,
         view_layout_description=analysis_view_layout,
+        action_vocabulary=prompts.ACTION_VOCABULARY,
+        scene_result=json_dumps(scene_result),
     )
     analysis = call_json_stage(
         client,

@@ -125,6 +125,7 @@ _CONFIG = _load_yaml(CONFIG_PATH)
 
 DEFAULT_MODEL = _env_str("ANNOTATE_MODEL", _required(_CONFIG, "model.name"))
 DEFAULT_BASE_URL = _env_str("ANNOTATE_BASE_URL", _required(_CONFIG, "model.base_url"))
+DEFAULT_API_KEY = _env_str("ANNOTATE_API_KEY", _optional(_CONFIG, "model.api_key", "EMPTY"))
 
 DEFAULT_SCENE_FPS = _env_float("ANNOTATE_SCENE_FPS", _required(_CONFIG, "stages.scene.fps"))
 DEFAULT_ANALYSIS_FPS = _env_float("ANNOTATE_ANALYSIS_FPS", _required(_CONFIG, "stages.analysis.fps"))

@@ -5,6 +5,7 @@
 #
 # Optional environment variables can still override values temporarily:
 # - ANNOTATE_CONFIG: path to another YAML config file
+# - ANNOTATE_API_KEY
 # - ANNOTATE_MODEL
 # - ANNOTATE_BASE_URL
 # - ANNOTATE_ROBOT_TYPE
@@ -60,6 +61,8 @@
 # - ANNOTATE_LOG_FORMAT
 
 model:
+  # DEFAULT_API_KEY: API key for the OpenAI-compatible API.
+  api_key: EMPTY
   # DEFAULT_MODEL: served model name sent to the OpenAI-compatible API.
   name: Qwen3.6-27B
   # DEFAULT_BASE_URL: OpenAI-compatible API base URL.
@@ -91,13 +94,13 @@ processed_media:
 stages:
   scene:
     # DEFAULT_SCENE_INPUT_MODE: image_sequence or video.
-    input_mode: video
+    input_mode: image_sequence
     # DEFAULT_SCENE_FPS: frame sampling FPS for scene/background context extraction.
-    fps: 0.5
+    fps: 1.0
     # DEFAULT_SCENE_MAX_TOKENS: max output tokens for scene context.
     max_tokens: 1024
     # DEFAULT_SCENE_MAX_FRAMES: maximum sampled frames sent to scene stage.
-    max_frames: 64
+    max_frames: 24
     # DEFAULT_SCENE_RESIZE_WIDTH: per-view image width before optional multi-view merge.
     resize_width: 224
     # DEFAULT_SCENE_MERGE_VIEW_NAMES: selected views for scene stage.
@@ -106,7 +109,7 @@ stages:
       - camera_front
       - camera_top
     # DEFAULT_SCENE_JPEG_QUALITY: JPEG encoding quality for scene frames.
-    jpeg_quality: 75
+    jpeg_quality: 80
     # DEFAULT_SCENE_MIN_API_FRAMES: force at least this many scene frames when possible.
     min_api_frames: 2
     # DEFAULT_SCENE_DRAW_TIMESTAMPS: normally false; scene context does not need time boundaries.
@@ -128,9 +131,9 @@ stages:
     # DEFAULT_ANALYSIS_FPS: frame sampling FPS for coarse action analysis.
     fps: 1.0
     # DEFAULT_ANALYSIS_MAX_TOKENS: max output tokens for analysis; 0 means service default.
-    max_tokens: 512
+    max_tokens: 4096
     # DEFAULT_ANALYSIS_MAX_FRAMES: maximum sampled frames sent to analysis stage.
-    max_frames: 128
+    max_frames: 64
     # DEFAULT_ANALYSIS_RESIZE_WIDTH: per-view image width before optional multi-view merge.
     resize_width: 336
     # DEFAULT_ANALYSIS_MERGE_VIEW_NAMES: selected views for analysis stage.
@@ -138,7 +141,7 @@ stages:
       - camera_front
       - camera_top
     # DEFAULT_ANALYSIS_JPEG_QUALITY: JPEG encoding quality for analysis frames.
-    jpeg_quality: 75
+    jpeg_quality: 85
     # DEFAULT_ANALYSIS_MIN_API_FRAMES: force at least this many analysis frames when possible.
     min_api_frames: 2
     # DEFAULT_ANALYSIS_DRAW_TIMESTAMPS: usually false to avoid distracting coarse recognition.
@@ -150,15 +153,15 @@ stages:
     # DEFAULT_ANALYSIS_MERGE_MODE: per_frame or timeline_grid.
     merge_mode: timeline_grid
     # DEFAULT_ANALYSIS_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
-    merge_length: 8
+    merge_length: 4
 
   refinement:
     # DEFAULT_REFINEMENT_INPUT_MODE: image_sequence or video.
-    input_mode: video
+    input_mode: image_sequence
     # DEFAULT_REFINEMENT_FPS: frame sampling FPS for timestamp/action refinement.
     fps: 4.0
     # DEFAULT_REFINEMENT_MAX_TOKENS: max output tokens for refinement; 0 means service default.
-    max_tokens: 2048
+    max_tokens: 4096
     # DEFAULT_REFINEMENT_MAX_FRAMES and DEFAULT_MAX_FRAMES compatibility value.
     max_frames: 128
     # DEFAULT_REFINEMENT_RESIZE_WIDTH and DEFAULT_RESIZE_WIDTH compatibility value.
@@ -168,7 +171,7 @@ stages:
       - camera_front
       - camera_top
     # DEFAULT_REFINEMENT_JPEG_QUALITY and DEFAULT_JPEG_QUALITY compatibility value.
-    jpeg_quality: 90
+    jpeg_quality: 20
     # DEFAULT_REFINEMENT_MIN_API_FRAMES and MIN_API_FRAMES compatibility value.
     min_api_frames: 2
     # DEFAULT_REFINEMENT_DRAW_TIMESTAMPS and DEFAULT_DRAW_TIMESTAMPS compatibility value.
@@ -178,7 +181,7 @@ stages:
     # DEFAULT_REFINEMENT_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_REFINEMENT_MERGE_MODE: per_frame or timeline_grid.
-    merge_mode: timeline_grid
+    merge_mode: per_frame
     # DEFAULT_REFINEMENT_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
     merge_length: 8
 

@@ -83,6 +83,24 @@ class _Client:
 
 
 class TestStageContracts(unittest.TestCase):
+    def test_scene_result_for_analysis_is_compact(self):
+        scene_result = flow_module._scene_result_for_analysis(
+            {
+                "primary_view": "camera_front",
+                "spatial_reference_rule": "left/right use camera_front",
+                "operation_units": [{"unit_id": "left"}],
+                "manipulated_objects": [{"object_id": "cup", "description": "cup"}],
+                "video_summary": "The video shows one robot arm, and the moved object is a cup.",
+            }
+        )
+        self.assertEqual(
+            sorted(scene_result),
+            ["manipulated_objects", "operation_units", "primary_view", "spatial_reference_rule", "video_summary"],
+        )
+        self.assertEqual(scene_result["primary_view"], "camera_front")
+        self.assertEqual(scene_result["operation_units"][0]["unit_id"], "left")
+        self.assertEqual(scene_result["manipulated_objects"][0]["description"], "cup")
+
     def test_flow_returns_compact_output(self):
         original_loader = flow_module.load_video_or_views_as_media_parts
 

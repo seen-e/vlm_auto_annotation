@@ -355,8 +355,16 @@ def describe_view_layout(meta: dict[str, Any], prompt_language: str) -> str:
         )
     view = views[0] if views else "unknown"
     if language == "cn":
-        return f"每张输入图片来自单一视角：{view}。不同图片之间才表示按时间采样的帧序列。"
-    return f"Each input image comes from a single view: {view}. Different images represent the temporal frame sequence."
+        return (
+            f"每张输入图片来自单一视角：{view}。该视角就是 primary view。"
+            "left/right/front/back/far/close 等空间命名必须以该 primary view 为准。"
+            "不同图片之间才表示按时间采样的帧序列。"
+        )
+    return (
+        f"Each input image comes from a single view: {view}. This view is the primary view. "
+        "Spatial names such as left/right/front/back/far/close must use this primary view as "
+        "the reference frame. Different images represent the temporal frame sequence."
+    )
 
 def numbered_text(items: list[str]) -> str:
     return "\n".join(f"{i}. {item}" for i, item in enumerate(items))

@@ -42,6 +42,7 @@ from vlm_auto_annotation import create_openai_client
 from vlm_auto_annotation.flows import run_vla_phase_annotation
 from vlm_auto_annotation.utils.logging_utils import configure_logging
 from vlm_auto_annotation.utils.config import (
+    DEFAULT_API_KEY,
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
     DEFAULT_ANALYSIS_INPUT_MODE,
@@ -110,7 +111,7 @@ def parse_args() -> argparse.Namespace:
         "--instruction",
         help="Initial task instruction, for example: 'pick up the cup and place it on the plate'.",
     )
-    parser.add_argument("--api-key", default=os.environ.get("OPENAI_API_KEY", "EMPTY"))
+    parser.add_argument("--api-key", default=os.environ.get("OPENAI_API_KEY", DEFAULT_API_KEY))
     parser.add_argument("--base-url", default=os.environ.get("ANNOTATE_BASE_URL", DEFAULT_BASE_URL))
     parser.add_argument("--model", default=os.environ.get("ANNOTATE_MODEL", DEFAULT_MODEL))
     parser.add_argument(
