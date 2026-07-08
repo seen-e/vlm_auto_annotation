@@ -56,7 +56,7 @@
 
 model:
   # DEFAULT_MODEL: served model name sent to the OpenAI-compatible API.
-  name: Qwen3.5-27B
+  name: Qwen3.6-27B
   # DEFAULT_BASE_URL: OpenAI-compatible API base URL.
   base_url: http://localhost:8002/v1
 
@@ -69,7 +69,7 @@ prompt:
 stages:
   scene:
     # DEFAULT_SCENE_FPS: frame sampling FPS for scene/background context extraction.
-    fps: 1.0
+    fps: 0.5
     # DEFAULT_SCENE_MAX_TOKENS: max output tokens for scene context.
     max_tokens: 1024
     # DEFAULT_SCENE_MAX_FRAMES: maximum sampled frames sent to scene stage.
@@ -79,20 +79,24 @@ stages:
     # DEFAULT_SCENE_MERGE_VIEW_NAMES: selected views for scene stage.
     # The first view is the primary view for left/right/front/back spatial language.
     merge_view_names:
-      - observation.rgb_images.camera_front
-      - observation.rgb_images.camera_top
+      - camera_front
+      - camera_top
     # DEFAULT_SCENE_JPEG_QUALITY: JPEG encoding quality for scene frames.
     jpeg_quality: 75
     # DEFAULT_SCENE_MIN_API_FRAMES: force at least this many scene frames when possible.
     min_api_frames: 2
     # DEFAULT_SCENE_DRAW_TIMESTAMPS: normally false; scene context does not need time boundaries.
-    draw_timestamps: false
+    draw_timestamps: true
+    # DEFAULT_SCENE_DRAW_VIEWPOSITION: overlay view/camera name on each frame before merge.
+    draw_viewposition: true
     # DEFAULT_SCENE_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_SCENE_MERGE_MODE: per_frame or timeline_grid.
     # per_frame: each sampled timestamp is one vertically stitched image.
     # timeline_grid: views are arranged vertically and sampled times horizontally in one image.
-    merge_mode: per_frame
+    merge_mode: timeline_grid
+    # DEFAULT_SCENE_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
+    merge_length: 8
 
   analysis:
     # DEFAULT_ANALYSIS_FPS: frame sampling FPS for coarse action analysis.
@@ -102,45 +106,53 @@ stages:
     # DEFAULT_ANALYSIS_MAX_FRAMES: maximum sampled frames sent to analysis stage.
     max_frames: 128
     # DEFAULT_ANALYSIS_RESIZE_WIDTH: per-view image width before optional multi-view merge.
-    resize_width: 224
+    resize_width: 336
     # DEFAULT_ANALYSIS_MERGE_VIEW_NAMES: selected views for analysis stage.
     merge_view_names:
-      - observation.rgb_images.camera_front
-      - observation.rgb_images.camera_top
+      - camera_front
+      - camera_top
     # DEFAULT_ANALYSIS_JPEG_QUALITY: JPEG encoding quality for analysis frames.
     jpeg_quality: 75
     # DEFAULT_ANALYSIS_MIN_API_FRAMES: force at least this many analysis frames when possible.
     min_api_frames: 2
     # DEFAULT_ANALYSIS_DRAW_TIMESTAMPS: usually false to avoid distracting coarse recognition.
-    draw_timestamps: false
+    draw_timestamps: true
+    # DEFAULT_ANALYSIS_DRAW_VIEWPOSITION: overlay view/camera name on each frame before merge.
+    draw_viewposition: true
     # DEFAULT_ANALYSIS_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_ANALYSIS_MERGE_MODE: per_frame or timeline_grid.
-    merge_mode: per_frame
+    merge_mode: timeline_grid
+    # DEFAULT_ANALYSIS_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
+    merge_length: 8
 
   refinement:
     # DEFAULT_REFINEMENT_FPS: frame sampling FPS for timestamp/action refinement.
-    fps: 5.0
+    fps: 2.0
     # DEFAULT_REFINEMENT_MAX_TOKENS: max output tokens for refinement; 0 means service default.
     max_tokens: 2048
     # DEFAULT_REFINEMENT_MAX_FRAMES and DEFAULT_MAX_FRAMES compatibility value.
     max_frames: 128
     # DEFAULT_REFINEMENT_RESIZE_WIDTH and DEFAULT_RESIZE_WIDTH compatibility value.
-    resize_width: 448
+    resize_width: 336
     # DEFAULT_REFINEMENT_MERGE_VIEW_NAMES and DEFAULT_MERGE_VIEW_NAMES compatibility value.
     merge_view_names:
-      - observation.rgb_images.camera_front
-      - observation.rgb_images.camera_top
+      - camera_front
+      - camera_top
     # DEFAULT_REFINEMENT_JPEG_QUALITY and DEFAULT_JPEG_QUALITY compatibility value.
-    jpeg_quality: 75
+    jpeg_quality: 90
     # DEFAULT_REFINEMENT_MIN_API_FRAMES and MIN_API_FRAMES compatibility value.
     min_api_frames: 2
     # DEFAULT_REFINEMENT_DRAW_TIMESTAMPS and DEFAULT_DRAW_TIMESTAMPS compatibility value.
     draw_timestamps: true
+    # DEFAULT_REFINEMENT_DRAW_VIEWPOSITION: overlay view/camera name on each frame before merge.
+    draw_viewposition: true
     # DEFAULT_REFINEMENT_MERGE_VIEWS: whether this stage uses multi-view stitching.
     merge_views: true
     # DEFAULT_REFINEMENT_MERGE_MODE: per_frame or timeline_grid.
     merge_mode: per_frame
+    # DEFAULT_REFINEMENT_MERGE_LENGTH: max time columns in timeline_grid mode; 0 means unlimited.
+    merge_length: 8
 
 vlm_sampling:
   # DEFAULT_VLM_TEMPERATURE: lower is more deterministic.
@@ -150,16 +162,19 @@ vlm_sampling:
   # DEFAULT_VLM_TOP_K: 0 means do not explicitly send top_k.
   top_k: 0
 
+# 全局回退参数。当某个 stage 未配置同名项时，config.py 通过 _optional → _required 链
+# 回退到此处的值。例如 stages.scene 未配 max_frames → 走 video.max_frames: 128。
+# 各 stage 一旦显式配置了对应项，该 stage 就会使用自己的值，不再依赖此回退。
 video:
-  # Compatibility fallback. Prefer per-stage stages.*.max_frames.
+  # 全局抽帧上限回退。各 stage 优先使用 stages.<stage>.max_frames。
   max_frames: 128
-  # Compatibility fallback. Prefer per-stage stages.*.merge_view_names.
+  # 全局多视角列表回退。各 stage 优先使用 stages.<stage>.merge_view_names。
   merge_view_names:
-    - observation.rgb_images.camera_front
-    - observation.rgb_images.camera_top
-  # Compatibility fallback. Prefer per-stage stages.*.jpeg_quality.
+    - camera_front
+    - camera_top
+  # 全局 JPEG 质量回退。各 stage 优先使用 stages.<stage>.jpeg_quality。
   jpeg_quality: 75
-  # Compatibility fallback. Prefer per-stage stages.*.min_api_frames.
+  # 全局最小抽帧数回退。各 stage 优先使用 stages.<stage>.min_api_frames。
   min_api_frames: 2
 
 workers:

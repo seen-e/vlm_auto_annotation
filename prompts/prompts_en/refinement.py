@@ -30,6 +30,8 @@ Robot type background:
 Video view layout:
 {view_layout_description}
 
+The input images are evenly sampled video frames. When timestamps or view labels are enabled, each image shows them in the top-left corner.
+
 Action detail guidance:
 {action_guidance}
 

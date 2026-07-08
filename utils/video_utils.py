@@ -35,6 +35,9 @@ try:
         DEFAULT_ANALYSIS_RESIZE_WIDTH,
         DEFAULT_REFINEMENT_FPS,
         DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+        DEFAULT_SCENE_DRAW_VIEWPOSITION,
+        DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
+        DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
         DEFAULT_REFINEMENT_JPEG_QUALITY,
         DEFAULT_REFINEMENT_MAX_FRAMES,
         DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
@@ -47,6 +50,9 @@ try:
         DEFAULT_SCENE_MIN_API_FRAMES,
         DEFAULT_ANALYSIS_MIN_API_FRAMES,
         DEFAULT_REFINEMENT_MIN_API_FRAMES,
+        DEFAULT_SCENE_MERGE_LENGTH,
+        DEFAULT_ANALYSIS_MERGE_LENGTH,
+        DEFAULT_REFINEMENT_MERGE_LENGTH,
     )
     from .logging_utils import configure_logging
 except ImportError:
@@ -77,6 +83,9 @@ except ImportError:
         DEFAULT_ANALYSIS_RESIZE_WIDTH,
         DEFAULT_REFINEMENT_FPS,
         DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+        DEFAULT_SCENE_DRAW_VIEWPOSITION,
+        DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
+        DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
         DEFAULT_REFINEMENT_JPEG_QUALITY,
         DEFAULT_REFINEMENT_MAX_FRAMES,
         DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
@@ -89,7 +98,10 @@ except ImportError:
         DEFAULT_SCENE_MIN_API_FRAMES,
         DEFAULT_ANALYSIS_MIN_API_FRAMES,
         DEFAULT_REFINEMENT_MIN_API_FRAMES,
-)
+        DEFAULT_SCENE_MERGE_LENGTH,
+        DEFAULT_ANALYSIS_MERGE_LENGTH,
+        DEFAULT_REFINEMENT_MERGE_LENGTH,
+    )
     from utils.logging_utils import configure_logging
 
 
@@ -182,14 +194,22 @@ def _format_timestamp(seconds: float) -> str:
     return f"{minutes:02d}:{secs:05.2f}"
 
 
-def _draw_timestamp(frame, timestamp: str):
+def _draw_timestamp(frame, timestamp: str | None, view_label: str | None = None):
+    """Draw black-background white timestamp and optional view label at top-left."""
     import cv2
 
-    text = f"t={timestamp}"
+    parts: list[str] = []
+    if timestamp:
+        parts.append(f"t={timestamp}")
+    if view_label:
+        parts.append(str(view_label))
+    if not parts:
+        return frame
+    text = "  |  ".join(parts)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    scale = 0.6
-    thickness = 2
-    margin = 8
+    scale = 0.5
+    thickness = 1
+    margin = 5
     (tw, th), baseline = cv2.getTextSize(text, font, scale, thickness)
     x1, y1 = margin, margin
     x2 = x1 + tw + margin
@@ -197,6 +217,11 @@ def _draw_timestamp(frame, timestamp: str):
     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), -1)
     cv2.putText(frame, text, (x1 + margin // 2, y2 - baseline - margin // 2), font, scale, (255, 255, 255), thickness, cv2.LINE_AA)
     return frame
+
+
+def _draw_view_label(frame, view_name: str | None):
+    """DEPRECATED: kept for other callers, delegates to _draw_timestamp."""
+    return _draw_timestamp(frame, None, view_name)
 
 
 def _draw_label(frame, text: str, origin: tuple[int, int], *, scale: float = 0.55, thickness: int = 1):
@@ -312,6 +337,8 @@ def load_video_as_image_parts(
     resize_width: int = DEFAULT_RESIZE_WIDTH,
     jpeg_quality: int = DEFAULT_JPEG_QUALITY,
     draw_timestamps: bool = DEFAULT_DRAW_TIMESTAMPS,
+    draw_viewposition: bool = False,
+    view_label: str | None = None,
     min_api_frames: int = MIN_API_FRAMES,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Load sampled video frames as OpenAI image_url parts."""
@@ -350,8 +377,10 @@ def load_video_as_image_parts(
             if not ok:
                 continue
             frame = _resize_frame(frame, resize_width)
-            if draw_timestamps:
-                frame = _draw_timestamp(frame, _format_timestamp(idx / max(fps, 1e-6)))
+            if draw_timestamps or draw_viewposition:
+                ts = _format_timestamp(idx / max(fps, 1e-6)) if draw_timestamps else None
+                vl = view_label if draw_viewposition else None
+                frame = _draw_timestamp(frame, ts, vl)
             b64 = _encode_jpeg_preprocessed(frame, jpeg_quality)
             parts.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
 
@@ -376,6 +405,7 @@ def load_video_as_image_parts(
             "frame_range": [start, end],
             "jpeg_quality": jpeg_quality,
             "draw_timestamps": draw_timestamps,
+            "draw_viewposition": draw_viewposition,
             "min_api_frames": min_api_frames,
             "load_elapsed_seconds": round(elapsed, 3),
         }
@@ -393,7 +423,9 @@ def load_video_or_views_as_image_parts(
     resize_width: int = DEFAULT_RESIZE_WIDTH,
     jpeg_quality: int = DEFAULT_JPEG_QUALITY,
     draw_timestamps: bool = DEFAULT_DRAW_TIMESTAMPS,
+    draw_viewposition: bool = False,
     min_api_frames: int = MIN_API_FRAMES,
+    merge_length: int = 0,
     view_names: list[str] | None = None,
     merge_views: bool = DEFAULT_MERGE_VIEWS,
     merge_mode: str = DEFAULT_MERGE_MODE,
@@ -412,6 +444,8 @@ def load_video_or_views_as_image_parts(
             resize_width=resize_width,
             jpeg_quality=jpeg_quality,
             draw_timestamps=draw_timestamps,
+            draw_viewposition=draw_viewposition,
+            view_label=selected[0][0] if draw_viewposition else None,
             min_api_frames=min_api_frames,
         )
         meta["selected_views"] = [selected[0][0]]
@@ -455,49 +489,65 @@ def load_video_or_views_as_image_parts(
 
         parts: list[dict[str, Any]] = []
         if merge_mode == "timeline_grid":
-            cells_by_time: list[list[Any]] = []
-            timestamps: list[str] = []
+            # Apply merge_length: chunk indices into groups, one grid image per group
+            if merge_length > 0:
+                index_chunks = [indices[i : i + merge_length] for i in range(0, len(indices), merge_length)]
+            else:
+                index_chunks = [indices]
+
+            view_names = [name for name, _, _ in caps]
+            for chunk in index_chunks:
+                cells_by_time: list[list[Any]] = []
+                timestamps: list[str] = []
+                for idx in chunk:
+                    frames = []
+                    for view_name, _, cap in caps:
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+                        ok, frame = cap.read()
+                        if not ok:
+                            frames = []
+                            break
+                        frame = _resize_frame(frame, resize_width)
+                        if draw_timestamps or draw_viewposition:
+                            ts = _format_timestamp(idx / max(fps, 1e-6)) if draw_timestamps else None
+                            vl = view_name if draw_viewposition else None
+                            frame = _draw_timestamp(frame, ts, vl)
+                        frames.append(frame)
+                    if frames:
+                        cells_by_time.append(frames)
+                        timestamps.append(_format_timestamp(idx / max(fps, 1e-6)))
+
+                if not cells_by_time:
+                    continue
+                grid = _build_timeline_grid(
+                    cells_by_time=cells_by_time,
+                    view_names=view_names,
+                    timestamps=timestamps,
+                )
+                b64 = _encode_jpeg_preprocessed(grid, jpeg_quality)
+                parts.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
+
+            if not parts:
+                raise RuntimeError(f"No frames sampled from selected views: {[path for _, path in selected]}")
+        else:
             for idx in indices:
                 frames = []
-                for _, _, cap in caps:
+                timestamp_str = _format_timestamp(idx / max(fps, 1e-6))
+                for view_name, _, cap in caps:
                     cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
                     ok, frame = cap.read()
                     if not ok:
                         frames = []
                         break
                     frame = _resize_frame(frame, resize_width)
-                    if draw_timestamps:
-                        frame = _draw_timestamp(frame, _format_timestamp(idx / max(fps, 1e-6)))
+                    if draw_timestamps or draw_viewposition:
+                        ts = timestamp_str if draw_timestamps else None
+                        vl = view_name if draw_viewposition else None
+                        frame = _draw_timestamp(frame, ts, vl)
                     frames.append(frame)
-                if frames:
-                    cells_by_time.append(frames)
-                    timestamps.append(_format_timestamp(idx / max(fps, 1e-6)))
-
-            if not cells_by_time:
-                raise RuntimeError(f"No frames sampled from selected views: {[path for _, path in selected]}")
-
-            grid = _build_timeline_grid(
-                cells_by_time=cells_by_time,
-                view_names=[name for name, _, _ in caps],
-                timestamps=timestamps,
-            )
-            b64 = _encode_jpeg_preprocessed(grid, jpeg_quality)
-            parts.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
-        else:
-            for idx in indices:
-                frames = []
-                for _, _, cap in caps:
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
-                    ok, frame = cap.read()
-                    if not ok:
-                        frames = []
-                        break
-                    frames.append(_resize_frame(frame, resize_width))
                 if not frames:
                     continue
                 merged = _stack_view_frames(frames)
-                if draw_timestamps:
-                    merged = _draw_timestamp(merged, _format_timestamp(idx / max(fps, 1e-6)))
                 b64 = _encode_jpeg_preprocessed(merged, jpeg_quality)
                 parts.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
 
@@ -530,6 +580,7 @@ def load_video_or_views_as_image_parts(
             "frame_range": [start, end],
             "jpeg_quality": jpeg_quality,
             "draw_timestamps": draw_timestamps,
+            "draw_viewposition": draw_viewposition,
             "min_api_frames": min_api_frames,
             "load_elapsed_seconds": round(elapsed, 3),
         }
@@ -632,6 +683,18 @@ def _main() -> None:
         default=None,
         help="Whether to draw black-background white timestamps.",
     )
+    parser.add_argument(
+        "--draw-viewposition",
+        type=_parse_cli_bool,
+        default=None,
+        help="Whether to overlay view/camera name on each frame before merging.",
+    )
+    parser.add_argument(
+        "--merge-length",
+        type=int,
+        default=None,
+        help="Max time columns in timeline_grid mode; 0 means unlimited. Defaults to the selected stage setting.",
+    )
     args = parser.parse_args()
     configure_logging(level=args.log_level) if args.log_level else configure_logging()
 
@@ -693,6 +756,14 @@ def _main() -> None:
             draw_timestamps = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS
         else:
             draw_timestamps = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS
+    draw_viewposition = args.draw_viewposition
+    if draw_viewposition is None:
+        if args.stage == "scene":
+            draw_viewposition = DEFAULT_SCENE_DRAW_VIEWPOSITION
+        elif args.stage == "analysis":
+            draw_viewposition = DEFAULT_ANALYSIS_DRAW_VIEWPOSITION
+        else:
+            draw_viewposition = DEFAULT_REFINEMENT_DRAW_VIEWPOSITION
     merge_views = args.merge_views
     if merge_views is None:
         if args.stage == "scene":
@@ -709,6 +780,15 @@ def _main() -> None:
             merge_mode = DEFAULT_ANALYSIS_MERGE_MODE
         else:
             merge_mode = DEFAULT_REFINEMENT_MERGE_MODE
+    merge_length = args.merge_length
+    if merge_length is None:
+        if args.stage == "scene":
+            merge_length = DEFAULT_SCENE_MERGE_LENGTH
+        elif args.stage == "analysis":
+            merge_length = DEFAULT_ANALYSIS_MERGE_LENGTH
+        else:
+            merge_length = DEFAULT_REFINEMENT_MERGE_LENGTH
+    logger.info("merge_length=%s (from %s)", merge_length, "CLI" if args.merge_length is not None else "config")
     parts, meta = load_video_or_views_as_image_parts(
         video_path,
         target_fps=target_fps,
@@ -718,7 +798,9 @@ def _main() -> None:
         resize_width=resize_width,
         jpeg_quality=jpeg_quality,
         draw_timestamps=draw_timestamps,
+        draw_viewposition=draw_viewposition,
         min_api_frames=min_api_frames,
+        merge_length=merge_length,
         view_names=view_names,
         merge_views=merge_views,
         merge_mode=merge_mode,

@@ -23,6 +23,8 @@ Robot type background:
 Video view layout:
 {view_layout_description}
 
+The input images are evenly sampled video frames. When timestamps or view labels are enabled, each image shows them in the top-left corner.
+
 Return one JSON object with this schema:
 {{
   "scene_context": {{

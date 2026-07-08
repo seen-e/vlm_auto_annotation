@@ -67,6 +67,9 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_REFINEMENT_RESIZE_WIDTH,
     DEFAULT_ROBOT_TYPE,
     DEFAULT_SCENE_DRAW_TIMESTAMPS,
+    DEFAULT_SCENE_DRAW_VIEWPOSITION,
+    DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
+    DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
     DEFAULT_SCENE_FPS,
     DEFAULT_SCENE_JPEG_QUALITY,
     DEFAULT_SCENE_MAX_FRAMES,
@@ -76,6 +79,9 @@ from vlm_auto_annotation.utils.config import (
     DEFAULT_SCENE_MERGE_VIEWS,
     DEFAULT_SCENE_MIN_API_FRAMES,
     DEFAULT_SCENE_RESIZE_WIDTH,
+    DEFAULT_SCENE_MERGE_LENGTH,
+    DEFAULT_ANALYSIS_MERGE_LENGTH,
+    DEFAULT_REFINEMENT_MERGE_LENGTH,
 )
 
 
@@ -138,6 +144,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_DRAW_TIMESTAMPS)
     parser.add_argument("--analysis-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_DRAW_TIMESTAMPS)
     parser.add_argument("--refinement-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_TIMESTAMPS)
+    parser.add_argument("--scene-draw-viewposition", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_DRAW_VIEWPOSITION)
+    parser.add_argument("--analysis-draw-viewposition", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_DRAW_VIEWPOSITION)
+    parser.add_argument("--refinement-draw-viewposition", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_VIEWPOSITION)
     parser.add_argument("--max-frames", type=int, default=None, help="Compatibility override for all stage max frame settings.")
     parser.add_argument("--scene-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_MERGE_VIEWS)
     parser.add_argument("--analysis-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_MERGE_VIEWS)
@@ -145,6 +154,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_SCENE_MERGE_MODE)
     parser.add_argument("--analysis-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_ANALYSIS_MERGE_MODE)
     parser.add_argument("--refinement-merge-mode", choices=["per_frame", "timeline_grid"], default=DEFAULT_REFINEMENT_MERGE_MODE)
+    parser.add_argument("--scene-merge-length", type=int, default=DEFAULT_SCENE_MERGE_LENGTH, help="Max time columns in timeline_grid mode; 0 means unlimited.")
+    parser.add_argument("--analysis-merge-length", type=int, default=DEFAULT_ANALYSIS_MERGE_LENGTH, help="Max time columns in timeline_grid mode; 0 means unlimited.")
+    parser.add_argument("--refinement-merge-length", type=int, default=DEFAULT_REFINEMENT_MERGE_LENGTH, help="Max time columns in timeline_grid mode; 0 means unlimited.")
     parser.add_argument("--merge-views", action=argparse.BooleanOptionalAction, default=None, help="Compatibility override for all stage merge switches.")
     parser.add_argument("--log-level", help="Override config logging.level for this CLI run.")
     parser.add_argument("--limit", type=int, help="Only process the first N records in batch mode.")
@@ -207,6 +219,9 @@ def run_one(
     scene_draw_timestamps: bool = DEFAULT_SCENE_DRAW_TIMESTAMPS,
     analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+    scene_draw_viewposition: bool = DEFAULT_SCENE_DRAW_VIEWPOSITION,
+    analysis_draw_viewposition: bool = DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
+    refinement_draw_viewposition: bool = DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
     max_frames: int | None = None,
     scene_merge_views: bool = DEFAULT_SCENE_MERGE_VIEWS,
     analysis_merge_views: bool = DEFAULT_ANALYSIS_MERGE_VIEWS,
@@ -214,6 +229,9 @@ def run_one(
     scene_merge_mode: str = DEFAULT_SCENE_MERGE_MODE,
     analysis_merge_mode: str = DEFAULT_ANALYSIS_MERGE_MODE,
     refinement_merge_mode: str = DEFAULT_REFINEMENT_MERGE_MODE,
+    scene_merge_length: int = DEFAULT_SCENE_MERGE_LENGTH,
+    analysis_merge_length: int = DEFAULT_ANALYSIS_MERGE_LENGTH,
+    refinement_merge_length: int = DEFAULT_REFINEMENT_MERGE_LENGTH,
     merge_views: bool | None = None,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
@@ -248,6 +266,9 @@ def run_one(
         scene_draw_timestamps=scene_draw_timestamps,
         analysis_draw_timestamps=analysis_draw_timestamps,
         refinement_draw_timestamps=refinement_draw_timestamps,
+        scene_draw_viewposition=scene_draw_viewposition,
+        analysis_draw_viewposition=analysis_draw_viewposition,
+        refinement_draw_viewposition=refinement_draw_viewposition,
         max_frames=max_frames,
         scene_merge_views=scene_merge_views,
         analysis_merge_views=analysis_merge_views,
@@ -255,6 +276,9 @@ def run_one(
         scene_merge_mode=scene_merge_mode,
         analysis_merge_mode=analysis_merge_mode,
         refinement_merge_mode=refinement_merge_mode,
+        scene_merge_length=scene_merge_length,
+        analysis_merge_length=analysis_merge_length,
+        refinement_merge_length=refinement_merge_length,
         merge_views=merge_views,
     )
     return result.to_dict()
@@ -361,6 +385,9 @@ def run_batch(args: argparse.Namespace) -> None:
                 scene_draw_timestamps=args.scene_draw_timestamps,
                 analysis_draw_timestamps=args.analysis_draw_timestamps,
                 refinement_draw_timestamps=args.refinement_draw_timestamps,
+                scene_draw_viewposition=args.scene_draw_viewposition,
+                analysis_draw_viewposition=args.analysis_draw_viewposition,
+                refinement_draw_viewposition=args.refinement_draw_viewposition,
                 max_frames=args.max_frames,
                 scene_merge_views=args.scene_merge_views,
                 analysis_merge_views=args.analysis_merge_views,
@@ -368,6 +395,9 @@ def run_batch(args: argparse.Namespace) -> None:
                 scene_merge_mode=args.scene_merge_mode,
                 analysis_merge_mode=args.analysis_merge_mode,
                 refinement_merge_mode=args.refinement_merge_mode,
+                scene_merge_length=args.scene_merge_length,
+                analysis_merge_length=args.analysis_merge_length,
+                refinement_merge_length=args.refinement_merge_length,
                 merge_views=args.merge_views,
             )
             merged["prediction"] = prediction
@@ -431,6 +461,9 @@ def run_single(args: argparse.Namespace) -> None:
         scene_draw_timestamps=args.scene_draw_timestamps,
         analysis_draw_timestamps=args.analysis_draw_timestamps,
         refinement_draw_timestamps=args.refinement_draw_timestamps,
+        scene_draw_viewposition=args.scene_draw_viewposition,
+        analysis_draw_viewposition=args.analysis_draw_viewposition,
+        refinement_draw_viewposition=args.refinement_draw_viewposition,
         max_frames=args.max_frames,
         scene_merge_views=args.scene_merge_views,
         analysis_merge_views=args.analysis_merge_views,
@@ -438,6 +471,9 @@ def run_single(args: argparse.Namespace) -> None:
         scene_merge_mode=args.scene_merge_mode,
         analysis_merge_mode=args.analysis_merge_mode,
         refinement_merge_mode=args.refinement_merge_mode,
+        scene_merge_length=args.scene_merge_length,
+        analysis_merge_length=args.analysis_merge_length,
+        refinement_merge_length=args.refinement_merge_length,
         merge_views=args.merge_views,
     )
     logger.info("Single run done elapsed=%.2fs", time.perf_counter() - start)

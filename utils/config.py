@@ -158,6 +158,20 @@ DEFAULT_REFINEMENT_MERGE_MODE = _env_merge_mode(
     "ANNOTATE_REFINEMENT_MERGE_MODE",
     _fallback_merge_mode or _required(_CONFIG, "stages.refinement.merge_mode"),
 )
+
+DEFAULT_SCENE_MERGE_LENGTH = _env_int(
+    "ANNOTATE_SCENE_MERGE_LENGTH",
+    _optional(_CONFIG, "stages.scene.merge_length", 0),
+)
+DEFAULT_ANALYSIS_MERGE_LENGTH = _env_int(
+    "ANNOTATE_ANALYSIS_MERGE_LENGTH",
+    _optional(_CONFIG, "stages.analysis.merge_length", 0),
+)
+DEFAULT_REFINEMENT_MERGE_LENGTH = _env_int(
+    "ANNOTATE_REFINEMENT_MERGE_LENGTH",
+    _optional(_CONFIG, "stages.refinement.merge_length", 0),
+)
+
 DEFAULT_VLM_TEMPERATURE = _env_float("ANNOTATE_VLM_TEMPERATURE", _required(_CONFIG, "vlm_sampling.temperature"))
 DEFAULT_VLM_TOP_P = _env_float("ANNOTATE_VLM_TOP_P", _required(_CONFIG, "vlm_sampling.top_p"))
 DEFAULT_VLM_TOP_K = _env_int("ANNOTATE_VLM_TOP_K", _required(_CONFIG, "vlm_sampling.top_k"))
@@ -224,6 +238,19 @@ DEFAULT_REFINEMENT_DRAW_TIMESTAMPS = _env_bool(
     os.environ.get("ANNOTATE_DRAW_TIMESTAMPS", _required(_CONFIG, "stages.refinement.draw_timestamps")),
 )
 DEFAULT_DRAW_TIMESTAMPS = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS
+
+DEFAULT_SCENE_DRAW_VIEWPOSITION = _env_bool(
+    "ANNOTATE_SCENE_DRAW_VIEWPOSITION",
+    _required(_CONFIG, "stages.scene.draw_viewposition"),
+)
+DEFAULT_ANALYSIS_DRAW_VIEWPOSITION = _env_bool(
+    "ANNOTATE_ANALYSIS_DRAW_VIEWPOSITION",
+    _required(_CONFIG, "stages.analysis.draw_viewposition"),
+)
+DEFAULT_REFINEMENT_DRAW_VIEWPOSITION = _env_bool(
+    "ANNOTATE_REFINEMENT_DRAW_VIEWPOSITION",
+    _required(_CONFIG, "stages.refinement.draw_viewposition"),
+)
 
 _fallback_min_api_frames = os.environ.get("ANNOTATE_MIN_API_FRAMES")
 DEFAULT_SCENE_MIN_API_FRAMES = _env_int(

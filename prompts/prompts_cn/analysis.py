@@ -28,6 +28,8 @@ Scene 阶段上下文：
 视频视角说明：
 {view_layout_description}
 
+输入图像为视频按时间均匀抽帧的结果。当配置了时间戳/视角标注时，每张图的左上角可见对应信息。
+
 请严格返回一个 JSON 对象，结构如下：
 {{
   "candidate_segments": [
