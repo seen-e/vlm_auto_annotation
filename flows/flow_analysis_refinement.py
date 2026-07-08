@@ -1,6 +1,6 @@
-"""Single-view no-steps-raw annotation flow adapted from FineVLA.
+﻿"""VLA phase annotation flow adapted from FineVLA.
 
-Flow: single_view_no_steps_raw = scene -> analysis -> refinement.
+Flow: vla_phase_annotation = scene -> analysis -> refinement.
 """
 
 from __future__ import annotations
@@ -10,31 +10,44 @@ from pathlib import Path
 import time
 from typing import Any
 
+from ..annotation_pipeline.adapters import build_final_annotation
+from ..annotation_pipeline.parsers import parse_analysis_output, parse_refinement_output, parse_scene_output
 from ..utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_JPEG_QUALITY,
     DEFAULT_ANALYSIS_MAX_TOKENS,
+    DEFAULT_ANALYSIS_MAX_FRAMES,
     DEFAULT_ANALYSIS_MERGE_MODE,
     DEFAULT_ANALYSIS_MERGE_VIEWS,
+    DEFAULT_ANALYSIS_MERGE_VIEW_NAMES,
+    DEFAULT_ANALYSIS_MIN_API_FRAMES,
     DEFAULT_ANALYSIS_RESIZE_WIDTH,
-    DEFAULT_MAX_FRAMES,
     DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_JPEG_QUALITY,
     DEFAULT_REFINEMENT_MAX_TOKENS,
+    DEFAULT_REFINEMENT_MAX_FRAMES,
     DEFAULT_REFINEMENT_MERGE_MODE,
     DEFAULT_REFINEMENT_MERGE_VIEWS,
+    DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
+    DEFAULT_REFINEMENT_MIN_API_FRAMES,
     DEFAULT_REFINEMENT_RESIZE_WIDTH,
     DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     DEFAULT_ROBOT_TYPE,
     DEFAULT_SCENE_DRAW_TIMESTAMPS,
     DEFAULT_SCENE_FPS,
+    DEFAULT_SCENE_JPEG_QUALITY,
     DEFAULT_SCENE_MAX_TOKENS,
+    DEFAULT_SCENE_MAX_FRAMES,
     DEFAULT_SCENE_MERGE_MODE,
     DEFAULT_SCENE_MERGE_VIEWS,
+    DEFAULT_SCENE_MERGE_VIEW_NAMES,
+    DEFAULT_SCENE_MIN_API_FRAMES,
     DEFAULT_SCENE_RESIZE_WIDTH,
 )
-from ..utils.schemas import AnnotationResult
+from ..utils.results import AnnotationResult
 from ..utils.video_utils import load_video_or_views_as_image_parts
 from .utils import (
     as_str_list,
@@ -56,7 +69,7 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
-def run_single_view_no_steps_raw(
+def run_vla_phase_annotation(
     client,
     video_path: str | Path | list[str | Path] | dict[str, str | Path],
     initial_instruction: str,
@@ -70,13 +83,25 @@ def run_single_view_no_steps_raw(
     scene_max_tokens: int = DEFAULT_SCENE_MAX_TOKENS,
     analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
     refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
+    scene_max_frames: int = DEFAULT_SCENE_MAX_FRAMES,
+    analysis_max_frames: int = DEFAULT_ANALYSIS_MAX_FRAMES,
+    refinement_max_frames: int = DEFAULT_REFINEMENT_MAX_FRAMES,
     scene_resize_width: int = DEFAULT_SCENE_RESIZE_WIDTH,
     analysis_resize_width: int = DEFAULT_ANALYSIS_RESIZE_WIDTH,
     refinement_resize_width: int = DEFAULT_REFINEMENT_RESIZE_WIDTH,
+    scene_merge_view_names: list[str] | None = None,
+    analysis_merge_view_names: list[str] | None = None,
+    refinement_merge_view_names: list[str] | None = None,
+    scene_jpeg_quality: int = DEFAULT_SCENE_JPEG_QUALITY,
+    analysis_jpeg_quality: int = DEFAULT_ANALYSIS_JPEG_QUALITY,
+    refinement_jpeg_quality: int = DEFAULT_REFINEMENT_JPEG_QUALITY,
+    scene_min_api_frames: int = DEFAULT_SCENE_MIN_API_FRAMES,
+    analysis_min_api_frames: int = DEFAULT_ANALYSIS_MIN_API_FRAMES,
+    refinement_min_api_frames: int = DEFAULT_REFINEMENT_MIN_API_FRAMES,
     scene_draw_timestamps: bool = DEFAULT_SCENE_DRAW_TIMESTAMPS,
     analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
-    max_frames: int = DEFAULT_MAX_FRAMES,
+    max_frames: int | None = None,
     scene_merge_views: bool = DEFAULT_SCENE_MERGE_VIEWS,
     analysis_merge_views: bool = DEFAULT_ANALYSIS_MERGE_VIEWS,
     refinement_merge_views: bool = DEFAULT_REFINEMENT_MERGE_VIEWS,
@@ -84,35 +109,47 @@ def run_single_view_no_steps_raw(
     analysis_merge_mode: str = DEFAULT_ANALYSIS_MERGE_MODE,
     refinement_merge_mode: str = DEFAULT_REFINEMENT_MERGE_MODE,
     merge_views: bool | None = None,
+    video_id: str | None = None,
+    debug: bool = False,
 ) -> AnnotationResult:
     """Run scene -> analysis -> refinement on one main/global view."""
     flow_start = time.perf_counter()
     robot_type = normalize_robot_type(robot_type)
     prompt_language = normalize_prompt_language(prompt_language)
-    logger.info(
-        "Flow single_view_no_steps_raw start model=%s robot_type=%s prompt_language=%s scene_fps=%s analysis_fps=%s refinement_fps=%s max_frames=%s",
-        model,
-        robot_type,
-        prompt_language,
-        scene_fps,
-        analysis_fps,
-        refinement_fps,
-        max_frames,
-    )
     prompts = load_prompt_package(prompt_language)
     robot_type_prompt = prompts.get_robot_type_prompt(robot_type)
     if merge_views is not None:
         scene_merge_views = merge_views
         analysis_merge_views = merge_views
         refinement_merge_views = merge_views
+    if max_frames is not None:
+        scene_max_frames = max_frames
+        analysis_max_frames = max_frames
+        refinement_max_frames = max_frames
+    scene_merge_view_names = scene_merge_view_names or DEFAULT_SCENE_MERGE_VIEW_NAMES
+    analysis_merge_view_names = analysis_merge_view_names or DEFAULT_ANALYSIS_MERGE_VIEW_NAMES
+    refinement_merge_view_names = refinement_merge_view_names or DEFAULT_REFINEMENT_MERGE_VIEW_NAMES
+    logger.info(
+        "Flow vla_phase_annotation start model=%s robot_type=%s prompt_language=%s scene_fps=%s analysis_fps=%s refinement_fps=%s max_frames=%s",
+        model,
+        robot_type,
+        prompt_language,
+        scene_fps,
+        analysis_fps,
+        refinement_fps,
+        {"scene": scene_max_frames, "analysis": analysis_max_frames, "refinement": refinement_max_frames},
+    )
 
     step_start = time.perf_counter()
     scene_parts, scene_meta = load_video_or_views_as_image_parts(
         video_path,
         target_fps=scene_fps,
-        max_frames=max_frames,
+        max_frames=scene_max_frames,
         resize_width=scene_resize_width,
+        jpeg_quality=scene_jpeg_quality,
         draw_timestamps=scene_draw_timestamps,
+        min_api_frames=scene_min_api_frames,
+        view_names=scene_merge_view_names,
         merge_views=scene_merge_views,
         merge_mode=scene_merge_mode,
     )
@@ -141,11 +178,42 @@ def run_single_view_no_steps_raw(
         user_prompt=scene_prompt,
         model=model,
         max_tokens=scene_max_tokens,
-        fallback={"sceneContext": {}},
+        fallback={"scene_context": {}},
     )
     step_start = time.perf_counter()
-    scene_context = normalize_scene_context(scene.output.get("sceneContext", scene.output.get("scene_context")), scene_meta)
+    scene_parse = parse_scene_output(scene.output, meta=scene_meta, video_id=video_id)
+    scene_contract = scene_parse.output
+    scene_context = normalize_scene_context(
+        scene.output.get("sceneContext", scene.output.get("scene_context")),
+        scene_meta,
+    )
+    if not scene_context.get("arms") and scene_contract.executors:
+        scene_context["primary_view"] = scene_contract.primary_view or scene_context.get("primary_view", "unknown")
+        scene_context["num_arms"] = len(scene_contract.executors)
+        scene_context["arms"] = [
+            {
+                "arm_id": item.executor_id,
+                "description": item.description,
+                "spatial_reference": "primary_view",
+                "main_workspace": item.main_workspace or "",
+                "handled_objects": scene_contract.executor_object_map.get(item.executor_id, []),
+                "best_observation_views": [
+                    {"view_name": view, "reason": ""}
+                    for view in item.best_observation_views
+                ],
+            }
+            for item in scene_contract.executors
+        ]
+        scene_context["task_objects"] = [
+            {"object_id": item.object_id, "description": item.description, "role": item.role}
+            for item in scene_contract.touched_objects
+        ]
+        scene_context["background_objects"] = [
+            {"object_id": item.object_id, "description": item.description, "role": item.role}
+            for item in scene_contract.background_objects
+        ]
     scene.output["sceneContext"] = scene_context
+    scene.output["scene_context"] = scene_contract.model_dump(mode="json")
     scene_postprocess_elapsed = time.perf_counter() - step_start
     logger.info(
         "Scene postprocess done elapsed=%.2fs arms=%s task_objects=%s background_objects=%s",
@@ -159,9 +227,12 @@ def run_single_view_no_steps_raw(
     analysis_parts, analysis_meta = load_video_or_views_as_image_parts(
         video_path,
         target_fps=analysis_fps,
-        max_frames=max_frames,
+        max_frames=analysis_max_frames,
         resize_width=analysis_resize_width,
+        jpeg_quality=analysis_jpeg_quality,
         draw_timestamps=analysis_draw_timestamps,
+        min_api_frames=analysis_min_api_frames,
+        view_names=analysis_merge_view_names,
         merge_views=analysis_merge_views,
         merge_mode=analysis_merge_mode,
     )
@@ -180,7 +251,7 @@ def run_single_view_no_steps_raw(
         initial_instruction=initial_instruction,
         robot_type=robot_type,
         action_vocabulary=prompts.ACTION_VOCABULARY,
-        scene_context=json_dumps(scene_context),
+        scene_context=json_dumps(scene_contract.model_dump(mode="json")),
         robot_type_prompt=robot_type_prompt,
         view_layout_description=analysis_view_layout,
     )
@@ -192,16 +263,33 @@ def run_single_view_no_steps_raw(
         user_prompt=analysis_prompt,
         model=model,
         max_tokens=analysis_max_tokens,
-        fallback={"robot_type": robot_type, "action_sequence": [], "main_object": ""},
+        fallback={"candidate_segments": [], "uncertain_regions": [], "analysis_notes": []},
     )
 
     step_start = time.perf_counter()
     analysis.output["robot_type"] = robot_type
+    analysis_parse = parse_analysis_output(analysis.output, scene=scene_contract, video_id=video_id)
+    analysis_contract = analysis_parse.output
     action_sequence = normalize_action_sequence(analysis.output.get("action_sequence"), robot_type)
+    if not action_sequence:
+        action_sequence = [
+            {
+                "executor": segment.executor,
+                "action": segment.action,
+                "object": segment.objects[0] if segment.objects else "",
+            }
+            for segment in analysis_contract.candidate_segments
+        ]
     action_sequence = localize_action_sequence_objects(action_sequence, prompt_language)
     main_object = str(analysis.output.get("main_object", "")).strip()
+    if not main_object:
+        for segment in analysis_contract.candidate_segments:
+            if segment.objects:
+                main_object = segment.objects[0]
+                break
     main_object = translate_object_for_prompt_language(main_object, prompt_language)
     analysis.output["action_sequence"] = action_sequence
+    analysis.output["candidate_segments"] = analysis_contract.model_dump(mode="json")["candidate_segments"]
     analysis.output["main_object"] = main_object
     analysis_postprocess_elapsed = time.perf_counter() - step_start
     logger.info(
@@ -215,9 +303,12 @@ def run_single_view_no_steps_raw(
     refinement_parts, refinement_meta = load_video_or_views_as_image_parts(
         video_path,
         target_fps=refinement_fps,
-        max_frames=max_frames,
+        max_frames=refinement_max_frames,
         resize_width=refinement_resize_width,
+        jpeg_quality=refinement_jpeg_quality,
         draw_timestamps=refinement_draw_timestamps,
+        min_api_frames=refinement_min_api_frames,
+        view_names=refinement_merge_view_names,
         merge_views=refinement_merge_views,
         merge_mode=refinement_merge_mode,
     )
@@ -235,9 +326,11 @@ def run_single_view_no_steps_raw(
     refinement_prompt = prompts.REFINEMENT_PROMPT_TEMPLATE.format(
         initial_instruction=initial_instruction,
         robot_type=robot_type,
-        action_sequence=json_dumps(action_sequence),
+        action_sequence=json_dumps(
+            [segment.model_dump(mode="json") for segment in analysis_contract.candidate_segments]
+        ),
         main_object=main_object,
-        scene_context=json_dumps(scene_context),
+        scene_context=json_dumps(scene_contract.model_dump(mode="json")),
         robot_type_prompt=robot_type_prompt,
         view_layout_description=refinement_view_layout,
         action_guidance=prompts.ACTION_FINE_GRAINED_GUIDANCE,
@@ -251,15 +344,33 @@ def run_single_view_no_steps_raw(
         user_prompt=refinement_prompt,
         model=model,
         max_tokens=refinement_max_tokens,
-        fallback={"timestamped_action_sequence": [], "fine_grained_steps": [], "refined_instruction": ""},
+        fallback={"refined_segments": [], "changes": []},
     )
 
     step_start = time.perf_counter()
+    refinement_parse = parse_refinement_output(
+        refinement.output,
+        analysis=analysis_contract,
+        scene=scene_contract,
+        video_id=video_id,
+    )
+    refinement_contract = refinement_parse.output
     timestamped_actions = normalize_timestamped_action_sequence(
         refinement.output.get("timestamped_action_sequence"),
         action_sequence,
         robot_type,
     )
+    if not timestamped_actions:
+        timestamped_actions = [
+            {
+                "executor": segment.executor,
+                "action": segment.action,
+                "object": segment.objects[0] if segment.objects else "",
+                "start_time": segment.start_time or "",
+                "end_time": segment.end_time or "",
+            }
+            for segment in refinement_contract.refined_segments
+        ]
     timestamped_actions = localize_action_sequence_objects(timestamped_actions, prompt_language)
     steps = as_str_list(refinement.output.get("fine_grained_steps"))
     refined_instruction = str(refinement.output.get("refined_instruction", "")).strip()
@@ -273,47 +384,76 @@ def run_single_view_no_steps_raw(
         len(timestamped_actions),
         len(steps),
     )
-    logger.info("Flow single_view_no_steps_raw done elapsed=%.2fs", total_elapsed)
+    logger.info("Flow vla_phase_annotation done elapsed=%.2fs", total_elapsed)
 
+    validation_warnings = [
+        *scene_parse.warnings,
+        *scene_parse.errors,
+        *analysis_parse.warnings,
+        *analysis_parse.errors,
+        *refinement_parse.warnings,
+        *refinement_parse.errors,
+    ]
+    for warning in validation_warnings:
+        logger.warning("Contract validation: %s", warning)
+
+    final_annotation = build_final_annotation(
+        scene=scene_contract,
+        refinement=refinement_contract,
+        video_id=video_id,
+        model=model,
+        flow_name="vla_phase_annotation",
+    )
     output: dict[str, Any] = {
-        "flow": "single_view_no_steps_raw",
-        "initialInstruction": initial_instruction,
-        "analysisResult": {
-            "robot_type": robot_type,
-            "sceneContext": scene_context,
-            "action_sequence": action_sequence,
-            "main_object": main_object,
-        },
-        "sceneContext": scene_context,
-        "timestampedActionSequence": timestamped_actions,
-        "fineGrainedSteps": steps,
-        "refinedInstruction": refined_instruction,
+        **final_annotation.model_dump(mode="json"),
+        "scene_context": scene_contract.model_dump(mode="json"),
+        "candidate_segments": analysis_contract.model_dump(mode="json")["candidate_segments"],
+        "refined_segments": refinement_contract.model_dump(mode="json")["refined_segments"],
+        "changes": refinement_contract.model_dump(mode="json")["changes"],
+        "validation_warnings": validation_warnings,
         "metadata": {
+            **final_annotation.metadata,
             "prompt_language": prompt_language,
-            "scene": {
-                **scene_meta,
-                "load_elapsed_seconds": round(scene_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(scene_postprocess_elapsed, 3),
-            },
-            "analysis": {
-                **analysis_meta,
-                "load_elapsed_seconds": round(analysis_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(analysis_postprocess_elapsed, 3),
-            },
-            "refinement": {
-                **refinement_meta,
-                "load_elapsed_seconds": round(refinement_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(refinement_postprocess_elapsed, 3),
-            },
+            "robot_type": robot_type,
             "elapsed_seconds": round(total_elapsed, 3),
         },
     }
+    if debug:
+        output["debug"] = {
+            "initial_instruction": initial_instruction,
+            "legacy": {
+                "analysisResult": {
+                    "robot_type": robot_type,
+                    "sceneContext": scene_context,
+                    "action_sequence": action_sequence,
+                    "main_object": main_object,
+                },
+                "sceneContext": scene_context,
+                "timestampedActionSequence": timestamped_actions,
+                "fineGrainedSteps": steps,
+                "refinedInstruction": refined_instruction,
+            },
+            "stage_metadata": {
+                "scene": {
+                    **scene_meta,
+                    "load_elapsed_seconds": round(scene_load_elapsed, 3),
+                    "postprocess_elapsed_seconds": round(scene_postprocess_elapsed, 3),
+                },
+                "analysis": {
+                    **analysis_meta,
+                    "load_elapsed_seconds": round(analysis_load_elapsed, 3),
+                    "postprocess_elapsed_seconds": round(analysis_postprocess_elapsed, 3),
+                },
+                "refinement": {
+                    **refinement_meta,
+                    "load_elapsed_seconds": round(refinement_load_elapsed, 3),
+                    "postprocess_elapsed_seconds": round(refinement_postprocess_elapsed, 3),
+                },
+            },
+        }
     return AnnotationResult(
-        flow_name="single_view_no_steps_raw",
+        flow_name="vla_phase_annotation",
         stages={"scene": scene, "analysis": analysis, "refinement": refinement},
         output=output,
     )
 
-
-# Backward-compatible alias for older callers.
-run_standard_two_stage = run_single_view_no_steps_raw

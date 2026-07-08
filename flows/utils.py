@@ -16,7 +16,7 @@ from ..utils.config import (
     DEFAULT_VLM_TOP_K,
     DEFAULT_VLM_TOP_P,
 )
-from ..utils.schemas import StageResult
+from ..utils.results import StageResult
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def normalize_prompt_language(value: Any) -> str:
 
 def load_prompt_package(prompt_language: str = DEFAULT_PROMPT_LANGUAGE):
     language = normalize_prompt_language(prompt_language)
-    package_name = "prompts_cn" if language == "cn" else "prompts"
+    package_name = "prompts.prompts_cn" if language == "cn" else "prompts.prompts_en"
     return import_module(f"..{package_name}", package=__package__)
 
 

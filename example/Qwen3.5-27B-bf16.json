@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "episode_id": "episode_000000",
     "video_path": {
@@ -11,10 +11,10 @@
     },
     "task": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
     "prediction": {
-      "flow_name": "single_view_no_steps_raw",
+      "flow_name": "vla_phase_annotation",
       "success": true,
       "output": {
-        "flow": "single_view_no_steps_raw",
+        "flow": "vla_phase_annotation",
         "initialInstruction": "Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture.",
         "analysisResult": {
           "robot_type": "bimanual",

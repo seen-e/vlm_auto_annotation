@@ -1,4 +1,4 @@
-r"""Run no-steps-raw VLM annotation on one video or a JSON batch.
+﻿r"""Run VLA phase annotation on one video or a JSON batch.
 
 Single video:
 
@@ -39,31 +39,42 @@ DEFAULT_INPUT_JSON = EXAMPLE_DIR / "robot_mind2_camera_top_tasks.json"
 DEFAULT_OUTPUT_JSON = EXAMPLE_DIR / "Qwen3.5-27B-bf16.json"
 
 from vlm_auto_annotation import create_openai_client
-from vlm_auto_annotation.flows import run_single_view_no_steps_raw
+from vlm_auto_annotation.flows import run_vla_phase_annotation
 from vlm_auto_annotation.utils.logging_utils import configure_logging
 from vlm_auto_annotation.utils.config import (
     DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     DEFAULT_ANALYSIS_FPS,
+    DEFAULT_ANALYSIS_JPEG_QUALITY,
+    DEFAULT_ANALYSIS_MAX_FRAMES,
     DEFAULT_ANALYSIS_MAX_TOKENS,
     DEFAULT_ANALYSIS_MERGE_MODE,
+    DEFAULT_ANALYSIS_MERGE_VIEW_NAMES,
     DEFAULT_ANALYSIS_MERGE_VIEWS,
+    DEFAULT_ANALYSIS_MIN_API_FRAMES,
     DEFAULT_ANALYSIS_RESIZE_WIDTH,
     DEFAULT_BASE_URL,
-    DEFAULT_MAX_FRAMES,
     DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
     DEFAULT_REFINEMENT_FPS,
+    DEFAULT_REFINEMENT_JPEG_QUALITY,
+    DEFAULT_REFINEMENT_MAX_FRAMES,
     DEFAULT_REFINEMENT_MAX_TOKENS,
     DEFAULT_REFINEMENT_MERGE_MODE,
+    DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
     DEFAULT_REFINEMENT_MERGE_VIEWS,
+    DEFAULT_REFINEMENT_MIN_API_FRAMES,
     DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     DEFAULT_REFINEMENT_RESIZE_WIDTH,
     DEFAULT_ROBOT_TYPE,
     DEFAULT_SCENE_DRAW_TIMESTAMPS,
     DEFAULT_SCENE_FPS,
+    DEFAULT_SCENE_JPEG_QUALITY,
+    DEFAULT_SCENE_MAX_FRAMES,
     DEFAULT_SCENE_MAX_TOKENS,
     DEFAULT_SCENE_MERGE_MODE,
+    DEFAULT_SCENE_MERGE_VIEW_NAMES,
     DEFAULT_SCENE_MERGE_VIEWS,
+    DEFAULT_SCENE_MIN_API_FRAMES,
     DEFAULT_SCENE_RESIZE_WIDTH,
 )
 
@@ -72,7 +83,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run no-steps-raw VLM annotation.")
+    parser = argparse.ArgumentParser(description="Run VLA phase annotation.")
     parser.add_argument(
         "--input-json",
         default=str(DEFAULT_INPUT_JSON),
@@ -101,7 +112,7 @@ def parse_args() -> argparse.Namespace:
         "--prompt-language",
         default=DEFAULT_PROMPT_LANGUAGE,
         choices=["cn", "en"],
-        help="Prompt language: cn uses prompts_cn, en uses prompts.",
+        help="Prompt language: cn uses prompts/prompts_cn, en uses prompts/prompts_en.",
     )
     parser.add_argument("--scene-fps", type=float, default=DEFAULT_SCENE_FPS)
     parser.add_argument("--analysis-fps", type=float, default=DEFAULT_ANALYSIS_FPS)
@@ -112,10 +123,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-resize-width", type=int, default=DEFAULT_SCENE_RESIZE_WIDTH)
     parser.add_argument("--analysis-resize-width", type=int, default=DEFAULT_ANALYSIS_RESIZE_WIDTH)
     parser.add_argument("--refinement-resize-width", type=int, default=DEFAULT_REFINEMENT_RESIZE_WIDTH)
+    parser.add_argument("--scene-max-frames", type=int, default=DEFAULT_SCENE_MAX_FRAMES)
+    parser.add_argument("--analysis-max-frames", type=int, default=DEFAULT_ANALYSIS_MAX_FRAMES)
+    parser.add_argument("--refinement-max-frames", type=int, default=DEFAULT_REFINEMENT_MAX_FRAMES)
+    parser.add_argument("--scene-merge-view-names", default=",".join(DEFAULT_SCENE_MERGE_VIEW_NAMES))
+    parser.add_argument("--analysis-merge-view-names", default=",".join(DEFAULT_ANALYSIS_MERGE_VIEW_NAMES))
+    parser.add_argument("--refinement-merge-view-names", default=",".join(DEFAULT_REFINEMENT_MERGE_VIEW_NAMES))
+    parser.add_argument("--scene-jpeg-quality", type=int, default=DEFAULT_SCENE_JPEG_QUALITY)
+    parser.add_argument("--analysis-jpeg-quality", type=int, default=DEFAULT_ANALYSIS_JPEG_QUALITY)
+    parser.add_argument("--refinement-jpeg-quality", type=int, default=DEFAULT_REFINEMENT_JPEG_QUALITY)
+    parser.add_argument("--scene-min-api-frames", type=int, default=DEFAULT_SCENE_MIN_API_FRAMES)
+    parser.add_argument("--analysis-min-api-frames", type=int, default=DEFAULT_ANALYSIS_MIN_API_FRAMES)
+    parser.add_argument("--refinement-min-api-frames", type=int, default=DEFAULT_REFINEMENT_MIN_API_FRAMES)
     parser.add_argument("--scene-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_DRAW_TIMESTAMPS)
     parser.add_argument("--analysis-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_DRAW_TIMESTAMPS)
     parser.add_argument("--refinement-draw-timestamps", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_DRAW_TIMESTAMPS)
-    parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES)
+    parser.add_argument("--max-frames", type=int, default=None, help="Compatibility override for all stage max frame settings.")
     parser.add_argument("--scene-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_SCENE_MERGE_VIEWS)
     parser.add_argument("--analysis-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_ANALYSIS_MERGE_VIEWS)
     parser.add_argument("--refinement-merge-views", action=argparse.BooleanOptionalAction, default=DEFAULT_REFINEMENT_MERGE_VIEWS)
@@ -144,6 +167,14 @@ def assert_video_exists(path: Any) -> None:
         raise FileNotFoundError(f"Video not found: {path}")
 
 
+def parse_csv_list(value: str | list[str] | None) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [item.strip() for item in str(value).split(",") if item.strip()]
+
+
 def run_one(
     client,
     *,
@@ -161,10 +192,22 @@ def run_one(
     scene_resize_width: int = DEFAULT_SCENE_RESIZE_WIDTH,
     analysis_resize_width: int = DEFAULT_ANALYSIS_RESIZE_WIDTH,
     refinement_resize_width: int = DEFAULT_REFINEMENT_RESIZE_WIDTH,
+    scene_max_frames: int = DEFAULT_SCENE_MAX_FRAMES,
+    analysis_max_frames: int = DEFAULT_ANALYSIS_MAX_FRAMES,
+    refinement_max_frames: int = DEFAULT_REFINEMENT_MAX_FRAMES,
+    scene_merge_view_names: list[str] | None = None,
+    analysis_merge_view_names: list[str] | None = None,
+    refinement_merge_view_names: list[str] | None = None,
+    scene_jpeg_quality: int = DEFAULT_SCENE_JPEG_QUALITY,
+    analysis_jpeg_quality: int = DEFAULT_ANALYSIS_JPEG_QUALITY,
+    refinement_jpeg_quality: int = DEFAULT_REFINEMENT_JPEG_QUALITY,
+    scene_min_api_frames: int = DEFAULT_SCENE_MIN_API_FRAMES,
+    analysis_min_api_frames: int = DEFAULT_ANALYSIS_MIN_API_FRAMES,
+    refinement_min_api_frames: int = DEFAULT_REFINEMENT_MIN_API_FRAMES,
     scene_draw_timestamps: bool = DEFAULT_SCENE_DRAW_TIMESTAMPS,
     analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
     refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
-    max_frames: int = DEFAULT_MAX_FRAMES,
+    max_frames: int | None = None,
     scene_merge_views: bool = DEFAULT_SCENE_MERGE_VIEWS,
     analysis_merge_views: bool = DEFAULT_ANALYSIS_MERGE_VIEWS,
     refinement_merge_views: bool = DEFAULT_REFINEMENT_MERGE_VIEWS,
@@ -174,7 +217,7 @@ def run_one(
     merge_views: bool | None = None,
 ) -> dict[str, Any]:
     assert_video_exists(main_video)
-    result = run_single_view_no_steps_raw(
+    result = run_vla_phase_annotation(
         client,
         video_path=main_video,
         initial_instruction=instruction,
@@ -190,6 +233,18 @@ def run_one(
         scene_resize_width=scene_resize_width,
         analysis_resize_width=analysis_resize_width,
         refinement_resize_width=refinement_resize_width,
+        scene_max_frames=scene_max_frames,
+        analysis_max_frames=analysis_max_frames,
+        refinement_max_frames=refinement_max_frames,
+        scene_merge_view_names=scene_merge_view_names,
+        analysis_merge_view_names=analysis_merge_view_names,
+        refinement_merge_view_names=refinement_merge_view_names,
+        scene_jpeg_quality=scene_jpeg_quality,
+        analysis_jpeg_quality=analysis_jpeg_quality,
+        refinement_jpeg_quality=refinement_jpeg_quality,
+        scene_min_api_frames=scene_min_api_frames,
+        analysis_min_api_frames=analysis_min_api_frames,
+        refinement_min_api_frames=refinement_min_api_frames,
         scene_draw_timestamps=scene_draw_timestamps,
         analysis_draw_timestamps=analysis_draw_timestamps,
         refinement_draw_timestamps=refinement_draw_timestamps,
@@ -291,6 +346,18 @@ def run_batch(args: argparse.Namespace) -> None:
                 scene_resize_width=args.scene_resize_width,
                 analysis_resize_width=args.analysis_resize_width,
                 refinement_resize_width=args.refinement_resize_width,
+                scene_max_frames=args.scene_max_frames,
+                analysis_max_frames=args.analysis_max_frames,
+                refinement_max_frames=args.refinement_max_frames,
+                scene_merge_view_names=parse_csv_list(args.scene_merge_view_names),
+                analysis_merge_view_names=parse_csv_list(args.analysis_merge_view_names),
+                refinement_merge_view_names=parse_csv_list(args.refinement_merge_view_names),
+                scene_jpeg_quality=args.scene_jpeg_quality,
+                analysis_jpeg_quality=args.analysis_jpeg_quality,
+                refinement_jpeg_quality=args.refinement_jpeg_quality,
+                scene_min_api_frames=args.scene_min_api_frames,
+                analysis_min_api_frames=args.analysis_min_api_frames,
+                refinement_min_api_frames=args.refinement_min_api_frames,
                 scene_draw_timestamps=args.scene_draw_timestamps,
                 analysis_draw_timestamps=args.analysis_draw_timestamps,
                 refinement_draw_timestamps=args.refinement_draw_timestamps,
@@ -349,6 +416,18 @@ def run_single(args: argparse.Namespace) -> None:
         scene_resize_width=args.scene_resize_width,
         analysis_resize_width=args.analysis_resize_width,
         refinement_resize_width=args.refinement_resize_width,
+        scene_max_frames=args.scene_max_frames,
+        analysis_max_frames=args.analysis_max_frames,
+        refinement_max_frames=args.refinement_max_frames,
+        scene_merge_view_names=parse_csv_list(args.scene_merge_view_names),
+        analysis_merge_view_names=parse_csv_list(args.analysis_merge_view_names),
+        refinement_merge_view_names=parse_csv_list(args.refinement_merge_view_names),
+        scene_jpeg_quality=args.scene_jpeg_quality,
+        analysis_jpeg_quality=args.analysis_jpeg_quality,
+        refinement_jpeg_quality=args.refinement_jpeg_quality,
+        scene_min_api_frames=args.scene_min_api_frames,
+        analysis_min_api_frames=args.analysis_min_api_frames,
+        refinement_min_api_frames=args.refinement_min_api_frames,
         scene_draw_timestamps=args.scene_draw_timestamps,
         analysis_draw_timestamps=args.analysis_draw_timestamps,
         refinement_draw_timestamps=args.refinement_draw_timestamps,

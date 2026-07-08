@@ -1,159 +1,121 @@
-# VLM Auto Annotation
+﻿# VLM Auto Annotation
 
 This package implements a FineVLA-style automatic annotation pipeline for robot
 manipulation videos. It supports Chinese and English prompts, configurable robot
-types, multi-view frame merging, stage-specific frame sampling, and timestamped
-refinement outputs.
+types, multi-view frame merging, stage-specific sampling, and compact VLA phase
+annotation output.
 
-Prompts live in `prompts_cn/` and `prompts/`; flow implementations live in
-`flows/`; shared runtime helpers live in `utils/`.
+Prompts live in `prompts/prompts_cn/` and `prompts/prompts_en/`; the official
+flow lives in `flows/`; shared runtime helpers live in `utils/`; normalized
+stage contracts, parsers, and adapters live in `annotation_pipeline/`.
 
 ## Configuration
 
-Runtime defaults are configured in [config/config.yaml](config/config.yaml). This
-YAML file is the single source of default parameters. The Python module
-[utils/config.py](utils/config.py) only loads YAML and exports the existing
-`DEFAULT_*`, `MIN_*`, and `MAX_*` constants for compatibility; it does not keep
-its own hidden defaults.
+Runtime defaults are configured in [config/config.yaml](config/config.yaml).
+`utils/config.py` loads YAML and keeps the existing `DEFAULT_*`, `MIN_*`, and
+`MAX_*` constants for compatibility.
 
-You can also point to another YAML file:
+Use another YAML file with:
 
 ```powershell
 $env:ANNOTATE_CONFIG="C:\path\to\config.yaml"
 ```
 
 Environment variables with the `ANNOTATE_*` prefix still override YAML values.
-For example:
+Examples:
 
 ```powershell
-$env:ANNOTATE_SCENE_RESIZE_WIDTH="224"
-$env:ANNOTATE_ANALYSIS_RESIZE_WIDTH="224"
-$env:ANNOTATE_REFINEMENT_RESIZE_WIDTH="448"
+$env:ANNOTATE_PROMPT_LANGUAGE="cn"
+$env:ANNOTATE_ROBOT_TYPE="bimanual"
 $env:ANNOTATE_ANALYSIS_MERGE_VIEWS="true"
 $env:ANNOTATE_ANALYSIS_MERGE_MODE="timeline_grid"
 $env:ANNOTATE_MERGE_VIEW_NAMES="observation.rgb_images.camera_front,observation.rgb_images.camera_top"
 ```
 
-If `ANNOTATE_CONFIG` points to a custom YAML file, that file must contain the
-same required keys. Missing keys fail fast during import.
-
-Complete YAML structure:
-
-```yaml
-model:
-  name: Qwen3.5-27B
-  base_url: http://localhost:8002/v1
-
-prompt:
-  language: cn
-  robot_type: bimanual
-
-stages:
-  scene:
-    fps: 1.0
-    max_tokens: 1024
-    resize_width: 224
-    draw_timestamps: false
-    merge_views: true
-    merge_mode: per_frame
-  analysis:
-    fps: 1.0
-    max_tokens: 512
-    resize_width: 224
-    draw_timestamps: false
-    merge_views: true
-    merge_mode: per_frame
-  refinement:
-    fps: 5.0
-    max_tokens: 2048
-    resize_width: 448
-    draw_timestamps: true
-    merge_views: true
-    merge_mode: per_frame
-
-vlm_sampling:
-  temperature: 0.0
-  top_p: 0.95
-  top_k: 0
-
-video:
-  max_frames: 128
-  merge_views: true
-  merge_view_names:
-    - observation.rgb_images.camera_front
-    - observation.rgb_images.camera_top
-  jpeg_quality: 75
-  min_api_frames: 2
-
-workers:
-  max_step_workers: 8
-
-logging:
-  level: INFO
-  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-```
-
-`analysis` normally does not need timestamps, so `draw_timestamps` is disabled
-by default. `refinement` uses timestamps to add `start_time` and `end_time` for
-each action.
-
-## Implemented Flows
+## Official Flow
 
 | Flow | Function | Stages |
 |---|---|---|
-| `single_view_no_steps_raw` | `flows/flow_analysis_refinement.py` | `scene -> analysis -> refinement` |
+| `vla_phase_annotation` | `run_vla_phase_annotation` in `flows/flow_analysis_refinement.py` | `scene -> analysis -> refinement` |
 
-## Stage Meaning
+## Stage Contracts
 
-`scene` watches sampled frames before action analysis and extracts stable
-background context. It identifies the primary view, visible robot arms, stable
-arm IDs, likely task objects, background objects, and best observation views for
-each arm. It does not output actions or timestamps.
+The official flow entry point is `run_vla_phase_annotation`. Internally, VLM
+JSON is normalized through Pydantic contracts and legacy adapters in
+`annotation_pipeline/`.
 
-`analysis` watches sampled frames, uses the configured `robot_type` and the
-previous `sceneContext`, then extracts a coarse `action_sequence` plus
-`main_object`. The action sequence is a chronological list of objects:
+| Stage | Responsibility | Main Input | Main Output |
+|---|---|---|---|
+| `scene` | Establish stable scene context only | video frames, views, robot profile | `scene_context.executors`, `touched_objects`, `background_objects`, `executor_object_map`, `best_observation_views`, `scene_summary` |
+| `analysis` | Propose candidate action segments | `scene_context`, sampled frames, optional state-action data | `candidate_segments`, `uncertain_regions`, `analysis_notes` |
+| `refinement` | Fix segment boundaries and segment structure | `candidate_segments`, timestamped frames, refinement rules | `refined_segments`, `changes` |
+| label adapter | Build compact final annotation | `scene_summary`, `refined_segments` | `task_summary`, `action_sequence`, `touched_objects`, `final_caption`, `metadata` |
 
-```json
-{
-  "executor": "left",
-  "action": "抓住",
-  "object": "笔记本电脑"
-}
-```
+`analysis` does not repeat scene background. `refinement` does not write final
+long-form descriptions by default. Old fields such as `sceneContext`,
+`action_sequence`, `timestamped_action_sequence`, `fineGrainedSteps`, and
+`refinedInstruction` are accepted by adapters. When `debug=True`, legacy
+intermediate fields are placed under `output.debug`.
 
-For bimanual robots, `executor` should be `left`, `right`, or `both`. For mobile
-manipulators, use `base` for navigation and `arm` for manipulation. Actions are
-ordered by their start time: the action that starts earlier appears earlier,
-even if actions overlap.
-
-`refinement` watches the video again, with timestamp overlays enabled by
-default, and adds a timestamped sequence:
+Normalized refined segment example:
 
 ```json
 {
-  "executor": "right",
-  "action": "接近",
-  "object": "笔记本电脑",
+  "segment_id": "S001",
   "start_time": "00:01.00",
-  "end_time": "00:02.20"
+  "end_time": "00:02.20",
+  "executor": "left",
+  "action": "grasp",
+  "objects": ["cup"],
+  "boundary_reason": "gripper closes on cup",
+  "confidence": 0.82
 }
 ```
 
-It also outputs `fineGrainedSteps` and `refinedInstruction`.
+## Output Shape
+
+`AnnotationResult.output` is now the compact user-facing payload:
+
+```json
+{
+  "video_id": "episode_001",
+  "task_summary": "left arm manipulates a cup",
+  "action_sequence": [
+    {
+      "segment_id": "S001",
+      "start_time": "00:01.00",
+      "end_time": "00:02.20",
+      "executor": "left",
+      "action": "grasp",
+      "objects": ["cup"]
+    }
+  ],
+  "touched_objects": ["cup"],
+  "final_caption": "00:01.00-00:02.20 left grasp cup",
+  "scene_context": {},
+  "candidate_segments": [],
+  "refined_segments": [],
+  "changes": [],
+  "validation_warnings": [],
+  "metadata": {}
+}
+```
+
+`AnnotationResult.stages` still contains raw per-stage VLM outputs and token
+usage for compatibility and debugging.
 
 ## Multi-View Input
 
 `video_path` may be a string, a list, or a dict. For dict input, keys are view
-names and values are video paths. The configured `video.merge_view_names`
-selects which views are merged.
+names and values are video paths. Each stage has its own
+`stages.<stage>.merge_view_names` list selecting which views are merged.
 
-Each stage has its own `merge_views` switch. When it is `false`, multi-view
-input is not concatenated and that stage uses only the primary view, i.e. the
-first path/view in `video_path`.
+Each stage has its own `max_frames`, `merge_view_names`, `jpeg_quality`,
+`min_api_frames`, and `merge_views` settings. When `merge_views` is `false`,
+multi-view input is not concatenated and that stage uses only the primary view,
+i.e. the first path/view in `video_path`.
 
-When a stage's `merge_views` is `true`, `merge_mode` controls the stitching
-layout:
+When a stage's `merge_views` is `true`, `merge_mode` controls the layout:
 
 - `per_frame`: frames at the same timestamp are vertically concatenated. Each
   sampled timestamp is sent as a separate image.
@@ -170,20 +132,23 @@ help confirm occlusion, contact, and depth.
 
 ```python
 from vlm_auto_annotation import create_openai_client
-from vlm_auto_annotation.flows import run_single_view_no_steps_raw
+from vlm_auto_annotation.flows import run_vla_phase_annotation
 
 client = create_openai_client()
 
-result = run_single_view_no_steps_raw(
+result = run_vla_phase_annotation(
     client,
     video_path={
         "observation.rgb_images.camera_front": r"C:\path\front.mp4",
         "observation.rgb_images.camera_top": r"C:\path\top.mp4",
     },
     initial_instruction="place the laptop onto the laptop stand",
+    prompt_language="cn",
+    video_id="episode_001",
+    debug=False,
 )
 
-print(result.to_dict())
+print(result.output)
 ```
 
 ## Example CLI
@@ -194,7 +159,7 @@ Run the default batch:
 & 'C:\Users\34927\.conda\envs\py3115\python.exe' .\example\main.py
 ```
 
-Useful CLI overrides:
+Useful overrides:
 
 ```powershell
 & 'C:\Users\34927\.conda\envs\py3115\python.exe' .\example\main.py `
@@ -210,21 +175,13 @@ Useful CLI overrides:
   --log-level INFO
 ```
 
-The CLI logs stage timing, frame loading time, VLM request time, token usage,
-and per-record batch runtime. Set `logging.level` in `config/config.yaml`, or
-override it with `--log-level DEBUG`.
-
 ## Debug Frames
 
-To inspect the actual frames sent to the VLM, run:
+To inspect the frames sent to the VLM:
 
 ```powershell
 & 'C:\Users\34927\.conda\envs\py3115\python.exe' .\utils\video_utils.py
 ```
-
-By default this uses `example/robot_mind2_camera_top_tasks.json`, task index 0,
-the configured merge views, and writes sampled images to
-`debug_frames/multiview_timestamp_default`.
 
 Use stage defaults explicitly:
 
@@ -233,20 +190,9 @@ Use stage defaults explicitly:
 & 'C:\Users\34927\.conda\envs\py3115\python.exe' .\utils\video_utils.py --stage refinement
 ```
 
-## Output Shape
+## Tests
 
-Every flow returns `AnnotationResult`:
-
-- `flow_name`: stable flow name.
-- `success`: whether every stage produced parseable JSON or a fallback.
-- `output`: user-facing annotation payload.
-- `output.analysisResult.action_sequence`: coarse chronological actions.
-- `output.sceneContext`: stable scene context extracted before action analysis.
-- `output.timestampedActionSequence`: refinement actions with `start_time` and
-  `end_time`.
-- `output.fineGrainedSteps`: detailed natural-language steps.
-- `output.refinedInstruction`: final refined instruction.
-- `stages`: intermediate VLM stage outputs and token usage.
-
-The old `run_standard_two_stage` name is kept as an alias of
-`run_single_view_no_steps_raw` for compatibility.
+```powershell
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' -m compileall annotation_pipeline flows prompts utils example
+& 'C:\Users\34927\.conda\envs\py3115\python.exe' -m unittest discover -s annotation_pipeline/tests
+```

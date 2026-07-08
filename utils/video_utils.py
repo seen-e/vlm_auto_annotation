@@ -14,6 +14,9 @@ try:
     from .config import (
         DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
         DEFAULT_ANALYSIS_FPS,
+        DEFAULT_ANALYSIS_JPEG_QUALITY,
+        DEFAULT_ANALYSIS_MAX_FRAMES,
+        DEFAULT_ANALYSIS_MERGE_VIEW_NAMES,
         DEFAULT_DRAW_TIMESTAMPS,
         DEFAULT_JPEG_QUALITY,
         DEFAULT_MERGE_MODE,
@@ -32,9 +35,18 @@ try:
         DEFAULT_ANALYSIS_RESIZE_WIDTH,
         DEFAULT_REFINEMENT_FPS,
         DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+        DEFAULT_REFINEMENT_JPEG_QUALITY,
+        DEFAULT_REFINEMENT_MAX_FRAMES,
+        DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
         DEFAULT_REFINEMENT_RESIZE_WIDTH,
         DEFAULT_RESIZE_WIDTH,
+        DEFAULT_SCENE_JPEG_QUALITY,
+        DEFAULT_SCENE_MAX_FRAMES,
+        DEFAULT_SCENE_MERGE_VIEW_NAMES,
         MIN_API_FRAMES,
+        DEFAULT_SCENE_MIN_API_FRAMES,
+        DEFAULT_ANALYSIS_MIN_API_FRAMES,
+        DEFAULT_REFINEMENT_MIN_API_FRAMES,
     )
     from .logging_utils import configure_logging
 except ImportError:
@@ -44,6 +56,9 @@ except ImportError:
     from utils.config import (
         DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
         DEFAULT_ANALYSIS_FPS,
+        DEFAULT_ANALYSIS_JPEG_QUALITY,
+        DEFAULT_ANALYSIS_MAX_FRAMES,
+        DEFAULT_ANALYSIS_MERGE_VIEW_NAMES,
         DEFAULT_DRAW_TIMESTAMPS,
         DEFAULT_JPEG_QUALITY,
         DEFAULT_MERGE_MODE,
@@ -62,10 +77,19 @@ except ImportError:
         DEFAULT_ANALYSIS_RESIZE_WIDTH,
         DEFAULT_REFINEMENT_FPS,
         DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
+        DEFAULT_REFINEMENT_JPEG_QUALITY,
+        DEFAULT_REFINEMENT_MAX_FRAMES,
+        DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
         DEFAULT_REFINEMENT_RESIZE_WIDTH,
         DEFAULT_RESIZE_WIDTH,
+        DEFAULT_SCENE_JPEG_QUALITY,
+        DEFAULT_SCENE_MAX_FRAMES,
+        DEFAULT_SCENE_MERGE_VIEW_NAMES,
         MIN_API_FRAMES,
-    )
+        DEFAULT_SCENE_MIN_API_FRAMES,
+        DEFAULT_ANALYSIS_MIN_API_FRAMES,
+        DEFAULT_REFINEMENT_MIN_API_FRAMES,
+)
     from utils.logging_utils import configure_logging
 
 
@@ -288,6 +312,7 @@ def load_video_as_image_parts(
     resize_width: int = DEFAULT_RESIZE_WIDTH,
     jpeg_quality: int = DEFAULT_JPEG_QUALITY,
     draw_timestamps: bool = DEFAULT_DRAW_TIMESTAMPS,
+    min_api_frames: int = MIN_API_FRAMES,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Load sampled video frames as OpenAI image_url parts."""
     import cv2
@@ -314,9 +339,9 @@ def load_video_as_image_parts(
         span = max(0, end - start)
         local_indices = _sample_indices(span, fps, target_fps, max_frames)
         indices = [start + i for i in local_indices]
-        if 0 < len(indices) < MIN_API_FRAMES and span >= MIN_API_FRAMES:
-            step = (span - 1) / max(MIN_API_FRAMES - 1, 1)
-            indices = sorted(set(start + int(round(i * step)) for i in range(MIN_API_FRAMES)))
+        if 0 < len(indices) < min_api_frames and span >= min_api_frames:
+            step = (span - 1) / max(min_api_frames - 1, 1)
+            indices = sorted(set(start + int(round(i * step)) for i in range(min_api_frames)))
 
         parts: list[dict[str, Any]] = []
         for idx in indices:
@@ -347,8 +372,11 @@ def load_video_as_image_parts(
             "video_fps": fps,
             "total_frames": total_frames,
             "sampled_frames": len(parts),
+            "max_frames": max_frames,
             "frame_range": [start, end],
+            "jpeg_quality": jpeg_quality,
             "draw_timestamps": draw_timestamps,
+            "min_api_frames": min_api_frames,
             "load_elapsed_seconds": round(elapsed, 3),
         }
     finally:
@@ -365,6 +393,7 @@ def load_video_or_views_as_image_parts(
     resize_width: int = DEFAULT_RESIZE_WIDTH,
     jpeg_quality: int = DEFAULT_JPEG_QUALITY,
     draw_timestamps: bool = DEFAULT_DRAW_TIMESTAMPS,
+    min_api_frames: int = MIN_API_FRAMES,
     view_names: list[str] | None = None,
     merge_views: bool = DEFAULT_MERGE_VIEWS,
     merge_mode: str = DEFAULT_MERGE_MODE,
@@ -383,6 +412,7 @@ def load_video_or_views_as_image_parts(
             resize_width=resize_width,
             jpeg_quality=jpeg_quality,
             draw_timestamps=draw_timestamps,
+            min_api_frames=min_api_frames,
         )
         meta["selected_views"] = [selected[0][0]]
         meta["input_mode"] = "single_view"
@@ -419,9 +449,9 @@ def load_video_or_views_as_image_parts(
         span = max(0, end - start)
         local_indices = _sample_indices(span, fps, target_fps, max_frames)
         indices = [start + i for i in local_indices]
-        if 0 < len(indices) < MIN_API_FRAMES and span >= MIN_API_FRAMES:
-            step = (span - 1) / max(MIN_API_FRAMES - 1, 1)
-            indices = sorted(set(start + int(round(i * step)) for i in range(MIN_API_FRAMES)))
+        if 0 < len(indices) < min_api_frames and span >= min_api_frames:
+            step = (span - 1) / max(min_api_frames - 1, 1)
+            indices = sorted(set(start + int(round(i * step)) for i in range(min_api_frames)))
 
         parts: list[dict[str, Any]] = []
         if merge_mode == "timeline_grid":
@@ -496,8 +526,11 @@ def load_video_or_views_as_image_parts(
             "total_frames_by_view": total_frames_by_view,
             "sampled_frames": len(indices),
             "image_parts": len(parts),
+            "max_frames": max_frames,
             "frame_range": [start, end],
+            "jpeg_quality": jpeg_quality,
             "draw_timestamps": draw_timestamps,
+            "min_api_frames": min_api_frames,
             "load_elapsed_seconds": round(elapsed, 3),
         }
     finally:
@@ -570,7 +603,7 @@ def _main() -> None:
     parser.add_argument("--task-index", type=int, default=0, help="Task index for --tasks-json.")
     parser.add_argument("--output-dir", default="debug_frames/multiview_timestamp_default", help="Directory for saved JPEG frames.")
     parser.add_argument("--target-fps", type=float, help="Sampling FPS. Defaults to the selected stage FPS.")
-    parser.add_argument("--max-frames", type=int, default=DEFAULT_MAX_FRAMES, help="Maximum sampled frames.")
+    parser.add_argument("--max-frames", type=int, default=None, help="Maximum sampled frames. Defaults to the selected stage setting.")
     parser.add_argument("--merge-views", action=argparse.BooleanOptionalAction, default=None, help="Whether to merge selected multi-view frames. Defaults to the selected stage setting.")
     parser.add_argument("--merge-mode", choices=["per_frame", "timeline_grid"], default=None, help="Multi-view merge mode. Defaults to the selected stage mode.")
     parser.add_argument("--log-level", help="Override config logging.level for this debug run.")
@@ -586,11 +619,12 @@ def _main() -> None:
     parser.add_argument("--scene-resize-width", type=int, default=DEFAULT_SCENE_RESIZE_WIDTH)
     parser.add_argument("--analysis-resize-width", type=int, default=DEFAULT_ANALYSIS_RESIZE_WIDTH)
     parser.add_argument("--refinement-resize-width", type=int, default=DEFAULT_REFINEMENT_RESIZE_WIDTH)
-    parser.add_argument("--jpeg-quality", type=int, default=DEFAULT_JPEG_QUALITY, help="JPEG quality.")
+    parser.add_argument("--jpeg-quality", type=int, default=None, help="JPEG quality. Defaults to the selected stage setting.")
+    parser.add_argument("--min-api-frames", type=int, default=None, help="Minimum frames to send when the clip is long enough. Defaults to the selected stage setting.")
     parser.add_argument(
         "--view-names",
-        default=",".join(DEFAULT_MERGE_VIEW_NAMES),
-        help="Comma-separated view names to select. Empty string means first input view.",
+        default=None,
+        help="Comma-separated view names to select. Defaults to the selected stage setting; empty string means first input view.",
     )
     parser.add_argument(
         "--draw-timestamps",
@@ -601,7 +635,15 @@ def _main() -> None:
     args = parser.parse_args()
     configure_logging(level=args.log_level) if args.log_level else configure_logging()
 
-    view_names = [item.strip() for item in args.view_names.split(",") if item.strip()]
+    if args.view_names is None:
+        if args.stage == "scene":
+            view_names = DEFAULT_SCENE_MERGE_VIEW_NAMES
+        elif args.stage == "analysis":
+            view_names = DEFAULT_ANALYSIS_MERGE_VIEW_NAMES
+        else:
+            view_names = DEFAULT_REFINEMENT_MERGE_VIEW_NAMES
+    else:
+        view_names = [item.strip() for item in args.view_names.split(",") if item.strip()]
     video_path = _load_debug_video_path(args)
     resize_width = args.resize_width
     if resize_width is None:
@@ -619,6 +661,30 @@ def _main() -> None:
             target_fps = DEFAULT_ANALYSIS_FPS
         else:
             target_fps = DEFAULT_REFINEMENT_FPS
+    max_frames = args.max_frames
+    if max_frames is None:
+        if args.stage == "scene":
+            max_frames = DEFAULT_SCENE_MAX_FRAMES
+        elif args.stage == "analysis":
+            max_frames = DEFAULT_ANALYSIS_MAX_FRAMES
+        else:
+            max_frames = DEFAULT_REFINEMENT_MAX_FRAMES
+    jpeg_quality = args.jpeg_quality
+    if jpeg_quality is None:
+        if args.stage == "scene":
+            jpeg_quality = DEFAULT_SCENE_JPEG_QUALITY
+        elif args.stage == "analysis":
+            jpeg_quality = DEFAULT_ANALYSIS_JPEG_QUALITY
+        else:
+            jpeg_quality = DEFAULT_REFINEMENT_JPEG_QUALITY
+    min_api_frames = args.min_api_frames
+    if min_api_frames is None:
+        if args.stage == "scene":
+            min_api_frames = DEFAULT_SCENE_MIN_API_FRAMES
+        elif args.stage == "analysis":
+            min_api_frames = DEFAULT_ANALYSIS_MIN_API_FRAMES
+        else:
+            min_api_frames = DEFAULT_REFINEMENT_MIN_API_FRAMES
     draw_timestamps = args.draw_timestamps
     if draw_timestamps is None:
         if args.stage == "scene":
@@ -646,12 +712,13 @@ def _main() -> None:
     parts, meta = load_video_or_views_as_image_parts(
         video_path,
         target_fps=target_fps,
-        max_frames=args.max_frames,
+        max_frames=max_frames,
         frame_start=args.frame_start,
         frame_end=args.frame_end,
         resize_width=resize_width,
-        jpeg_quality=args.jpeg_quality,
+        jpeg_quality=jpeg_quality,
         draw_timestamps=draw_timestamps,
+        min_api_frames=min_api_frames,
         view_names=view_names,
         merge_views=merge_views,
         merge_mode=merge_mode,

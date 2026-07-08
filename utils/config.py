@@ -36,6 +36,15 @@ def _required(data: dict[str, Any], dotted_key: str) -> Any:
     return current
 
 
+def _optional(data: dict[str, Any], dotted_key: str, default: Any = None) -> Any:
+    current: Any = data
+    for key in dotted_key.split("."):
+        if not isinstance(current, dict) or key not in current:
+            return default
+        current = current[key]
+    return current
+
+
 def _env_str(name: str, value: Any) -> str:
     return str(os.environ.get(name, value))
 
@@ -109,6 +118,20 @@ DEFAULT_REFINEMENT_MAX_TOKENS = _env_int(
     "ANNOTATE_REFINEMENT_MAX_TOKENS",
     _required(_CONFIG, "stages.refinement.max_tokens"),
 )
+
+_fallback_max_frames = os.environ.get("ANNOTATE_MAX_FRAMES")
+DEFAULT_SCENE_MAX_FRAMES = _env_int(
+    "ANNOTATE_SCENE_MAX_FRAMES",
+    _fallback_max_frames or _optional(_CONFIG, "stages.scene.max_frames", _required(_CONFIG, "video.max_frames")),
+)
+DEFAULT_ANALYSIS_MAX_FRAMES = _env_int(
+    "ANNOTATE_ANALYSIS_MAX_FRAMES",
+    _fallback_max_frames or _optional(_CONFIG, "stages.analysis.max_frames", _required(_CONFIG, "video.max_frames")),
+)
+DEFAULT_REFINEMENT_MAX_FRAMES = _env_int(
+    "ANNOTATE_REFINEMENT_MAX_FRAMES",
+    _fallback_max_frames or _optional(_CONFIG, "stages.refinement.max_frames", _required(_CONFIG, "video.max_frames")),
+)
 _fallback_merge_views = os.environ.get("ANNOTATE_MERGE_VIEWS")
 _fallback_merge_mode = os.environ.get("ANNOTATE_MERGE_MODE")
 DEFAULT_SCENE_MERGE_VIEWS = _env_bool(
@@ -139,7 +162,7 @@ DEFAULT_VLM_TEMPERATURE = _env_float("ANNOTATE_VLM_TEMPERATURE", _required(_CONF
 DEFAULT_VLM_TOP_P = _env_float("ANNOTATE_VLM_TOP_P", _required(_CONFIG, "vlm_sampling.top_p"))
 DEFAULT_VLM_TOP_K = _env_int("ANNOTATE_VLM_TOP_K", _required(_CONFIG, "vlm_sampling.top_k"))
 
-DEFAULT_MAX_FRAMES = _env_int("ANNOTATE_MAX_FRAMES", _required(_CONFIG, "video.max_frames"))
+DEFAULT_MAX_FRAMES = DEFAULT_REFINEMENT_MAX_FRAMES
 DEFAULT_MERGE_VIEWS = DEFAULT_ANALYSIS_MERGE_VIEWS
 DEFAULT_MERGE_MODE = DEFAULT_ANALYSIS_MERGE_MODE
 
@@ -158,11 +181,35 @@ DEFAULT_REFINEMENT_RESIZE_WIDTH = _env_int(
 )
 DEFAULT_RESIZE_WIDTH = DEFAULT_REFINEMENT_RESIZE_WIDTH
 
-DEFAULT_MERGE_VIEW_NAMES = _env_list(
-    "ANNOTATE_MERGE_VIEW_NAMES",
-    _required(_CONFIG, "video.merge_view_names"),
+_fallback_merge_view_names = os.environ.get("ANNOTATE_MERGE_VIEW_NAMES")
+DEFAULT_SCENE_MERGE_VIEW_NAMES = _env_list(
+    "ANNOTATE_SCENE_MERGE_VIEW_NAMES",
+    _fallback_merge_view_names or _optional(_CONFIG, "stages.scene.merge_view_names", _required(_CONFIG, "video.merge_view_names")),
 )
-DEFAULT_JPEG_QUALITY = _env_int("ANNOTATE_JPEG_QUALITY", _required(_CONFIG, "video.jpeg_quality"))
+DEFAULT_ANALYSIS_MERGE_VIEW_NAMES = _env_list(
+    "ANNOTATE_ANALYSIS_MERGE_VIEW_NAMES",
+    _fallback_merge_view_names or _optional(_CONFIG, "stages.analysis.merge_view_names", _required(_CONFIG, "video.merge_view_names")),
+)
+DEFAULT_REFINEMENT_MERGE_VIEW_NAMES = _env_list(
+    "ANNOTATE_REFINEMENT_MERGE_VIEW_NAMES",
+    _fallback_merge_view_names or _optional(_CONFIG, "stages.refinement.merge_view_names", _required(_CONFIG, "video.merge_view_names")),
+)
+DEFAULT_MERGE_VIEW_NAMES = DEFAULT_REFINEMENT_MERGE_VIEW_NAMES
+
+_fallback_jpeg_quality = os.environ.get("ANNOTATE_JPEG_QUALITY")
+DEFAULT_SCENE_JPEG_QUALITY = _env_int(
+    "ANNOTATE_SCENE_JPEG_QUALITY",
+    _fallback_jpeg_quality or _optional(_CONFIG, "stages.scene.jpeg_quality", _required(_CONFIG, "video.jpeg_quality")),
+)
+DEFAULT_ANALYSIS_JPEG_QUALITY = _env_int(
+    "ANNOTATE_ANALYSIS_JPEG_QUALITY",
+    _fallback_jpeg_quality or _optional(_CONFIG, "stages.analysis.jpeg_quality", _required(_CONFIG, "video.jpeg_quality")),
+)
+DEFAULT_REFINEMENT_JPEG_QUALITY = _env_int(
+    "ANNOTATE_REFINEMENT_JPEG_QUALITY",
+    _fallback_jpeg_quality or _optional(_CONFIG, "stages.refinement.jpeg_quality", _required(_CONFIG, "video.jpeg_quality")),
+)
+DEFAULT_JPEG_QUALITY = DEFAULT_REFINEMENT_JPEG_QUALITY
 
 DEFAULT_SCENE_DRAW_TIMESTAMPS = _env_bool(
     "ANNOTATE_SCENE_DRAW_TIMESTAMPS",
@@ -178,7 +225,20 @@ DEFAULT_REFINEMENT_DRAW_TIMESTAMPS = _env_bool(
 )
 DEFAULT_DRAW_TIMESTAMPS = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS
 
-MIN_API_FRAMES = _env_int("ANNOTATE_MIN_API_FRAMES", _required(_CONFIG, "video.min_api_frames"))
+_fallback_min_api_frames = os.environ.get("ANNOTATE_MIN_API_FRAMES")
+DEFAULT_SCENE_MIN_API_FRAMES = _env_int(
+    "ANNOTATE_SCENE_MIN_API_FRAMES",
+    _fallback_min_api_frames or _optional(_CONFIG, "stages.scene.min_api_frames", _required(_CONFIG, "video.min_api_frames")),
+)
+DEFAULT_ANALYSIS_MIN_API_FRAMES = _env_int(
+    "ANNOTATE_ANALYSIS_MIN_API_FRAMES",
+    _fallback_min_api_frames or _optional(_CONFIG, "stages.analysis.min_api_frames", _required(_CONFIG, "video.min_api_frames")),
+)
+DEFAULT_REFINEMENT_MIN_API_FRAMES = _env_int(
+    "ANNOTATE_REFINEMENT_MIN_API_FRAMES",
+    _fallback_min_api_frames or _optional(_CONFIG, "stages.refinement.min_api_frames", _required(_CONFIG, "video.min_api_frames")),
+)
+MIN_API_FRAMES = DEFAULT_REFINEMENT_MIN_API_FRAMES
 MAX_STEP_WORKERS = _env_int("ANNOTATE_MAX_STEP_WORKERS", _required(_CONFIG, "workers.max_step_workers"))
 
 DEFAULT_LOG_LEVEL = _env_str("ANNOTATE_LOG_LEVEL", _required(_CONFIG, "logging.level"))
