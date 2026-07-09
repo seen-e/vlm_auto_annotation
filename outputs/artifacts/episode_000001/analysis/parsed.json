@@ -1,0 +1,74 @@
+{
+  "action_steps": [
+    {
+      "step_id": "A001",
+      "executor": "right",
+      "action": "接近",
+      "object": "笔记本电脑",
+      "evidence": "右臂从右侧向笔记本电脑方向移动，准备进行操作。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A002",
+      "executor": "right",
+      "action": "打开",
+      "object": "笔记本电脑",
+      "evidence": "右臂夹爪接触笔记本电脑屏幕边缘，将其从闭合状态掀开至打开状态。",
+      "confidence": 0.95
+    },
+    {
+      "step_id": "A003",
+      "executor": "left",
+      "action": "接近",
+      "object": "笔记本电脑",
+      "evidence": "左臂从左侧向已打开的笔记本电脑移动。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A004",
+      "executor": "left",
+      "action": "抓住",
+      "object": "笔记本电脑",
+      "evidence": "左臂夹爪接触并固定笔记本电脑的屏幕部分。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A005",
+      "executor": "left",
+      "action": "关闭",
+      "object": "笔记本电脑",
+      "evidence": "左臂向下施力，将笔记本电脑屏幕合上，使其恢复闭合状态。",
+      "confidence": 0.95
+    },
+    {
+      "step_id": "A006",
+      "executor": "left",
+      "action": "释放",
+      "object": "笔记本电脑",
+      "evidence": "左臂夹爪松开笔记本电脑。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A007",
+      "executor": "left",
+      "action": "移动",
+      "object": null,
+      "evidence": "左臂从笔记本电脑位置撤回至初始区域。",
+      "confidence": 0.85
+    },
+    {
+      "step_id": "A008",
+      "executor": "right",
+      "action": "移动",
+      "object": null,
+      "evidence": "右臂从笔记本电脑位置撤回至初始区域。",
+      "confidence": 0.85
+    }
+  ],
+  "uncertain_steps": [],
+  "analysis_notes": [
+    "操作顺序为：右臂打开笔记本电脑，随后左臂将其关闭。",
+    "黑色盒子在视频全程未被操作，仅作为背景物体。",
+    "动作步骤已按真实发生的时间顺序排列。"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "scene_context": {
+    "primary_view": "front",
+    "executors": [
+      {
+        "executor_id": "left",
+        "description": "left arm"
+      }
+    ],
+    "touched_objects": [
+      {
+        "object_id": "cup",
+        "description": "cup"
+      }
+    ],
+    "scene_summary": "left arm manipulates a cup"
+  }
+}

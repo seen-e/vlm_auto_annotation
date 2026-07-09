@@ -1,0 +1,51 @@
+{
+  "video_path": {
+    "camera_front": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_front\\episode_000001.mp4",
+    "camera_top": "C:\\Users\\34927\\Desktop\\robot_mind2\\camera_extrinsics_intrinsics\\franka\\robogene_twoArm_franka_adjust_black_computer_stand\\videos\\chunk-000\\observation.rgb_images.camera_top\\episode_000001.mp4"
+  },
+  "source_type": "multi_view",
+  "fps": 30.0,
+  "video_fps": 30.0,
+  "target_fps": 1.0,
+  "total_frames": 802,
+  "sampled_frame_count": 27,
+  "sampled_frames": 27,
+  "processed_frame_count": 27,
+  "max_frames": 64,
+  "frame_start": 0,
+  "frame_end": 802,
+  "frame_range": [
+    0,
+    802
+  ],
+  "resize_width": 224,
+  "jpeg_quality": 85,
+  "min_api_frames": 2,
+  "merge_views": true,
+  "merge_view_names": [
+    "camera_front",
+    "camera_top"
+  ],
+  "selected_views": [
+    "camera_front",
+    "camera_top"
+  ],
+  "merge_mode": "per_frame",
+  "merge_length": 4,
+  "draw_timestamps": true,
+  "draw_viewposition": true,
+  "load_elapsed_seconds": 0.322,
+  "video_fps_by_view": {
+    "camera_front": 30.0,
+    "camera_top": 30.0
+  },
+  "total_frames_by_view": {
+    "camera_front": 802,
+    "camera_top": 802
+  },
+  "merge_layout": "vertical",
+  "input_mode": "image_sequence",
+  "media_part_count": 27,
+  "image_parts": 27,
+  "video_parts": 0
+}

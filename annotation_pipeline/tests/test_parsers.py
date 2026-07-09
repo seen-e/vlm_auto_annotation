@@ -1,6 +1,13 @@
 import unittest
 
-from annotation_pipeline.parsers import parse_analysis_output, parse_refinement_output, parse_scene_output
+try:
+    from vlm_auto_annotation.annotation_pipeline.parsers import (
+        parse_analysis_output,
+        parse_refinement_output,
+        parse_scene_output,
+    )
+except ModuleNotFoundError:
+    from annotation_pipeline.parsers import parse_analysis_output, parse_refinement_output, parse_scene_output
 
 
 class TestParsers(unittest.TestCase):

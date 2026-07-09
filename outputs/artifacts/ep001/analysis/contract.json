@@ -1,0 +1,20 @@
+{
+  "candidate_segments": [
+    {
+      "segment_id": "S001",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "grasp",
+      "objects": [
+        "cup"
+      ],
+      "evidence": "",
+      "confidence": 0.9
+    }
+  ],
+  "uncertain_regions": [],
+  "analysis_notes": []
+}

@@ -1,12 +1,21 @@
 import unittest
 
-from annotation_pipeline.schemas import (
-    ExecutorInfo,
-    FinalAnnotationOutput,
-    ObjectInfo,
-    RefinedSegment,
-    SceneStageOutput,
-)
+try:
+    from vlm_auto_annotation.annotation_pipeline.schemas import (
+        ExecutorInfo,
+        FinalAnnotationOutput,
+        ObjectInfo,
+        RefinedSegment,
+        SceneStageOutput,
+    )
+except ModuleNotFoundError:
+    from annotation_pipeline.schemas import (
+        ExecutorInfo,
+        FinalAnnotationOutput,
+        ObjectInfo,
+        RefinedSegment,
+        SceneStageOutput,
+    )
 
 
 class TestSchemas(unittest.TestCase):

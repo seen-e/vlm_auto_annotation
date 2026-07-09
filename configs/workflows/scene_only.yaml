@@ -1,0 +1,8 @@
+name: scene_only
+stages:
+  - scene
+output:
+  include_lightweight: false
+  include_debug: true
+  include_trace: false
+  include_legacy: false

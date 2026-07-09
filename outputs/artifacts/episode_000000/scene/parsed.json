@@ -1,0 +1,29 @@
+{
+  "primary_view": "camera_front",
+  "spatial_reference_rule": "所有 left/right/front/back 空间命名都以 camera_front 为参考",
+  "robot_type": "dual_arm",
+  "num_operation_units": 2,
+  "operation_units": [
+    {
+      "unit_id": "left",
+      "unit_type": "arm",
+      "is_active": true
+    },
+    {
+      "unit_id": "right",
+      "unit_type": "arm",
+      "is_active": true
+    }
+  ],
+  "manipulated_objects": [
+    {
+      "object_id": "laptop",
+      "description": "笔记本电脑"
+    },
+    {
+      "object_id": "black_case",
+      "description": "黑色收纳盒"
+    }
+  ],
+  "video_summary": "视频中有两个机械臂，主要被移动/操作的物体是笔记本电脑和黑色收纳盒。"
+}

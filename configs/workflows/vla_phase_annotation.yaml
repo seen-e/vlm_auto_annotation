@@ -1,0 +1,10 @@
+name: vla_phase_annotation
+stages:
+  - scene
+  - analysis
+  - refinement
+output:
+  include_lightweight: true
+  include_debug: false
+  include_trace: false
+  include_legacy: false

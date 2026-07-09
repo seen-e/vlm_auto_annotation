@@ -1,686 +1,159 @@
-"""VLA phase annotation flow adapted from FineVLA.
+"""Compatibility entrypoint for the configured VLA workflow.
 
-Flow: vla_phase_annotation = scene -> analysis -> refinement.
+The concrete stage logic now lives in ``stages/*`` and is orchestrated by
+``core.workflow.WorkflowRunner``. This module only translates legacy keyword
+arguments into the new workflow config.
 """
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
-import time
 from typing import Any
 
-from ..annotation_pipeline.adapters import (
-    build_final_annotation,
-    build_lightweight_output,
-    build_debug_output,
-    build_trace_output,
-    build_legacy_output,
-)
-from ..annotation_pipeline.parsers import parse_analysis_output, parse_refinement_output, parse_scene_output
+from ..app.run_workflow import run_workflow
 from ..utils.config import (
-    DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
-    DEFAULT_ANALYSIS_FPS,
-    DEFAULT_ANALYSIS_INPUT_MODE,
-    DEFAULT_ANALYSIS_JPEG_QUALITY,
-    DEFAULT_ANALYSIS_MAX_TOKENS,
-    DEFAULT_ANALYSIS_MAX_FRAMES,
-    DEFAULT_ANALYSIS_MERGE_MODE,
-    DEFAULT_ANALYSIS_MERGE_VIEWS,
     DEFAULT_ANALYSIS_MERGE_VIEW_NAMES,
-    DEFAULT_ANALYSIS_MIN_API_FRAMES,
-    DEFAULT_ANALYSIS_RESIZE_WIDTH,
-    DEFAULT_MODEL,
     DEFAULT_PROMPT_LANGUAGE,
-    DEFAULT_REFINEMENT_FPS,
-    DEFAULT_REFINEMENT_INPUT_MODE,
-    DEFAULT_REFINEMENT_JPEG_QUALITY,
-    DEFAULT_REFINEMENT_MAX_TOKENS,
-    DEFAULT_REFINEMENT_MAX_FRAMES,
-    DEFAULT_REFINEMENT_MERGE_MODE,
-    DEFAULT_REFINEMENT_MERGE_VIEWS,
     DEFAULT_REFINEMENT_MERGE_VIEW_NAMES,
-    DEFAULT_REFINEMENT_MIN_API_FRAMES,
-    DEFAULT_REFINEMENT_RESIZE_WIDTH,
-    DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
     DEFAULT_ROBOT_TYPE,
-    DEFAULT_SCENE_DRAW_TIMESTAMPS,
-    DEFAULT_SCENE_FPS,
-    DEFAULT_SCENE_INPUT_MODE,
-    DEFAULT_SCENE_JPEG_QUALITY,
-    DEFAULT_SCENE_MAX_TOKENS,
-    DEFAULT_SCENE_MAX_FRAMES,
-    DEFAULT_SCENE_MERGE_MODE,
-    DEFAULT_SCENE_MERGE_VIEWS,
     DEFAULT_SCENE_MERGE_VIEW_NAMES,
-    DEFAULT_SCENE_MIN_API_FRAMES,
-    DEFAULT_SCENE_RESIZE_WIDTH,
-    DEFAULT_SCENE_MERGE_LENGTH,
-    DEFAULT_ANALYSIS_MERGE_LENGTH,
-    DEFAULT_REFINEMENT_MERGE_LENGTH,
-    DEFAULT_SCENE_DRAW_VIEWPOSITION,
-    DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
-    DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
-    DEFAULT_SAVE_PROCESSED_DIR,
-    DEFAULT_SAVE_PROCESSED_STAGES,
-    DEFAULT_OUTPUT_SCHEMA_VERSION,
-    DEFAULT_OUTPUT_INCLUDE_VALIDATION,
-    DEFAULT_OUTPUT_INCLUDE_DEBUG,
-    DEFAULT_OUTPUT_INCLUDE_TRACE,
-    DEFAULT_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS,
-    DEFAULT_OUTPUT_INCLUDE_LEGACY_FIELDS,
-    DEFAULT_OUTPUT_INCLUDE_STAGE_OBJECTS,
 )
 from ..utils.results import AnnotationResult
-from ..utils.video_utils import load_video_or_views_as_media_parts, save_processed_media
-from .utils import (
-    as_str_list,
-    call_json_stage,
-    describe_view_layout,
-    instruction_from_steps,
-    json_dumps,
-    load_prompt_package,
-    localize_action_sequence_objects,
-    normalize_action_sequence,
-    normalize_prompt_language,
-    normalize_robot_type,
-    normalize_scene_context,
-    normalize_timestamped_action_sequence,
-    translate_object_for_prompt_language,
-)
+from ..utils.video_utils import load_video_or_views_as_media_parts
 
 
-logger = logging.getLogger(__name__)
-
-
-def _default_episode_name(video_path: Any, video_id: str | None) -> str:
-    if video_id:
-        return str(video_id)
-    if isinstance(video_path, dict) and video_path:
-        first_path = next(iter(video_path.values()))
-        return Path(str(first_path)).stem or "episode"
-    if isinstance(video_path, (list, tuple)) and video_path:
-        return Path(str(video_path[0])).stem or "episode"
-    return Path(str(video_path)).stem or "episode"
-
-
-def _normalize_save_processed_stages(stages: list[str] | tuple[str, ...] | None) -> set[str]:
-    if not stages:
-        return set()
-    allowed = {"scene", "analysis", "refinement"}
-    normalized = {str(stage).strip() for stage in stages if str(stage).strip()}
-    invalid = sorted(stage for stage in normalized if stage not in allowed)
-    if invalid:
-        raise ValueError(f"save_processed_stages only allows scene, analysis, refinement; invalid stage(s): {invalid}")
-    return normalized
-
-
-def _save_processed_stage_if_enabled(
-    *,
-    stage_name: str,
-    parts: list[dict[str, Any]],
-    save_processed_stages: set[str],
-    save_processed_dir: str | Path,
-    episode_name: str,
-) -> None:
-    if stage_name not in save_processed_stages:
-        return
-    if not str(save_processed_dir).strip():
-        raise ValueError("save_processed_dir must be non-empty when save_processed_stages is non-empty")
-    try:
-        save_processed_media(
-            parts,
-            save_root=save_processed_dir,
-            stage_name=stage_name,
-            episode_name=episode_name,
-        )
-    except Exception as exc:
-        logger.error("Save processed media failed stage=%s episode=%s error=%s", stage_name, episode_name, exc)
-        raise
+_STAGE_FIELDS = {
+    "input_mode",
+    "fps",
+    "max_tokens",
+    "max_frames",
+    "resize_width",
+    "merge_view_names",
+    "jpeg_quality",
+    "min_api_frames",
+    "draw_timestamps",
+    "draw_viewposition",
+    "merge_views",
+    "merge_mode",
+    "merge_length",
+}
 
 
 def _scene_result_for_analysis(scene_output: dict[str, Any]) -> dict[str, Any]:
-    if not isinstance(scene_output, dict):
-        scene_output = {}
-    nested_context = scene_output.get("scene_context") or scene_output.get("sceneContext")
-    if not isinstance(nested_context, dict):
-        nested_context = {}
-    primary_view = scene_output.get("primary_view") or nested_context.get("primary_view") or ""
-    spatial_reference_rule = (
-        scene_output.get("spatial_reference_rule")
-        or nested_context.get("spatial_reference_rule")
-        or "All left/right/front/back spatial names are defined from the primary_view."
-    )
-
-    operation_units = scene_output.get("operation_units")
-    if not isinstance(operation_units, list):
-        operation_units = nested_context.get("operation_units")
-    if not isinstance(operation_units, list):
-        operation_units = [
-            {
-                "unit_id": item.get("executor_id"),
-                "unit_type": "unknown",
-                "is_active": True,
-            }
-            for item in nested_context.get("executors", [])
-            if isinstance(item, dict) and item.get("executor_id")
-        ]
-
-    manipulated_objects = scene_output.get("manipulated_objects")
-    if not isinstance(manipulated_objects, list):
-        manipulated_objects = nested_context.get("manipulated_objects")
-    if not isinstance(manipulated_objects, list):
-        manipulated_objects = [
-            {
-                "object_id": item.get("object_id"),
-                "description": item.get("description") or item.get("object_id"),
-            }
-            for item in nested_context.get("touched_objects", [])
-            if isinstance(item, dict) and item.get("object_id")
-        ]
-    if not isinstance(manipulated_objects, list):
-        manipulated_objects = []
-    return {
-        "primary_view": primary_view,
-        "spatial_reference_rule": spatial_reference_rule,
-        "operation_units": operation_units,
-        "manipulated_objects": manipulated_objects,
-        "video_summary": scene_output.get("video_summary") or nested_context.get("video_summary") or nested_context.get("scene_summary") or "",
+    """Return the compact scene subset consumed by analysis prompts."""
+    allowed = {
+        "primary_view",
+        "spatial_reference_rule",
+        "operation_units",
+        "manipulated_objects",
+        "video_summary",
     }
+    return {key: scene_output[key] for key in allowed if key in scene_output}
+
+
+def _stage_overrides(prefix: str, kwargs: dict[str, Any]) -> dict[str, Any]:
+    data: dict[str, Any] = {}
+    for field in _STAGE_FIELDS:
+        key = f"{prefix}_{field}"
+        if key in kwargs and kwargs[key] is not None:
+            data[field] = kwargs[key]
+    return data
+
+
+def _legacy_overrides(
+    *,
+    model: str | None,
+    include_debug: bool | None,
+    include_trace: bool | None,
+    include_legacy_fields: bool | None,
+    include_stage_objects: bool | None,
+    include_intermediate_contracts: bool | None,
+    include_validation: bool | None,
+    save_processed_stages: list[str] | tuple[str, ...] | None,
+    save_processed_dir: str | Path | None,
+    kwargs: dict[str, Any],
+) -> dict[str, Any]:
+    stages = {
+        "scene": _stage_overrides("scene", kwargs),
+        "analysis": _stage_overrides("analysis", kwargs),
+        "refinement": _stage_overrides("refinement", kwargs),
+    }
+    for cfg in stages.values():
+        cfg["_media_loader"] = load_video_or_views_as_media_parts
+    if kwargs.get("max_frames") is not None:
+        for cfg in stages.values():
+            cfg["max_frames"] = kwargs["max_frames"]
+    if kwargs.get("merge_views") is not None:
+        for cfg in stages.values():
+            cfg["merge_views"] = kwargs["merge_views"]
+    stages["scene"].setdefault("merge_view_names", DEFAULT_SCENE_MERGE_VIEW_NAMES)
+    stages["analysis"].setdefault("merge_view_names", DEFAULT_ANALYSIS_MERGE_VIEW_NAMES)
+    stages["refinement"].setdefault("merge_view_names", DEFAULT_REFINEMENT_MERGE_VIEW_NAMES)
+
+    output = {
+        "include_debug": bool(include_debug),
+        "include_trace": bool(include_trace),
+        "include_legacy": bool(include_legacy_fields),
+        "include_stage_objects": bool(include_stage_objects),
+        "include_intermediate_contracts": bool(include_intermediate_contracts),
+        "include_validation": True if include_validation is None else bool(include_validation),
+        "schema_version": str(kwargs.get("output_schema_version") or "v2"),
+    }
+    artifacts: dict[str, Any] = {}
+    if save_processed_dir:
+        artifacts["root_dir"] = str(save_processed_dir)
+    if save_processed_stages:
+        artifacts["save_processed_media"] = True
+        artifacts["save_processed_stages"] = list(save_processed_stages)
+
+    overrides: dict[str, Any] = {"stages": stages, "output": output, "artifacts": artifacts}
+    if model:
+        overrides["model"] = {"name": model}
+    return overrides
 
 
 def run_vla_phase_annotation(
     client,
     video_path: str | Path | list[str | Path] | dict[str, str | Path],
-    initial_instruction: str,
+    initial_instruction: str = "",
     *,
-    model: str = DEFAULT_MODEL,
-    scene_input_mode: str = DEFAULT_SCENE_INPUT_MODE,
-    analysis_input_mode: str = DEFAULT_ANALYSIS_INPUT_MODE,
-    refinement_input_mode: str = DEFAULT_REFINEMENT_INPUT_MODE,
-    scene_fps: float = DEFAULT_SCENE_FPS,
-    analysis_fps: float = DEFAULT_ANALYSIS_FPS,
-    refinement_fps: float = DEFAULT_REFINEMENT_FPS,
+    model: str | None = None,
     robot_type: str = DEFAULT_ROBOT_TYPE,
     prompt_language: str = DEFAULT_PROMPT_LANGUAGE,
-    scene_max_tokens: int = DEFAULT_SCENE_MAX_TOKENS,
-    analysis_max_tokens: int = DEFAULT_ANALYSIS_MAX_TOKENS,
-    refinement_max_tokens: int = DEFAULT_REFINEMENT_MAX_TOKENS,
-    scene_max_frames: int = DEFAULT_SCENE_MAX_FRAMES,
-    analysis_max_frames: int = DEFAULT_ANALYSIS_MAX_FRAMES,
-    refinement_max_frames: int = DEFAULT_REFINEMENT_MAX_FRAMES,
-    scene_resize_width: int = DEFAULT_SCENE_RESIZE_WIDTH,
-    analysis_resize_width: int = DEFAULT_ANALYSIS_RESIZE_WIDTH,
-    refinement_resize_width: int = DEFAULT_REFINEMENT_RESIZE_WIDTH,
-    scene_merge_view_names: list[str] | None = None,
-    analysis_merge_view_names: list[str] | None = None,
-    refinement_merge_view_names: list[str] | None = None,
-    scene_jpeg_quality: int = DEFAULT_SCENE_JPEG_QUALITY,
-    analysis_jpeg_quality: int = DEFAULT_ANALYSIS_JPEG_QUALITY,
-    refinement_jpeg_quality: int = DEFAULT_REFINEMENT_JPEG_QUALITY,
-    scene_min_api_frames: int = DEFAULT_SCENE_MIN_API_FRAMES,
-    analysis_min_api_frames: int = DEFAULT_ANALYSIS_MIN_API_FRAMES,
-    refinement_min_api_frames: int = DEFAULT_REFINEMENT_MIN_API_FRAMES,
-    scene_draw_timestamps: bool = DEFAULT_SCENE_DRAW_TIMESTAMPS,
-    analysis_draw_timestamps: bool = DEFAULT_ANALYSIS_DRAW_TIMESTAMPS,
-    refinement_draw_timestamps: bool = DEFAULT_REFINEMENT_DRAW_TIMESTAMPS,
-    scene_draw_viewposition: bool = DEFAULT_SCENE_DRAW_VIEWPOSITION,
-    analysis_draw_viewposition: bool = DEFAULT_ANALYSIS_DRAW_VIEWPOSITION,
-    refinement_draw_viewposition: bool = DEFAULT_REFINEMENT_DRAW_VIEWPOSITION,
-    max_frames: int | None = None,
-    scene_merge_views: bool = DEFAULT_SCENE_MERGE_VIEWS,
-    analysis_merge_views: bool = DEFAULT_ANALYSIS_MERGE_VIEWS,
-    refinement_merge_views: bool = DEFAULT_REFINEMENT_MERGE_VIEWS,
-    scene_merge_mode: str = DEFAULT_SCENE_MERGE_MODE,
-    analysis_merge_mode: str = DEFAULT_ANALYSIS_MERGE_MODE,
-    refinement_merge_mode: str = DEFAULT_REFINEMENT_MERGE_MODE,
-    scene_merge_length: int = DEFAULT_SCENE_MERGE_LENGTH,
-    analysis_merge_length: int = DEFAULT_ANALYSIS_MERGE_LENGTH,
-    refinement_merge_length: int = DEFAULT_REFINEMENT_MERGE_LENGTH,
-    merge_views: bool | None = None,
     video_id: str | None = None,
     save_processed_stages: list[str] | tuple[str, ...] | None = None,
-    save_processed_dir: str | Path = DEFAULT_SAVE_PROCESSED_DIR,
+    save_processed_dir: str | Path | None = None,
     debug: bool = False,
-    output_schema_version: str = DEFAULT_OUTPUT_SCHEMA_VERSION,
-    include_intermediate_contracts: bool = DEFAULT_OUTPUT_INCLUDE_INTERMEDIATE_CONTRACTS,
-    include_validation: bool = DEFAULT_OUTPUT_INCLUDE_VALIDATION,
-    include_debug: bool = DEFAULT_OUTPUT_INCLUDE_DEBUG,
-    include_trace: bool = DEFAULT_OUTPUT_INCLUDE_TRACE,
-    include_legacy_fields: bool = DEFAULT_OUTPUT_INCLUDE_LEGACY_FIELDS,
-    include_stage_objects: bool = DEFAULT_OUTPUT_INCLUDE_STAGE_OBJECTS,
+    include_debug: bool | None = None,
+    include_trace: bool | None = None,
+    include_legacy_fields: bool | None = None,
+    include_intermediate_contracts: bool | None = None,
+    include_validation: bool | None = None,
+    include_stage_objects: bool | None = None,
+    **kwargs: Any,
 ) -> AnnotationResult:
-    """Run scene -> analysis -> refinement on one main/global view."""
-    flow_start = time.perf_counter()
-    robot_type = normalize_robot_type(robot_type)
-    prompt_language = normalize_prompt_language(prompt_language)
-    prompts = load_prompt_package(prompt_language)
-    robot_type_prompt = prompts.get_robot_type_prompt(robot_type)
-    if save_processed_stages is None:
-        save_processed_stages = DEFAULT_SAVE_PROCESSED_STAGES
-    save_processed_stage_set = _normalize_save_processed_stages(save_processed_stages)
-    if save_processed_stage_set and not str(save_processed_dir).strip():
-        raise ValueError("save_processed_dir must be non-empty when save_processed_stages is non-empty")
-    episode_name = _default_episode_name(video_path, video_id)
-    if merge_views is not None:
-        scene_merge_views = merge_views
-        analysis_merge_views = merge_views
-        refinement_merge_views = merge_views
-    if max_frames is not None:
-        scene_max_frames = max_frames
-        analysis_max_frames = max_frames
-        refinement_max_frames = max_frames
-    scene_merge_view_names = scene_merge_view_names or DEFAULT_SCENE_MERGE_VIEW_NAMES
-    analysis_merge_view_names = analysis_merge_view_names or DEFAULT_ANALYSIS_MERGE_VIEW_NAMES
-    refinement_merge_view_names = refinement_merge_view_names or DEFAULT_REFINEMENT_MERGE_VIEW_NAMES
-    logger.info(
-        "Flow vla_phase_annotation start model=%s robot_type=%s prompt_language=%s scene_fps=%s analysis_fps=%s refinement_fps=%s max_frames=%s",
-        model,
-        robot_type,
-        prompt_language,
-        scene_fps,
-        analysis_fps,
-        refinement_fps,
-        {"scene": scene_max_frames, "analysis": analysis_max_frames, "refinement": refinement_max_frames},
-    )
-
-    step_start = time.perf_counter()
-    scene_parts, scene_meta = load_video_or_views_as_media_parts(
-        video_path,
-        input_mode=scene_input_mode,
-        target_fps=scene_fps,
-        max_frames=scene_max_frames,
-        resize_width=scene_resize_width,
-        jpeg_quality=scene_jpeg_quality,
-        draw_timestamps=scene_draw_timestamps,
-        draw_viewposition=scene_draw_viewposition,
-        min_api_frames=scene_min_api_frames,
-        merge_length=scene_merge_length,
-        merge_view_names=scene_merge_view_names,
-        merge_views=scene_merge_views,
-        merge_mode=scene_merge_mode,
-    )
-    scene_load_elapsed = time.perf_counter() - step_start
-    logger.info(
-        "Scene frames loaded elapsed=%.2fs sampled_frames=%s input_mode=%s selected_views=%s resize_width=%s draw_timestamps=%s",
-        scene_load_elapsed,
-        scene_meta.get("sampled_frames"),
-        scene_meta.get("input_mode"),
-        scene_meta.get("selected_views"),
-        scene_resize_width,
-        scene_draw_timestamps,
-    )
-    _save_processed_stage_if_enabled(
-        stage_name="scene",
-        parts=scene_parts,
-        save_processed_stages=save_processed_stage_set,
+    """Run the configured ``scene -> analysis -> refinement`` workflow."""
+    overrides = _legacy_overrides(
+        model=model,
+        include_debug=debug if include_debug is None else include_debug,
+        include_trace=False if include_trace is None else include_trace,
+        include_legacy_fields=False if include_legacy_fields is None else include_legacy_fields,
+        include_stage_objects=False if include_stage_objects is None else include_stage_objects,
+        include_intermediate_contracts=False
+        if include_intermediate_contracts is None
+        else include_intermediate_contracts,
+        include_validation=True if include_validation is None else include_validation,
+        save_processed_stages=save_processed_stages,
         save_processed_dir=save_processed_dir,
-        episode_name=episode_name,
+        kwargs=kwargs,
     )
-    scene_view_layout = describe_view_layout(scene_meta, prompt_language)
-    scene_prompt = prompts.SCENE_PROMPT_TEMPLATE.format(
-        view_layout_description=scene_view_layout,
-    )
-    scene = call_json_stage(
-        client,
-        name="scene",
-        parts=scene_parts,
-        system_prompt=prompts.SCENE_SYSTEM_PROMPT,
-        user_prompt=scene_prompt,
-        model=model,
-        max_tokens=scene_max_tokens,
-        fallback={"scene_context": {}},
-    )
-    step_start = time.perf_counter()
-    scene_parse = parse_scene_output(scene.output, meta=scene_meta, video_id=video_id)
-    scene_contract = scene_parse.output
-    scene_context = normalize_scene_context(
-        scene.output.get("sceneContext", scene.output.get("scene_context")),
-        scene_meta,
-    )
-    if not scene_context.get("arms") and scene_contract.executors:
-        scene_context["primary_view"] = scene_contract.primary_view or scene_context.get("primary_view", "unknown")
-        scene_context["num_arms"] = len(scene_contract.executors)
-        scene_context["arms"] = [
-            {
-                "arm_id": item.executor_id,
-                "description": item.description,
-                "spatial_reference": "primary_view",
-                "main_workspace": item.main_workspace or "",
-                "handled_objects": scene_contract.executor_object_map.get(item.executor_id, []),
-                "best_observation_views": [
-                    {"view_name": view, "reason": ""}
-                    for view in item.best_observation_views
-                ],
-            }
-            for item in scene_contract.executors
-        ]
-        scene_context["task_objects"] = [
-            {"object_id": item.object_id, "description": item.description, "role": item.role}
-            for item in scene_contract.touched_objects
-        ]
-        scene_context["background_objects"] = [
-            {"object_id": item.object_id, "description": item.description, "role": item.role}
-            for item in scene_contract.background_objects
-        ]
-    scene.output["sceneContext"] = scene_context
-    scene.output["scene_context"] = scene_contract.model_dump(mode="json")
-    scene_postprocess_elapsed = time.perf_counter() - step_start
-    logger.info(
-        "Scene postprocess done elapsed=%.2fs arms=%s task_objects=%s background_objects=%s",
-        scene_postprocess_elapsed,
-        scene_context.get("num_arms"),
-        len(scene_context.get("task_objects", [])),
-        len(scene_context.get("background_objects", [])),
-    )
-
-    step_start = time.perf_counter()
-    analysis_parts, analysis_meta = load_video_or_views_as_media_parts(
-        video_path,
-        input_mode=analysis_input_mode,
-        target_fps=analysis_fps,
-        max_frames=analysis_max_frames,
-        resize_width=analysis_resize_width,
-        jpeg_quality=analysis_jpeg_quality,
-        draw_timestamps=analysis_draw_timestamps,
-        draw_viewposition=analysis_draw_viewposition,
-        min_api_frames=analysis_min_api_frames,
-        merge_length=analysis_merge_length,
-        merge_view_names=analysis_merge_view_names,
-        merge_views=analysis_merge_views,
-        merge_mode=analysis_merge_mode,
-    )
-    analysis_load_elapsed = time.perf_counter() - step_start
-    logger.info(
-        "Analysis frames loaded elapsed=%.2fs sampled_frames=%s input_mode=%s selected_views=%s resize_width=%s draw_timestamps=%s",
-        analysis_load_elapsed,
-        analysis_meta.get("sampled_frames"),
-        analysis_meta.get("input_mode"),
-        analysis_meta.get("selected_views"),
-        analysis_resize_width,
-        analysis_draw_timestamps,
-    )
-    _save_processed_stage_if_enabled(
-        stage_name="analysis",
-        parts=analysis_parts,
-        save_processed_stages=save_processed_stage_set,
-        save_processed_dir=save_processed_dir,
-        episode_name=episode_name,
-    )
-    analysis_view_layout = describe_view_layout(analysis_meta, prompt_language)
-    scene_result = _scene_result_for_analysis(scene.output)
-    analysis_prompt = prompts.ANALYSIS_PROMPT_TEMPLATE.format(
-        view_layout_description=analysis_view_layout,
-        action_vocabulary=prompts.ACTION_VOCABULARY,
-        scene_result=json_dumps(scene_result),
-    )
-    analysis = call_json_stage(
-        client,
-        name="analysis",
-        parts=analysis_parts,
-        system_prompt=prompts.ANALYSIS_SYSTEM_PROMPT,
-        user_prompt=analysis_prompt,
-        model=model,
-        max_tokens=analysis_max_tokens,
-        fallback={"candidate_segments": [], "uncertain_regions": [], "analysis_notes": []},
-    )
-
-    step_start = time.perf_counter()
-    analysis.output["robot_type"] = robot_type
-    analysis_parse = parse_analysis_output(analysis.output, scene=scene_contract, video_id=video_id)
-    analysis_contract = analysis_parse.output
-    action_sequence = normalize_action_sequence(analysis.output.get("action_sequence"), robot_type)
-    if not action_sequence:
-        action_sequence = [
-            {
-                "executor": segment.executor,
-                "action": segment.action,
-                "object": segment.objects[0] if segment.objects else "",
-            }
-            for segment in analysis_contract.candidate_segments
-        ]
-    action_sequence = localize_action_sequence_objects(action_sequence, prompt_language)
-    main_object = str(analysis.output.get("main_object", "")).strip()
-    if not main_object:
-        for segment in analysis_contract.candidate_segments:
-            if segment.objects:
-                main_object = segment.objects[0]
-                break
-    main_object = translate_object_for_prompt_language(main_object, prompt_language)
-    analysis.output["action_sequence"] = action_sequence
-    analysis.output["candidate_segments"] = analysis_contract.model_dump(mode="json")["candidate_segments"]
-    analysis.output["main_object"] = main_object
-    analysis_postprocess_elapsed = time.perf_counter() - step_start
-    logger.info(
-        "Analysis postprocess done elapsed=%.2fs actions=%s main_object=%s",
-        analysis_postprocess_elapsed,
-        len(action_sequence),
-        main_object,
-    )
-
-    step_start = time.perf_counter()
-    refinement_parts, refinement_meta = load_video_or_views_as_media_parts(
-        video_path,
-        input_mode=refinement_input_mode,
-        target_fps=refinement_fps,
-        max_frames=refinement_max_frames,
-        resize_width=refinement_resize_width,
-        jpeg_quality=refinement_jpeg_quality,
-        draw_timestamps=refinement_draw_timestamps,
-        draw_viewposition=refinement_draw_viewposition,
-        min_api_frames=refinement_min_api_frames,
-        merge_length=refinement_merge_length,
-        merge_view_names=refinement_merge_view_names,
-        merge_views=refinement_merge_views,
-        merge_mode=refinement_merge_mode,
-    )
-    refinement_load_elapsed = time.perf_counter() - step_start
-    logger.info(
-        "Refinement frames loaded elapsed=%.2fs sampled_frames=%s input_mode=%s selected_views=%s resize_width=%s draw_timestamps=%s",
-        refinement_load_elapsed,
-        refinement_meta.get("sampled_frames"),
-        refinement_meta.get("input_mode"),
-        refinement_meta.get("selected_views"),
-        refinement_resize_width,
-        refinement_draw_timestamps,
-    )
-    _save_processed_stage_if_enabled(
-        stage_name="refinement",
-        parts=refinement_parts,
-        save_processed_stages=save_processed_stage_set,
-        save_processed_dir=save_processed_dir,
-        episode_name=episode_name,
-    )
-    refinement_view_layout = describe_view_layout(refinement_meta, prompt_language)
-    refinement_prompt = prompts.REFINEMENT_PROMPT_TEMPLATE.format(
-        initial_instruction=initial_instruction,
-        robot_type=robot_type,
-        action_sequence=json_dumps(
-            [segment.model_dump(mode="json") for segment in analysis_contract.candidate_segments]
-        ),
-        main_object=main_object,
-        scene_context=json_dumps(scene_contract.model_dump(mode="json")),
-        robot_type_prompt=robot_type_prompt,
-        view_layout_description=refinement_view_layout,
-        action_guidance=prompts.ACTION_FINE_GRAINED_GUIDANCE,
-        FEW_SHOT_EXAMPLES=prompts.FEW_SHOT_EXAMPLES,
-    )
-    refinement = call_json_stage(
-        client,
-        name="refinement",
-        parts=refinement_parts,
-        system_prompt=prompts.REFINEMENT_SYSTEM_PROMPT,
-        user_prompt=refinement_prompt,
-        model=model,
-        max_tokens=refinement_max_tokens,
-        fallback={"refined_segments": [], "changes": []},
-    )
-
-    step_start = time.perf_counter()
-    refinement_parse = parse_refinement_output(
-        refinement.output,
-        analysis=analysis_contract,
-        scene=scene_contract,
+    return run_workflow(
+        client=client,
+        video_path=video_path,
+        instruction=initial_instruction,
         video_id=video_id,
-    )
-    refinement_contract = refinement_parse.output
-    timestamped_actions = normalize_timestamped_action_sequence(
-        refinement.output.get("timestamped_action_sequence"),
-        action_sequence,
-        robot_type,
-    )
-    if not timestamped_actions:
-        timestamped_actions = [
-            {
-                "executor": segment.executor,
-                "action": segment.action,
-                "object": segment.objects[0] if segment.objects else "",
-                "start_time": segment.start_time or "",
-                "end_time": segment.end_time or "",
-            }
-            for segment in refinement_contract.refined_segments
-        ]
-    timestamped_actions = localize_action_sequence_objects(timestamped_actions, prompt_language)
-    steps = as_str_list(refinement.output.get("fine_grained_steps"))
-    refined_instruction = str(refinement.output.get("refined_instruction", "")).strip()
-    if steps and not refined_instruction:
-        refined_instruction = instruction_from_steps(steps)
-    refinement_postprocess_elapsed = time.perf_counter() - step_start
-    total_elapsed = time.perf_counter() - flow_start
-    logger.info(
-        "Refinement postprocess done elapsed=%.2fs timestamped_actions=%s fine_grained_steps=%s",
-        refinement_postprocess_elapsed,
-        len(timestamped_actions),
-        len(steps),
-    )
-    logger.info("Flow vla_phase_annotation done elapsed=%.2fs", total_elapsed)
-
-    validation_warnings = [
-        *scene_parse.warnings,
-        *scene_parse.errors,
-        *analysis_parse.warnings,
-        *analysis_parse.errors,
-        *refinement_parse.warnings,
-        *refinement_parse.errors,
-    ]
-    for warning in validation_warnings:
-        logger.warning("Contract validation: %s", warning)
-
-    final_annotation = build_final_annotation(
-        scene=scene_contract,
-        refinement=refinement_contract,
-        video_id=video_id,
-        model=model,
-        flow_name="vla_phase_annotation",
-    )
-
-    # ------------------------------------------------------------------
-    # Compose output via dedicated builders
-    # ------------------------------------------------------------------
-
-    total_elapsed_rounded = round(total_elapsed, 3)
-
-    output = build_lightweight_output(
-        final_annotation=final_annotation,
-        scene_contract=scene_contract,
-        video_id=video_id,
-        initial_instruction=initial_instruction,
-        refined_instruction=refined_instruction,
+        workflow_name="vla_phase_annotation",
         prompt_language=prompt_language,
         robot_type=robot_type,
-        model=model,
-        flow_name="vla_phase_annotation",
-        schema_version=output_schema_version,
-        elapsed_seconds=total_elapsed_rounded,
+        config_overrides=overrides,
     )
-
-    # optional: full parsed contracts for parser debugging
-    if include_intermediate_contracts:
-        output["intermediate_contracts"] = {
-            "scene": scene_contract.model_dump(mode="json"),
-            "analysis": analysis_contract.model_dump(mode="json"),
-            "refinement": refinement_contract.model_dump(mode="json"),
-        }
-
-    # validation warnings (on by default)
-    if include_validation:
-        output["validation"] = {"warnings": validation_warnings}
-
-    # debug info: timing, stage metadata, validation (also triggered by legacy debug=True)
-    _effective_debug = debug or include_debug
-    if _effective_debug:
-        timing = {
-            "scene_load_seconds": round(scene_load_elapsed, 3),
-            "scene_postprocess_seconds": round(scene_postprocess_elapsed, 3),
-            "analysis_load_seconds": round(analysis_load_elapsed, 3),
-            "analysis_postprocess_seconds": round(analysis_postprocess_elapsed, 3),
-            "refinement_load_seconds": round(refinement_load_elapsed, 3),
-            "refinement_postprocess_seconds": round(refinement_postprocess_elapsed, 3),
-            "total_seconds": total_elapsed_rounded,
-        }
-        stage_metadata = {
-            "scene": {
-                **scene_meta,
-                "load_elapsed_seconds": round(scene_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(scene_postprocess_elapsed, 3),
-            },
-            "analysis": {
-                **analysis_meta,
-                "load_elapsed_seconds": round(analysis_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(analysis_postprocess_elapsed, 3),
-            },
-            "refinement": {
-                **refinement_meta,
-                "load_elapsed_seconds": round(refinement_load_elapsed, 3),
-                "postprocess_elapsed_seconds": round(refinement_postprocess_elapsed, 3),
-            },
-        }
-        debug_data = build_debug_output(
-            validation_warnings=validation_warnings,
-            timing=timing,
-            stage_metadata=stage_metadata,
-        )
-        output["debug"] = debug_data["debug"]
-
-    # trace: full raw output + parsed contracts for reproduction
-    if include_trace:
-        trace_data = build_trace_output(
-            scene_stage=scene,
-            analysis_stage=analysis,
-            refinement_stage=refinement,
-            scene_contract=scene_contract,
-            analysis_contract=analysis_contract,
-            refinement_contract=refinement_contract,
-        )
-        output["trace"] = trace_data["trace"]
-
-    # legacy compatibility (deprecated)
-    if include_legacy_fields:
-        legacy_data = build_legacy_output(
-            robot_type=robot_type,
-            scene_context=scene_context,
-            action_sequence=action_sequence,
-            main_object=main_object,
-            timestamped_actions=timestamped_actions,
-            steps=steps,
-            refined_instruction=refined_instruction,
-        )
-        output["legacy_output"] = legacy_data["legacy_output"]
-
-    # ------------------------------------------------------------------
-    # Stage objects in AnnotationResult (configurable)
-    # ------------------------------------------------------------------
-    result_stages: dict[str, Any] = {}
-    if include_stage_objects or include_trace:
-        result_stages = {
-            "scene": scene,
-            "analysis": analysis,
-            "refinement": refinement,
-        }
-
-    return AnnotationResult(
-        flow_name="vla_phase_annotation",
-        stages=result_stages,
-        output=output,
-    )
-

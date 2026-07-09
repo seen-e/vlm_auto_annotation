@@ -1,0 +1,1 @@
+"""Legacy contract tests."""

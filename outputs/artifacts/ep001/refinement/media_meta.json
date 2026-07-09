@@ -1,0 +1,13 @@
+{
+  "input_mode": "image_sequence",
+  "source_type": "single_view",
+  "selected_views": [
+    "front"
+  ],
+  "merge_view_names": [
+    "front"
+  ],
+  "sampled_frames": 1,
+  "sampled_frame_count": 1,
+  "media_part_count": 1
+}

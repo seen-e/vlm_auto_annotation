@@ -1,0 +1,259 @@
+
+初始指令："Both arms coordinate: left arm secures laptop stand base; right arm places laptop onto laptop stand and adjusts its posture."
+机器人类型："bimanual"
+Analysis 阶段候选片段：
+{
+  "action_steps": [
+    {
+      "step_id": "A001",
+      "executor": "right",
+      "action": "接近",
+      "object": "笔记本电脑",
+      "evidence": "右臂从右侧向笔记本电脑方向移动，准备进行操作。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A002",
+      "executor": "left",
+      "action": "接近",
+      "object": "笔记本电脑",
+      "evidence": "左臂从左侧向笔记本电脑方向移动，准备配合操作。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A003",
+      "executor": "right",
+      "action": "抓住",
+      "object": "笔记本电脑",
+      "evidence": "右臂末端接触并夹住笔记本电脑的右侧边缘。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A004",
+      "executor": "left",
+      "action": "抓住",
+      "object": "笔记本电脑",
+      "evidence": "左臂末端接触并夹住笔记本电脑的左侧边缘。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A005",
+      "executor": "right",
+      "action": "拿起",
+      "object": "笔记本电脑",
+      "evidence": "右臂向上抬起，将笔记本电脑从桌面上提起。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A006",
+      "executor": "left",
+      "action": "拿起",
+      "object": "笔记本电脑",
+      "evidence": "左臂配合右臂向上抬起，共同将笔记本电脑提起。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A007",
+      "executor": "left",
+      "action": "移动",
+      "object": "笔记本电脑",
+      "evidence": "左臂将笔记本电脑向左侧移动，调整位置。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A008",
+      "executor": "right",
+      "action": "移动",
+      "object": "笔记本电脑",
+      "evidence": "右臂配合左臂移动笔记本电脑，将其调整至黑色收纳盒上方。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A009",
+      "executor": "left",
+      "action": "放置",
+      "object": "笔记本电脑",
+      "evidence": "左臂将笔记本电脑向下放入黑色收纳盒中。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A010",
+      "executor": "right",
+      "action": "放置",
+      "object": "笔记本电脑",
+      "evidence": "右臂配合左臂将笔记本电脑完全放入黑色收纳盒中。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A011",
+      "executor": "left",
+      "action": "释放",
+      "object": "笔记本电脑",
+      "evidence": "左臂松开夹爪，不再接触笔记本电脑。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A012",
+      "executor": "right",
+      "action": "释放",
+      "object": "笔记本电脑",
+      "evidence": "右臂松开夹爪，不再接触笔记本电脑。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A013",
+      "executor": "left",
+      "action": "撤回",
+      "object": null,
+      "evidence": "左臂从收纳盒区域向左侧退回到初始位置。",
+      "confidence": 0.9
+    },
+    {
+      "step_id": "A014",
+      "executor": "right",
+      "action": "撤回",
+      "object": null,
+      "evidence": "右臂从收纳盒区域向右侧退回到初始位置。",
+      "confidence": 0.9
+    }
+  ],
+  "uncertain_steps": [],
+  "analysis_notes": [
+    "动作步骤按可见操作顺序排列。",
+    "未输出时间边界，时间对齐应在 Refinement 阶段完成。"
+  ]
+}
+主要物体提示："笔记本电脑"
+Scene 阶段上下文：
+{
+  "primary_view": "camera_front",
+  "executors": [
+    {
+      "executor_id": "left",
+      "description": "arm",
+      "main_workspace": null,
+      "best_observation_views": []
+    },
+    {
+      "executor_id": "right",
+      "description": "arm",
+      "main_workspace": null,
+      "best_observation_views": []
+    }
+  ],
+  "touched_objects": [
+    {
+      "object_id": "laptop",
+      "description": "笔记本电脑",
+      "role": ""
+    },
+    {
+      "object_id": "black_case",
+      "description": "黑色收纳盒",
+      "role": ""
+    }
+  ],
+  "background_objects": [],
+  "executor_object_map": {},
+  "best_observation_views": {},
+  "scene_summary": "视频中有两个机械臂，主要被移动/操作的物体是笔记本电脑和黑色收纳盒。"
+}
+
+机器人类型背景：
+该机器人为固定底座双机械臂操作机器人，由左右两个机械臂组成。两个机械臂既可以独立完成操作，也可以协同完成同一项任务。
+机器人能够完成双臂协同接近目标、同步抓取、双手搬运、物体交接、固定物体、折叠、装配、开关容器、协同操作等复杂动作。许多任务需要两个机械臂分工合作，共同完成操作目标。
+分析视频时，应将两个机械臂视为一个协同工作的整体，重点关注双臂之间的协作关系、物体交接、接触事件、物体状态变化以及任务目标的变化，而不是分别描述左右机械臂的运动轨迹。
+理解 action_sequence 时，executor 使用 "left"、"right" 或 "both"；如果左右臂在同一时间段执行不同动作，应按时间顺序分别输出两条记录；如果两臂同步完成同一动作，可使用 "both"。action 记录对应执行主体的高层动作，object 记录该动作直接作用或朝向的对象，必须使用自然中文名称，如果没有明确对象则为空字符串 ""。
+
+视频视角说明：
+每张输入图片都是同一时间戳的多视角帧竖向拼接图。拼接前，每个视角图像会先按当前阶段配置的 resize_width 单独缩放。拼接后从上到下的行顺序如下：
+- 第 1 行：camera_front
+- 第 2 行：camera_top
+第 1 行/第一个被选中的视角是 primary view。描述 left/right/front/back/far/close 等空间方向时，必须以 primary view 为准；其他视角只用于辅助确认遮挡、接触和深度关系。不要把不同行误认为时间先后。
+
+输入图像为视频按时间均匀抽帧的结果。当配置了时间戳/视角标注时，每张图的左上角可见对应信息。
+
+动作细节参考：
+
+1. 接近: 说明执行主体靠近的目标对象或位置，以及接近方向。
+2. 抓住: 说明接触点、夹爪或手部接近方向（从上方、左侧、右侧、前方、后方）以及被抓住的部位。
+3. 夹取: 说明夹取对象、夹取位置、夹爪闭合方向以及夹取是否稳定。
+4. 拖动: 描述拖动方向、起点、终点和大致距离。
+5. 拿起: 说明接触点、抓取方向以及物体离开支撑面的抬起路径。
+6. 放置: 指明目标放置位置以及物体最终姿态（例如直立、平放、靠边放置）。
+7. 移动: 明确移动对象、移动方向、起止位置和大致位移。
+8. 旋转: 说明旋转对象、旋转轴和旋转方向（顺时针/逆时针）。
+9. 插入: 描述插入对象、插入方向、目标孔位/容器以及对齐线索。
+10. 拔出: 描述拔出的对象、拔出方向以及离开目标结构后的状态。
+11. 推动: 说明推动接触点、推动方向和被推动对象的位移。
+12. 拉动: 说明拉动接触点、拉动方向和被拉动对象的位移。
+13. 擦拭: 描述擦拭的表面区域、接触方式和扫动方向。
+14. 扫动: 描述被扫过的区域、扫动方向以及被移动的物体或碎屑。
+15. 敲击: 指明撞击接触点、接近方向和敲击后的物体状态变化。
+16. 释放: 说明释放位置以及释放后物体姿态（例如直立、平放、悬空落下）。
+17. 按压: 指明按压接触点、按压方向以及可见的按压深度/力度。
+18. 打开: 说明打开的对象、接触点、打开方向以及打开后的状态。
+19. 关闭: 说明关闭的对象、接触点、关闭方向以及关闭后的状态。
+20. 导航: 说明移动底盘接近或移动到的目标位置。
+21. 对齐: 说明需要对齐的两个对象、对齐方向和最终相对位置。
+22. 固定: 说明被固定对象、固定接触点以及固定目的（防止滑动、支撑、辅助另一只手操作等）。
+23. 支撑: 说明支撑对象、支撑位置以及与另一执行主体动作的配合关系。
+24. 交接: 说明交接双方、被交接对象、交接位置和物体控制权变化。
+
+
+参考示例：
+
+1.
+    "action_sequence": [
+        {"executor": "single", "action": "拿起", "object": "陶瓷碗"},
+        {"executor": "single", "action": "旋转", "object": "陶瓷碗"},
+        {"executor": "single", "action": "放置", "object": "陶瓷碗"}
+    ],
+    "main_object": "陶瓷碗",
+    "Fine_Grained": [
+        "从右侧远端边缘拿起陶瓷碗。",
+        "将碗顺时针旋转两圈。",
+        "把碗放到桌面中央。"
+    ]
+2.
+    "action_sequence": [
+        {"executor": "single", "action": "抓住", "object": "白色纸杯"},
+        {"executor": "single", "action": "拿起", "object": "白色纸杯"},
+        {"executor": "single", "action": "移动", "object": "白色纸杯"},
+        {"executor": "single", "action": "放置", "object": "白色纸杯"},
+        {"executor": "single", "action": "释放", "object": "白色纸杯"}
+    ],
+    "main_object": "白色纸杯",
+    "Fine_Grained": [
+        "从上方抓住右侧白色纸杯的右上边缘。",
+        "将纸杯垂直抬起。",
+        "水平向左移动纸杯，使其与另一个纸杯对齐。",
+        "将纸杯降低并套入左侧白色纸杯中完成堆叠。",
+        "松开夹爪并向上撤回机械臂。"
+    ]
+
+
+请严格返回一个 JSON 对象，结构如下：
+{
+  "refined_segments": [
+    {
+      "segment_id": "S001",
+      "start_time": "MM:SS.ss 或 null",
+      "end_time": "MM:SS.ss 或 null",
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "scene_context 中的 executor_id",
+      "action": "简短动作短语",
+      "objects": ["object_id"],
+      "boundary_reason": "简短边界依据",
+      "confidence": 0.6
+    }
+  ],
+  "changes": [
+    {
+      "original_segment_id": "S001",
+      "change_type": "keep | split | merge | trim | remove | add",
+      "reason": "不超过 30 字"
+    }
+  ]
+}

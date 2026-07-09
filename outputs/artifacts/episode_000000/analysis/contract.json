@@ -1,0 +1,201 @@
+{
+  "candidate_segments": [
+    {
+      "segment_id": "A001",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "接近",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂从右侧向笔记本电脑方向移动，准备进行操作。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A002",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "接近",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂从左侧向笔记本电脑方向移动，准备配合操作。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A003",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "抓住",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂末端接触并夹住笔记本电脑的右侧边缘。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A004",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "抓住",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂末端接触并夹住笔记本电脑的左侧边缘。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A005",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "拿起",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂向上抬起，将笔记本电脑从桌面上提起。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A006",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "拿起",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂配合右臂向上抬起，共同将笔记本电脑提起。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A007",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "移动",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂将笔记本电脑向左侧移动，调整位置。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A008",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "移动",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂配合左臂移动笔记本电脑，将其调整至黑色收纳盒上方。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A009",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "放置",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂将笔记本电脑向下放入黑色收纳盒中。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A010",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "放置",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂配合左臂将笔记本电脑完全放入黑色收纳盒中。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A011",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "释放",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "左臂松开夹爪，不再接触笔记本电脑。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A012",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "释放",
+      "objects": [
+        "笔记本电脑"
+      ],
+      "evidence": "右臂松开夹爪，不再接触笔记本电脑。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A013",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "left",
+      "action": "撤回",
+      "objects": [],
+      "evidence": "左臂从收纳盒区域向左侧退回到初始位置。",
+      "confidence": 0.9
+    },
+    {
+      "segment_id": "A014",
+      "start_time": null,
+      "end_time": null,
+      "start_frame": null,
+      "end_frame": null,
+      "executor": "right",
+      "action": "撤回",
+      "objects": [],
+      "evidence": "右臂从收纳盒区域向右侧退回到初始位置。",
+      "confidence": 0.9
+    }
+  ],
+  "uncertain_regions": [],
+  "analysis_notes": [
+    "动作步骤按可见操作顺序排列。",
+    "未输出时间边界，时间对齐应在 Refinement 阶段完成"
+  ]
+}

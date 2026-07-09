@@ -1,0 +1,8 @@
+name: analysis_only
+stages:
+  - analysis
+output:
+  include_lightweight: false
+  include_debug: true
+  include_trace: false
+  include_legacy: false

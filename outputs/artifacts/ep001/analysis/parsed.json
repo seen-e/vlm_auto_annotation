@@ -1,0 +1,13 @@
+{
+  "candidate_segments": [
+    {
+      "segment_id": "S001",
+      "executor": "left",
+      "action": "grasp",
+      "objects": [
+        "cup"
+      ],
+      "confidence": 0.9
+    }
+  ]
+}

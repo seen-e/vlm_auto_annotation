@@ -1,0 +1,76 @@
+model:
+  api_key: EMPTY
+  name: Qwen3.6-27B
+  base_url: http://localhost:8002/v1
+
+vlm_sampling:
+  temperature: 0.0
+  top_p: 0.95
+  top_k: 0
+
+prompt:
+  language: cn
+  robot_type: bimanual
+
+artifacts:
+  root_dir: outputs/artifacts
+  enabled: true
+  save_prompt: true
+  save_raw_response: true
+  save_parsed: true
+  save_contract: true
+  save_media_meta: true
+  save_processed_media: false
+
+output:
+  include_lightweight: true
+  include_debug: false
+  include_trace: false
+  include_legacy: false
+  include_stage_objects: true
+
+stages:
+  scene:
+    input_mode: image_sequence
+    fps: 1.0
+    max_tokens: 1024
+    max_frames: 24
+    resize_width: 336
+    merge_view_names: [camera_front, camera_top]
+    jpeg_quality: 80
+    min_api_frames: 2
+    draw_timestamps: true
+    draw_viewposition: true
+    merge_views: false
+    merge_mode: per_frame
+    merge_length: 36
+
+  analysis:
+    input_mode: image_sequence
+    fps: 1.0
+    max_tokens: 4096
+    max_frames: 64
+    resize_width: 224
+    merge_view_names: [camera_front, camera_top]
+    jpeg_quality: 85
+    min_api_frames: 2
+    draw_timestamps: true
+    draw_viewposition: true
+    merge_views: true
+    merge_mode: per_frame
+    merge_length: 4
+
+  refinement:
+    input_mode: image_sequence
+    fps: 4.0
+    max_tokens: 4096
+    max_frames: 128
+    resize_width: 336
+    merge_view_names: [camera_front, camera_top]
+    jpeg_quality: 95
+    min_api_frames: 2
+    draw_timestamps: true
+    draw_viewposition: true
+    merge_views: true
+    merge_mode: per_frame
+    merge_length: 8
