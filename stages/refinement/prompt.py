@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...flows.utils import describe_view_layout, json_dumps
-from ...prompts.loader import load_prompt_package, safe_format
+from ...prompts.loader import load_prompt_package
+from ...utils.prompt_context import describe_view_layout, json_dumps
+from ...utils.prompt_renderer import render_prompt_template
 
 
 def _contract_dict(contract: Any) -> dict[str, Any]:
@@ -23,16 +24,20 @@ def build_refinement_prompt(context: Any, media_meta: dict[str, Any]) -> dict[st
     touched = scene.get("touched_objects") if isinstance(scene, dict) else []
     if touched:
         main_object = touched[0].get("description") or touched[0].get("object_id") or ""
-    user = safe_format(
+    user = render_prompt_template(
         package.REFINEMENT_PROMPT_TEMPLATE,
-        initial_instruction=context.instruction,
-        robot_type=context.robot_type,
-        robot_type_prompt=package.get_robot_type_prompt(context.robot_type),
-        action_sequence=json_dumps(action_sequence),
-        main_object=main_object,
-        scene_context=json_dumps(scene),
-        view_layout_description=describe_view_layout(media_meta, context.prompt_language),
-        action_guidance=getattr(package, "ACTION_FINE_GRAINED_GUIDANCE", ""),
-        FEW_SHOT_EXAMPLES=getattr(package, "FEW_SHOT_EXAMPLES", ""),
+        context=context,
+        stage_config=getattr(context, "extras", {}).get("stage_config", {}),
+        extra_variables={
+            "initial_instruction": context.instruction,
+            "robot_type": context.robot_type,
+            "robot_type_prompt": package.get_robot_type_prompt(context.robot_type),
+            "action_sequence": json_dumps(action_sequence),
+            "main_object": main_object,
+            "scene_context": json_dumps(scene),
+            "view_layout_description": describe_view_layout(media_meta, context.prompt_language),
+            "action_guidance": getattr(package, "ACTION_FINE_GRAINED_GUIDANCE", ""),
+            "FEW_SHOT_EXAMPLES": getattr(package, "FEW_SHOT_EXAMPLES", ""),
+        },
     )
     return {"system": package.REFINEMENT_SYSTEM_PROMPT, "user": user}

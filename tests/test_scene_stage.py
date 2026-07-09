@@ -25,7 +25,7 @@ class FakeClient:
 
 class SceneStageTest(unittest.TestCase):
     def test_scene_stage_builds_contract(self):
-        stage = SceneStage({"model": "fake", "max_tokens": 64}, client=FakeClient('{"primary_view":"front","operation_units":[{"unit_id":"left","unit_type":"arm","is_active":true}],"manipulated_objects":[{"object_id":"cup","description":"cup"}],"video_summary":"one arm moves cup"}'))
+        stage = SceneStage({"model": "fake", "max_tokens": 64}, client=FakeClient('{"primary_view":"front","executors":[{"executor_id":"left","description":"left arm"}],"touched_objects":[{"object_id":"cup","description":"cup"}],"scene_summary":"one arm moves cup"}'))
         stage.build_media = lambda context: ([], {"selected_views": ["front"], "source_type": "single_view"})
         context = StageContext(video_path="demo.mp4", video_id="demo", prompt_language="en", robot_type="single_arm")
 

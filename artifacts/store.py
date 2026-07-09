@@ -73,6 +73,9 @@ class ArtifactStore:
                     "elapsed_seconds": result.elapsed_seconds,
                 },
             )
+            self._write_json(base / "exports.json", getattr(context, "exports", {}))
+            self._write_json(base / "formatted_exports.json", getattr(context, "formatted_exports", {}))
+            self._write_json(base / "export_status.json", getattr(context, "export_status", {}))
             logger.info("Saved stage artifacts stage=%s dir=%s", result.name, base)
         except Exception:
             logger.exception("Failed to save stage artifacts stage=%s dir=%s", result.name, base)

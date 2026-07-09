@@ -4,7 +4,6 @@ stages:
   - analysis
   - refinement
 output:
-  include_lightweight: true
+  include_contracts: false
   include_debug: false
   include_trace: false
-  include_legacy: false

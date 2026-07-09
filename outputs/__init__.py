@@ -1,4 +1,4 @@
-"""Output composers."""
+"""Output composer."""
 
 from .composer import compose_annotation_result
 

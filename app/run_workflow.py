@@ -21,12 +21,18 @@ def run_workflow(
     robot_type: str | None = None,
     config_path: str | Path | None = None,
     workflow_path: str | Path | None = None,
+    experiment_path: str | Path | None = None,
     config_overrides: dict[str, Any] | None = None,
     stages: list[str] | None = None,
     load_outputs: dict[str, str] | None = None,
 ):
     wf_path = Path(workflow_path) if workflow_path else workflow_config_path(workflow_name)
-    config = load_runtime_config(default_path=config_path, workflow_path=wf_path, overrides=config_overrides)
+    config = load_runtime_config(
+        default_path=config_path,
+        workflow_path=wf_path,
+        experiment_path=experiment_path,
+        overrides=config_overrides,
+    )
     prompt_cfg = config.get("prompt") or {}
     model_cfg = config.get("model") or {}
     context = StageContext(
@@ -37,5 +43,6 @@ def run_workflow(
         prompt_language=prompt_language or prompt_cfg.get("language", "cn"),
         model=model_cfg.get("name", ""),
         workflow_name=(config.get("workflow") or {}).get("name", workflow_name),
+        experiment_name=(config.get("experiment") or {}).get("name", "default"),
     )
     return WorkflowRunner(config, client=client).run(context, stages=stages, load_outputs=load_outputs)

@@ -1,4 +1,4 @@
-"""Runtime result containers for VLA phase annotation flows."""
+"""Runtime result containers for VLA phase annotation workflows."""
 
 from __future__ import annotations
 
@@ -20,15 +20,12 @@ class StageResult:
 
 @dataclass
 class AnnotationResult:
-    """Complete flow result returned by public flow functions.
+    """Complete workflow result returned by public entrypoints.
 
-    ``stages`` may be empty when ``include_stage_objects=False`` (the default
-    for lightweight output).  When ``stages`` is empty, ``success`` returns
-    ``False`` because stage-level success cannot be determined from the
-    lightweight output alone.
+    ``stages`` may be empty when stage objects are excluded from output.
     """
 
-    flow_name: str
+    workflow_name: str
     stages: dict[str, StageResult] = field(default_factory=dict)
     output: dict[str, Any] = field(default_factory=dict)
 
@@ -39,14 +36,10 @@ class AnnotationResult:
     def to_dict(self, *, schema_version: str | None = None) -> dict[str, Any]:
         """Serialize to plain dict.
 
-        ``schema_version`` controls how ``stages`` are included:
-          - ``"v2"`` (or empty stages): only emits stage-level status
-            (success / error / token_usage), never raw VLM output.
-          - ``"v1"``: includes full ``stage.output`` (raw VLM JSON) for
-            backward compatibility.
+        ``schema_version`` controls whether parsed stage output is included.
         """
         version = (schema_version or "").strip() or "v2"
-        if version == "v1":
+        if version == "debug":
             stages_serialized = {
                 name: {
                     "success": stage.success,
@@ -66,7 +59,7 @@ class AnnotationResult:
                 for name, stage in self.stages.items()
             }
         return {
-            "flow_name": self.flow_name,
+            "workflow_name": self.workflow_name,
             "success": self.success,
             "output": self.output,
             "stages": stages_serialized,

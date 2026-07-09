@@ -26,7 +26,7 @@ class FakeClient:
 
 class AnalysisStageTest(unittest.TestCase):
     def test_analysis_requires_scene_and_outputs_candidates(self):
-        response = '{"action_steps":[{"step_id":"A001","executor":"left","action":"grasp","object":"cup","confidence":0.9}]}'
+        response = '{"candidate_segments":[{"segment_id":"S001","executor":"left","action":"grasp","objects":["cup"],"confidence":0.9}]}'
         stage = AnalysisStage({"model": "fake", "max_tokens": 64}, client=FakeClient(response))
         stage.build_media = lambda context: ([], {"selected_views": ["front"], "source_type": "single_view"})
         context = StageContext(video_path="demo.mp4", video_id="demo", prompt_language="en")

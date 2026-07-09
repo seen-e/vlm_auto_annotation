@@ -2,7 +2,6 @@ name: refinement_only
 stages:
   - refinement
 output:
-  include_lightweight: true
+  include_contracts: true
   include_debug: true
   include_trace: false
-  include_legacy: false

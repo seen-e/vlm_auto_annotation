@@ -1,4 +1,4 @@
-"""VLM auto-annotation flows adapted from FineVLA AnnotationPipeline."""
+"""VLM auto-annotation workflow package."""
 
 from .utils.api_client import call_vlm, create_openai_client, extract_json_from_response
 from .utils.results import AnnotationResult, StageResult

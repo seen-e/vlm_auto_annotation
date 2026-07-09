@@ -1,8 +1,4 @@
-"""Chinese prompt templates for robot manipulation video annotation.
-
-This package mirrors ``prompts`` while keeping constant names, placeholders,
-and JSON field names compatible with the existing AnnotationPipeline code.
-"""
+"""Chinese prompt templates for robot manipulation video annotation."""
 
 from .vocabulary import (
     ACTION_VOCABULARY,

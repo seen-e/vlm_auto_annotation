@@ -1,17 +1,11 @@
-"""Final AnnotationResult composer."""
+"""Final AnnotationResult composer for the current workflow architecture."""
 
 from __future__ import annotations
 
 from typing import Any
 
+from ..contracts.final import FinalAnnotationOutput
 from ..utils.results import AnnotationResult, StageResult
-from ..annotation_pipeline.adapters import (
-    build_debug_output,
-    build_final_annotation,
-    build_legacy_output,
-    build_lightweight_output,
-    build_trace_output,
-)
 
 
 def _stage_result(result: Any) -> StageResult:
@@ -25,130 +19,119 @@ def _stage_result(result: Any) -> StageResult:
     )
 
 
+def _final_annotation(context: Any) -> FinalAnnotationOutput:
+    scene = context.stage_contracts.get("scene")
+    refinement = context.stage_contracts.get("refinement")
+    action_sequence: list[dict[str, Any]] = []
+    touched_objects: list[str] = []
+    caption_parts: list[str] = []
+    if refinement is not None:
+        for segment in refinement.refined_segments:
+            item = {
+                "segment_id": segment.segment_id,
+                "start_time": segment.start_time,
+                "end_time": segment.end_time,
+                "executor": segment.executor,
+                "action": segment.action,
+                "objects": segment.objects,
+                "confidence": segment.confidence,
+            }
+            if segment.start_frame is not None:
+                item["start_frame"] = segment.start_frame
+            if segment.end_frame is not None:
+                item["end_frame"] = segment.end_frame
+            if segment.boundary_reason:
+                item["boundary_reason"] = segment.boundary_reason
+            action_sequence.append(item)
+            touched_objects.extend(segment.objects)
+            obj_text = ", ".join(segment.objects) if segment.objects else "no_object"
+            caption_parts.append(f"{segment.start_time or '?'}-{segment.end_time or '?'} {segment.executor} {segment.action} {obj_text}")
+    task_summary = getattr(scene, "scene_summary", "") or "; ".join(caption_parts[:2])
+    return FinalAnnotationOutput(
+        video_id=context.video_id,
+        task_summary=task_summary,
+        action_sequence=action_sequence,
+        touched_objects=touched_objects,
+        final_caption="; ".join(caption_parts),
+        metadata={
+            "schema_version": "current",
+            "workflow_name": context.workflow_name,
+            "model": context.model,
+        },
+    )
+
+
+def _scene_output(context: Any) -> dict[str, Any]:
+    scene = context.stage_contracts.get("scene")
+    if scene is None:
+        return {}
+    return {
+        "primary_view": scene.primary_view or "",
+        "executors": [item.model_dump(mode="json") for item in scene.executors],
+        "touched_objects": [item.model_dump(mode="json") for item in scene.touched_objects],
+        "background_objects": [item.model_dump(mode="json") for item in scene.background_objects],
+        "scene_summary": scene.scene_summary,
+    }
+
+
 def compose_annotation_result(context: Any, run_results: dict[str, Any], config: dict[str, Any]) -> AnnotationResult:
     output_cfg = {}
     output_cfg.update((config.get("workflow") or {}).get("output") or {})
     output_cfg.update(config.get("output") or {})
 
-    output: dict[str, Any] = {}
-    scene_contract = context.stage_contracts.get("scene")
-    analysis_contract = context.stage_contracts.get("analysis")
-    refinement_contract = context.stage_contracts.get("refinement")
     total_seconds = sum(float(result.elapsed_seconds or 0.0) for result in run_results.values())
-    refinement_raw = context.stage_outputs.get("refinement", {})
-    refined_instruction = (
-        refinement_raw.get("refinedInstruction")
-        or refinement_raw.get("refined_instruction")
-        or context.instruction
-    )
+    final = _final_annotation(context)
+    output: dict[str, Any] = {
+        "schema_version": "current",
+        "video_id": context.video_id,
+        "workflow_name": context.workflow_name,
+        "experiment_name": context.experiment_name,
+        "task": {
+            "instruction": context.instruction,
+            "summary": final.task_summary,
+        },
+        "scene": _scene_output(context),
+        "segments": final.action_sequence,
+        "exports": context.exports,
+        "metadata": {
+            "model": context.model,
+            "prompt_language": context.prompt_language,
+            "robot_type": context.robot_type,
+            "elapsed_seconds": total_seconds,
+        },
+        "validation": {"warnings": list(context.validation_warnings), "errors": []},
+    }
 
-    if output_cfg.get("include_lightweight", True) and scene_contract is not None and refinement_contract is not None:
-        final_annotation = build_final_annotation(
-            scene=scene_contract,
-            refinement=refinement_contract,
-            video_id=context.video_id,
-            model=context.model,
-            flow_name=context.workflow_name or "vla_phase_annotation",
-        )
-        output.update(
-            build_lightweight_output(
-                final_annotation=final_annotation,
-                scene_contract=scene_contract,
-                video_id=context.video_id,
-                initial_instruction=context.instruction,
-                refined_instruction=refined_instruction,
-                prompt_language=context.prompt_language,
-                robot_type=context.robot_type,
-                model=context.model,
-                flow_name=context.workflow_name or "vla_phase_annotation",
-                schema_version=str(output_cfg.get("schema_version") or "v2"),
-                elapsed_seconds=total_seconds,
-            )
-        )
-
-    if output_cfg.get("include_validation", True):
-        output["validation"] = {"warnings": list(context.validation_warnings), "errors": []}
-
-    if output_cfg.get("include_intermediate_contracts", False):
-        output["intermediate_contracts"] = {
+    if output_cfg.get("include_contracts", False):
+        output["contracts"] = {
             name: contract.model_dump(mode="json") if hasattr(contract, "model_dump") else contract
             for name, contract in context.stage_contracts.items()
         }
-
     if output_cfg.get("include_debug", False):
-        timing: dict[str, float] = {}
-        for name in ("scene", "analysis", "refinement"):
-            result = run_results.get(name)
-            timing[f"{name}_load_seconds"] = 0.0
-            timing[f"{name}_postprocess_seconds"] = float(result.elapsed_seconds if result else 0.0)
-        timing["total_seconds"] = total_seconds
-        stage_metadata = {
-            name: {"media_meta": result.media_meta, "usage": result.usage}
-            for name, result in run_results.items()
-        }
-        output.update(
-            build_debug_output(
-                validation_warnings=list(context.validation_warnings),
-                timing=timing,
-                stage_metadata=stage_metadata,
-            )
-        )
-
-    stage_objects = {name: _stage_result(result) for name, result in run_results.items()}
-    if (
-        output_cfg.get("include_trace", False)
-        and scene_contract is not None
-        and analysis_contract is not None
-        and refinement_contract is not None
-    ):
-        output.update(
-            build_trace_output(
-                scene_stage=stage_objects.get("scene"),
-                analysis_stage=stage_objects.get("analysis"),
-                refinement_stage=stage_objects.get("refinement"),
-                scene_contract=scene_contract,
-                analysis_contract=analysis_contract,
-                refinement_contract=refinement_contract,
-            )
-        )
-
-    if output_cfg.get("include_legacy", False) and scene_contract is not None:
-        analysis_raw = context.stage_outputs.get("analysis", {})
-        scene_context = scene_contract.model_dump(mode="json") if hasattr(scene_contract, "model_dump") else {}
-        action_sequence = analysis_raw.get("action_sequence") or analysis_raw.get("action_steps") or analysis_raw.get("candidate_segments") or []
-        main_object = ""
-        if getattr(scene_contract, "touched_objects", None):
-            first = scene_contract.touched_objects[0]
-            main_object = first.description or first.object_id
-        timestamped_actions = (
-            refinement_raw.get("action_sequence")
-            or refinement_raw.get("timestampedActionSequence")
-            or refinement_raw.get("timestamped_action_sequence")
-            or []
-        )
-        if not timestamped_actions and refinement_contract is not None:
-            timestamped_actions = [
-                {
-                    "executor": item.executor,
-                    "action": item.action,
-                    "object": item.objects[0] if item.objects else None,
-                    "start_time": item.start_time,
-                    "end_time": item.end_time,
+        output["debug"] = {
+            "stage_metadata": {
+                name: {
+                    "elapsed_seconds": result.elapsed_seconds,
+                    "usage": result.usage,
+                    "media_meta": result.media_meta,
+                    "warnings": result.warnings,
+                    "errors": result.errors,
                 }
-                for item in refinement_contract.refined_segments
-            ]
-        output.update(
-            build_legacy_output(
-                robot_type=context.robot_type,
-                scene_context=scene_context,
-                action_sequence=action_sequence,
-                main_object=main_object,
-                timestamped_actions=timestamped_actions,
-                steps=refinement_raw.get("fineGrainedSteps") or refinement_raw.get("fine_grained_steps") or [],
-                refined_instruction=refined_instruction,
-            )
-        )
+                for name, result in run_results.items()
+            },
+            "export_status": context.export_status,
+        }
+    if output_cfg.get("include_trace", False):
+        output["trace"] = {
+            "stage_outputs": context.stage_outputs,
+            "stage_contracts": {
+                name: contract.model_dump(mode="json") if hasattr(contract, "model_dump") else contract
+                for name, contract in context.stage_contracts.items()
+            },
+            "formatted_exports": context.formatted_exports,
+            "raw_responses": {name: result.raw_response for name, result in run_results.items()},
+        }
 
     include_stage_objects = bool(output_cfg.get("include_stage_objects", False)) or bool(output_cfg.get("include_trace", False))
-    stages = stage_objects if include_stage_objects else {}
-    return AnnotationResult(flow_name=context.workflow_name or "vla_phase_annotation", stages=stages, output=output)
+    stages = {name: _stage_result(result) for name, result in run_results.items()} if include_stage_objects else {}
+    return AnnotationResult(workflow_name=context.workflow_name, stages=stages, output=output)

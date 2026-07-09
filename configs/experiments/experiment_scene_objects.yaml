@@ -1,0 +1,22 @@
+experiment:
+  name: experiment_scene_objects
+
+exports_mode: replace
+exports:
+  - id: scene_touched_object_names
+    source_stage: scene
+    source_path: touched_objects[*].description
+    target_name: scene.object_names
+    default: []
+    format: bullet
+    source_kind: contract
+    enabled: true
+
+  - id: scene_summary
+    source_stage: scene
+    source_path: scene_summary
+    target_name: scene.summary
+    default: ""
+    format: text
+    source_kind: contract
+    enabled: true

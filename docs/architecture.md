@@ -11,6 +11,8 @@ This project now uses a Contract-first + Stage Plugin + Workflow Runner + Artifa
 - `llm/`: OpenAI-compatible VLM client and JSON response extraction.
 - `artifacts/`: persistent store for prompts, raw responses, parsed JSON, contracts, media metadata, and optional processed media.
 - `outputs/`: final output composers. Stages do not assemble the final annotation.
+- `utils/stage_exporter.py`: config-driven stage output extraction into reusable context variables.
+- `utils/prompt_renderer.py`: prompt rendering from exported variables with safe missing-value defaults.
 
 ## Runtime Flow
 
@@ -21,6 +23,11 @@ This project now uses a Contract-first + Stage Plugin + Workflow Runner + Artifa
    `prepare_input -> build_media -> build_prompt -> call_model -> parse -> postprocess`.
 5. `ArtifactStore` saves stage artifacts.
 6. `outputs.composer` builds the final `AnnotationResult`.
+
+After each stage is parsed and converted to a contract, `StageExporter` applies
+configured export rules. Raw exported values are stored in `context.exports`
+with their original type, while prompt-ready strings are stored in
+`context.formatted_exports`.
 
 ## Stage Independence
 

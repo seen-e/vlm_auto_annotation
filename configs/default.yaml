@@ -12,6 +12,47 @@ prompt:
   language: cn
   robot_type: bimanual
 
+experiment:
+  name: default
+
+exports_mode: replace
+exports:
+  - id: scene_executors
+    source_stage: scene
+    source_path: executors
+    target_name: scene.executors
+    default: []
+    format: json
+    source_kind: contract
+    enabled: true
+
+  - id: scene_touched_objects
+    source_stage: scene
+    source_path: touched_objects
+    target_name: scene.touched_objects
+    default: []
+    format: json
+    source_kind: contract
+    enabled: true
+
+  - id: scene_summary
+    source_stage: scene
+    source_path: scene_summary
+    target_name: scene.summary
+    default: ""
+    format: text
+    source_kind: contract
+    enabled: true
+
+  - id: analysis_candidate_segments
+    source_stage: analysis
+    source_path: candidate_segments
+    target_name: analysis.candidate_segments
+    default: []
+    format: json
+    source_kind: contract
+    enabled: true
+
 artifacts:
   root_dir: outputs/artifacts
   enabled: true
@@ -23,10 +64,9 @@ artifacts:
   save_processed_media: false
 
 output:
-  include_lightweight: true
+  include_contracts: false
   include_debug: false
   include_trace: false
-  include_legacy: false
   include_stage_objects: true
 
 stages:

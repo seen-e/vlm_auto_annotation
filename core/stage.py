@@ -100,12 +100,12 @@ class BaseStage:
         prompt = self.build_prompt(context, media_meta)
         raw_response, usage = self.call_model(media_parts, prompt)
 
-        from ..llm.json_call import extract_json
+        from ..utils.json_utils import parse_json_response
 
-        parsed = extract_json(raw_response) or {}
+        parsed, parse_warnings = parse_json_response(raw_response)
         parse_result = self.parse(parsed, context, media_meta)
         contract = self.postprocess(parse_result.output, context, media_meta)
-        warnings = list(getattr(parse_result, "warnings", []) or [])
+        warnings = [*parse_warnings, *list(getattr(parse_result, "warnings", []) or [])]
         errors = list(getattr(parse_result, "errors", []) or [])
         result = StageRunResult(
             name=self.name,
@@ -120,12 +120,32 @@ class BaseStage:
             errors=errors,
             elapsed_seconds=time.perf_counter() - start,
         )
+        context.stage_raw_responses[self.name] = raw_response
+        context.stage_parsed_outputs[self.name] = parsed
         context.stage_outputs[self.name] = parsed
         context.stage_contracts[self.name] = contract
+        from ..utils.stage_exporter import StageExporter
+
+        export_warnings = StageExporter(
+            self.config.get("_export_rules") or [],
+            experiment_name=self.config.get("_experiment_name", getattr(context, "experiment_name", "default")),
+        ).export_stage(
+            context=context,
+            stage_name=self.name,
+            parsed_output=parsed,
+            contract=contract,
+        )
+        result.warnings.extend(export_warnings)
+        warnings.extend(export_warnings)
         context.validation_warnings.extend(warnings)
         context.stage_artifacts[self.name] = {
             "media_meta": media_meta,
             "usage": usage,
             "elapsed_seconds": result.elapsed_seconds,
+            "exports": {
+                name: status
+                for name, status in context.export_status.items()
+                if status.get("source_stage") == self.name
+            },
         }
         return result

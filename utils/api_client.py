@@ -9,28 +9,19 @@ import re
 import time
 from typing import Any
 
-from .config import (
-    DEFAULT_API_KEY,
-    DEFAULT_BASE_URL,
-    DEFAULT_MODEL,
-    DEFAULT_VLM_TEMPERATURE,
-    DEFAULT_VLM_TOP_K,
-    DEFAULT_VLM_TOP_P,
-)
-
 
 logger = logging.getLogger(__name__)
 
 
-def create_openai_client(api_key: str | None = None, base_url: str | None = None):
+def create_openai_client(api_key: str, base_url: str):
     """Create an OpenAI-compatible client."""
     from openai import OpenAI
 
-    api_key = api_key or os.environ.get("OPENAI_API_KEY") or DEFAULT_API_KEY
+    api_key = api_key or os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("API key is not set; configure model.api_key or OPENAI_API_KEY")
-    logger.info("Creating OpenAI-compatible client base_url=%s", base_url or DEFAULT_BASE_URL)
-    return OpenAI(api_key=api_key, base_url=base_url or DEFAULT_BASE_URL)
+    logger.info("Creating OpenAI-compatible client base_url=%s", base_url)
+    return OpenAI(api_key=api_key, base_url=base_url)
 
 
 def _is_qwen_model(model: str) -> bool:
@@ -52,12 +43,12 @@ def call_vlm(
     system_prompt: str,
     user_prompt: str,
     *,
-    model: str = DEFAULT_MODEL,
+    model: str,
     max_retries: int = 3,
     max_tokens: int = 0,
-    temperature: float = DEFAULT_VLM_TEMPERATURE,
-    top_p: float = DEFAULT_VLM_TOP_P,
-    top_k: int = DEFAULT_VLM_TOP_K,
+    temperature: float,
+    top_p: float,
+    top_k: int,
 ) -> tuple[str, dict[str, int]]:
     """Call a VLM and return (text, token_usage)."""
     if _is_qwen_model(model):

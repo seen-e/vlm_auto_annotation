@@ -1,104 +1,46 @@
-"""Scene-stage prompt templates."""
+"""English scene-stage prompt."""
 
 SCENE_SYSTEM_PROMPT = """
-You are the Scene stage for robot manipulation video annotation.
-Your only responsibility is to extract minimal scene background information:
-the number of robot arms, stable arm IDs, the moved/manipulated object, and one
-short video summary.
-
-Rules:
-- Output JSON only. Do not use Markdown, explanations, or extra fields.
-- Do not output action sequences.
-- Do not output start_time, end_time, start_frame, or end_frame.
-- Do not describe background objects, best views, workspaces, or fine-grained actions.
-- Spatial names such as left/right/front/back must use the primary view as reference.
-- If information is missing, use "unknown", null, or [] instead of guessing.
+You are the Scene stage for a robot manipulation video annotation workflow.
+Return only one JSON object that matches the current SceneStageOutput contract.
+Do not output action sequences, start times, end times, or frame boundaries.
+Use the primary view as the reference for left/right/front/back names.
 """
 
 SCENE_PROMPT_TEMPLATE = """
-Video view layout:
+View layout:
 {view_layout_description}
 
-The input images are evenly sampled video frames. When timestamps or view labels
-are enabled, each image shows them in the top-left corner.
+Task:
+Identify the stable scene context before action analysis.
 
-Only determine:
-1. how many visible robot arms or operation units are in the video;
-2. stable IDs for each robot arm or operation unit;
-3. objects actually moved, grasped, pushed, placed, opened, closed, or clearly
-   used as operation targets;
-4. `video_summary`, which should only state how many robot arms are visible and
-   what object is moved/manipulated.
-
-Field requirements:
-- robot_type: overall robot type.
-- primary_view: the primary view name used to define left/right/front/back. It
-  must come from the primary view stated in the video view layout.
-- spatial_reference_rule: state that all left/right/front/back names are defined
-  from the primary_view.
-- num_operation_units: number of visible robot arms or operation units.
-- operation_units: executor IDs reused by later stages.
-- unit_id: stable ID. Use single for a single arm; prefer left/right for dual
-  arms, and define left/right from the primary_view; use arm_1/arm_2 if
-  left/right is unclear; use mobile_base for a moving base.
-- unit_type: arm, gripper, mobile_base, humanoid_hand, robot, or unknown.
-- is_active: whether this operation unit actually participates in the task.
-- manipulated_objects: only objects moved/manipulated or clearly used as targets.
-  Do not list background objects.
-- object_id: stable snake_case English ID.
-- description: short object name.
-- video_summary: one sentence only, stating the number of robot arms and the
-  moved/manipulated object.
-
-Return this JSON structure:
+Return JSON with this exact structure:
 {{
-  "primary_view": "primary view name used to define left/right/front/back",
-  "spatial_reference_rule": "All left/right/front/back spatial names are defined from the primary_view.",
-  "robot_type": "single_arm | dual_arm | mobile_manipulator | humanoid_robot | multi_robot | unknown",
-  "num_operation_units": 1,
-  "operation_units": [
+  "primary_view": "primary view name",
+  "executors": [
     {{
-      "unit_id": "single | left | right | mobile_base | arm_1 | arm_2 | robot_1 | robot_2 | unknown",
-      "unit_type": "arm | gripper | mobile_base | humanoid_hand | robot | unknown",
-      "is_active": true
+      "executor_id": "left | right | both | single | base | arm | arm_1 | arm_2 | unknown",
+      "description": "short visual description",
+      "main_workspace": "short workspace description or null",
+      "best_observation_views": ["view names useful for this executor"]
     }}
   ],
-  "manipulated_objects": [
+  "touched_objects": [
     {{
-      "object_id": "snake_case_id",
-      "description": "short object name"
+      "object_id": "stable_snake_case_id",
+      "description": "short object name",
+      "role": "manipulated_object | target_object | tool | container | support"
     }}
   ],
-  "video_summary": "how many robot arms are visible and what object is moved/manipulated"
+  "background_objects": [
+    {{
+      "object_id": "stable_snake_case_id",
+      "description": "short object name",
+      "role": "background"
+    }}
+  ],
+  "executor_object_map": {{"executor_id": ["object_id"]}},
+  "best_observation_views": {{"executor_id": ["view_name"]}},
+  "scene_summary": "one or two short sentences"
 }}
-
-The example only illustrates the format and does not describe the current video:
-{{
-  "primary_view": "camera_front",
-  "spatial_reference_rule": "All left/right/front/back spatial names are defined from camera_front.",
-  "robot_type": "dual_arm",
-  "num_operation_units": 2,
-  "operation_units": [
-    {{
-      "unit_id": "left",
-      "unit_type": "arm",
-      "is_active": true
-    }},
-    {{
-      "unit_id": "right",
-      "unit_type": "arm",
-      "is_active": true
-    }}
-  ],
-  "manipulated_objects": [
-    {{
-      "object_id": "ceramic_bowl",
-      "description": "ceramic bowl"
-    }}
-  ],
-  "video_summary": "The video shows two robot arms, and the moved/manipulated object is a ceramic bowl."
-}}
-
-Now return the result for the current visual input using exactly the JSON
-structure above.
 """

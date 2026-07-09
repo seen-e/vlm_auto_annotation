@@ -1,44 +1,30 @@
-"""Refinement-stage prompt templates."""
+"""English refinement-stage prompt."""
 
 REFINEMENT_SYSTEM_PROMPT = """
 You are the Refinement stage for robot manipulation video annotation.
-Your only responsibility is to correct temporal boundaries and segment structure.
-
-Rules:
-- Output JSON only. Do not use Markdown.
-- Consume candidate_segments from Analysis and scene_context from Scene.
-- Do not regenerate scene context, do not write final captions, and do not add invisible actions.
-- You may keep, trim, split, merge, remove, or add a segment only when video evidence supports it.
-- start_time is the earliest visible moment when the phase intent or executor state change begins.
-- end_time is when the target state is completed and stable, or when the phase clearly transitions.
-- Use MM:SS.ss timestamps. If frame indexes are unknown, use null.
-- Reuse executor IDs and object IDs. Keep reason fields short.
+Return only one JSON object that matches the current RefinementStageOutput contract.
+Use scene and analysis context variables from the prompt. Do not add actions that are not visible.
+start_time is the earliest visible start of the phase intention or state change.
+end_time is when the target state is completed and stable.
 """
 
 REFINEMENT_PROMPT_TEMPLATE = """
-Initial instruction: "{initial_instruction}"
-Robot type: "{robot_type}"
-Candidate segments from Analysis:
-{action_sequence}
-Main object hint: "{main_object}"
-Scene context:
-{scene_context}
+Instruction:
+{initial_instruction}
 
-Robot type background:
-{robot_type_prompt}
-
-Video view layout:
+View layout:
 {view_layout_description}
 
-The input images are evenly sampled video frames. When timestamps or view labels are enabled, each image shows them in the top-left corner.
+Scene context:
+{scene}
 
-Action detail guidance:
-{action_guidance}
+Analysis candidates:
+{analysis.candidate_segments}
 
-Reference examples:
-{FEW_SHOT_EXAMPLES}
+Task:
+Refine candidate segments into final temporal segments.
 
-Return one JSON object with this schema:
+Return JSON with this exact structure:
 {{
   "refined_segments": [
     {{
@@ -47,10 +33,10 @@ Return one JSON object with this schema:
       "end_time": "MM:SS.ss or null",
       "start_frame": null,
       "end_frame": null,
-      "executor": "executor_id from scene_context",
+      "executor": "executor_id",
       "action": "short action phrase",
       "objects": ["object_id"],
-      "boundary_reason": "short reason for this boundary",
+      "boundary_reason": "short boundary evidence",
       "confidence": 0.6
     }}
   ],
@@ -58,7 +44,7 @@ Return one JSON object with this schema:
     {{
       "original_segment_id": "S001",
       "change_type": "keep | split | merge | trim | remove | add",
-      "reason": "max 30 characters"
+      "reason": "short reason"
     }}
   ]
 }}

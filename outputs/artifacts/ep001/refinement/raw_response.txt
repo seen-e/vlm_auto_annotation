@@ -1,1 +1,0 @@
-{"refined_segments": [{"segment_id": "S001", "executor": "left", "action": "grasp", "objects": ["cup"], "start_time": "00:00.00", "end_time": "00:01.00", "confidence": 0.9}], "changes": [{"original_segment_id": "S001", "change_type": "keep", "reason": ""}]}

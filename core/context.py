@@ -17,9 +17,15 @@ class StageContext:
     prompt_language: str = "cn"
     model: str = ""
     workflow_name: str = ""
+    experiment_name: str = "default"
+    stage_raw_responses: dict[str, str] = field(default_factory=dict)
+    stage_parsed_outputs: dict[str, dict[str, Any]] = field(default_factory=dict)
     stage_outputs: dict[str, dict[str, Any]] = field(default_factory=dict)
     stage_contracts: dict[str, Any] = field(default_factory=dict)
     stage_artifacts: dict[str, dict[str, Any]] = field(default_factory=dict)
+    exports: dict[str, Any] = field(default_factory=dict)
+    formatted_exports: dict[str, Any] = field(default_factory=dict)
+    export_status: dict[str, dict[str, Any]] = field(default_factory=dict)
     validation_warnings: list[str] = field(default_factory=list)
     extras: dict[str, Any] = field(default_factory=dict)
 

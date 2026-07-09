@@ -1,0 +1,22 @@
+experiment:
+  name: experiment_action_sequence
+
+exports_mode: replace
+exports:
+  - id: analysis_actions
+    source_stage: analysis
+    source_path: candidate_segments
+    target_name: analysis.action_sequence
+    default: []
+    format: compact_json
+    source_kind: contract
+    enabled: true
+
+  - id: analysis_action_names
+    source_stage: analysis
+    source_path: candidate_segments[*].action
+    target_name: analysis.action_names
+    default: []
+    format: bullet
+    source_kind: contract
+    enabled: true

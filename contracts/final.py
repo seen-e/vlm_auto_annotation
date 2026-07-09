@@ -1,5 +1,5 @@
 """Final annotation contracts."""
 
-from ..annotation_pipeline.schemas import FinalAnnotationOutput
+from .common import FinalAnnotationOutput
 
 __all__ = ["FinalAnnotationOutput"]

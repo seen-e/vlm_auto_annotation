@@ -44,18 +44,37 @@ class WorkflowRunner:
         stage_cfg = dict((self.config.get("stages") or {}).get(name) or {})
         model_cfg = self.config.get("model") or {}
         sampling_cfg = self.config.get("vlm_sampling") or {}
+        experiment_cfg = self.config.get("experiment") or {}
+        from ..utils.stage_exporter import normalize_export_rules
+
         stage_cfg.setdefault("model", model_cfg.get("name", ""))
         stage_cfg.setdefault("temperature", sampling_cfg.get("temperature", 0.0))
         stage_cfg.setdefault("top_p", sampling_cfg.get("top_p", 0.95))
         stage_cfg.setdefault("top_k", sampling_cfg.get("top_k", 0))
+        stage_cfg["_export_rules"] = normalize_export_rules(self.config)
+        stage_cfg["_experiment_name"] = experiment_cfg.get("name", "default")
         return stage_cfg
 
     def load_outputs(self, context: StageContext, load_outputs: dict[str, str] | None = None) -> None:
         if not load_outputs:
             return
+        from ..utils.stage_exporter import StageExporter, normalize_export_rules
+
+        experiment_cfg = self.config.get("experiment") or {}
+        exporter = StageExporter(
+            normalize_export_rules(self.config),
+            experiment_name=experiment_cfg.get("name", "default"),
+        )
         for stage_name, path in load_outputs.items():
             contract = self.artifact_store.load_contract_file(path, stage_name)
             context.stage_contracts[stage_name] = contract
+            warnings = exporter.export_stage(
+                context=context,
+                stage_name=stage_name,
+                parsed_output=context.stage_outputs.get(stage_name, {}),
+                contract=contract,
+            )
+            context.validation_warnings.extend(warnings)
             logger.info("Loaded stage contract stage=%s path=%s", stage_name, path)
 
     def run(
@@ -71,7 +90,9 @@ class WorkflowRunner:
         for name in stage_names:
             if name in context.stage_contracts and name in (load_outputs or {}):
                 continue
-            stage = self.registry.create(name, self._stage_config(name), client=self.client)
+            stage_config = self._stage_config(name)
+            context.extras["stage_config"] = stage_config
+            stage = self.registry.create(name, stage_config, client=self.client)
             logger.info("Workflow stage start name=%s video_id=%s", name, context.video_id or context.episode_name)
             result = stage.run(context)
             run_results[name] = result

@@ -26,13 +26,13 @@ class FakeClient:
 
 class WorkflowRunnerTest(unittest.TestCase):
     def test_workflow_runs_all_stages(self):
-        old_build_media = BaseStage.build_media
+        original_build_media = BaseStage.build_media
         BaseStage.build_media = lambda self, context: ([], {"selected_views": ["front"], "source_type": "single_view"})
         try:
             client = FakeClient(
                 [
-                    '{"primary_view":"front","operation_units":[{"unit_id":"left","unit_type":"arm","is_active":true}],"manipulated_objects":[{"object_id":"cup","description":"cup"}],"video_summary":"one arm moves cup"}',
-                    '{"action_steps":[{"step_id":"A001","executor":"left","action":"grasp","object":"cup","confidence":0.9}]}',
+                    '{"primary_view":"front","executors":[{"executor_id":"left","description":"left arm"}],"touched_objects":[{"object_id":"cup","description":"cup"}],"scene_summary":"one arm moves cup"}',
+                    '{"candidate_segments":[{"segment_id":"S001","executor":"left","action":"grasp","objects":["cup"],"confidence":0.9}]}',
                     '{"refined_segments":[{"segment_id":"S001","start_time":"00:00.00","end_time":"00:01.00","executor":"left","action":"grasp","objects":["cup"],"confidence":0.8}]}',
                 ]
             )
@@ -45,7 +45,7 @@ class WorkflowRunnerTest(unittest.TestCase):
                 config_overrides={"artifacts": {"enabled": False}},
             )
         finally:
-            BaseStage.build_media = old_build_media
+            BaseStage.build_media = original_build_media
 
         self.assertTrue(result.success)
         self.assertEqual(set(result.stages), {"scene", "analysis", "refinement"})
